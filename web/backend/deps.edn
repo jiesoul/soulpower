@@ -1,0 +1,58 @@
+{:paths ["src" "resources" "public"]
+ :deps {
+        org.clojure/clojure {:mvn/version "1.11.1"}
+        org.clojure/tools.logging {:mvn/version "1.2.4"}
+        org.clojure/data.codec {:mvn/version "0.1.1"}
+        org.clojure/data.json {:mvn/version "2.4.0"}
+        org.clojure/data.csv {:mvn/version "1.0.1"}
+        ch.qos.logback/logback-classic {:mvn/version "1.4.5"}
+        aero/aero {:mvn/version "1.1.6"}
+        metosin/potpuri {:mvn/version "0.5.3"}
+        integrant/integrant {:mvn/version "0.8.1"}
+        metosin/reitit {:mvn/version "0.6.0"}
+        metosin/ring-http-response {:mvn/version "0.9.3"}
+        clj-time/clj-time {:mvn/version "0.15.2"}
+        
+        ring/ring-core {:mvn/version "1.9.6"}
+        ring/ring-jetty-adapter {:mvn/version "1.9.6"}
+        ring/ring-json {:mvn/version "0.5.1"}
+        ring/ring-defaults {:mvn/version "0.3.4"}
+        ring-cors/ring-cors {:mvn/version "0.1.13"}
+        selmer/selmer {:mvn/version "1.12.59"}
+        com.github.prestancedesign/inertia-clojure {:mvn/version "0.2.5"}
+
+        ;; database
+        com.github.seancorfield/next.jdbc {:mvn/version "1.2.780"}
+        org.xerial/sqlite-jdbc {:mvn/version "3.39.2.0"}
+        com.github.seancorfield/honeysql {:mvn/version "2.3.911"}
+        dev.weavejester/ragtime {:mvn/version "0.9.3"}
+
+        ;; auth
+        buddy/buddy-auth {:mvn/version "3.0.1"}
+        buddy/buddy-hashers {:mvn/version "1.8.158"}
+        buddy/buddy-sign {:mvn/version "3.4.333"}
+        crypto-password/crypto-password {:mvn/version "0.3.0"}
+
+        com.taoensso/timbre {:mvn/version "5.2.1"}
+        clj-http/clj-http {:mvn/version "3.12.3"}
+        nrepl/nrepl {:mvn/version "1.0.0"}}
+ 
+ :aliases {:dev {:extra-paths ["dev"]
+                 :extra-deps {integrant/repl {:mvn/version "0.3.3"}
+                              clj-kondo/clj-kondo {:mvn/version "2023.02.17"}}}
+           
+           :test {:extra-paths ["test"]
+                  :extra-deps {lambdaisland/kaocha {:mvn/version "1.80.1274"}
+                               lambdaisland/kaocha-cljs {:mvn/version "1.4.130"}
+                               com.jakemccrary/test-refresh {:mvn/version "0.25.0"}
+                               cheshire/cheshire {:mvn/version "5.11.0"}
+                               org.clojure/test.check {:mvn/version "1.1.1"}
+                               pjstadig/humane-test-output {:mvn/version "0.11.0"}
+                               ring/ring-mock {:mvn/version "0.4.0"}}}
+           
+           :repl-server {:name "repl-server"
+                         :port 5555
+                         :accept clojure.core.server/repl}
+           
+           :build {:deps {io.github.clojure/tools.build {:mvn/version "0.9.4"}}
+                   :ns-default build}}}
