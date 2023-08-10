@@ -23,7 +23,7 @@
 
         ;; database
         com.github.seancorfield/next.jdbc {:mvn/version "1.2.780"}
-        org.xerial/sqlite-jdbc {:mvn/version "3.39.2.0"}
+        org.postgresql/postgresql {:mvn/version "42.2.10"}
         com.github.seancorfield/honeysql {:mvn/version "2.3.911"}
         dev.weavejester/ragtime {:mvn/version "0.9.3"}
 

@@ -1,28 +1,25 @@
 (ns backend.handler.auth-handler
   (:require [backend.db.user-db :as user-db]
-            [backend.db.user-token-db :as user-token-db]
-            [backend.middleware.auth-middleware :refer [create-user-token]]
+            [backend.middleware.auth-middleware :refer [secret]]
             [backend.util.req-uitl :as req-util]
             [backend.util.resp-util :as resp-util]
             [buddy.hashers :as buddy-hashers]
-            [clojure.tools.logging :as log]
-            [ring.util.response :as resp]
-            [selmer.parser :as tmpl]))
+            [buddy.sign.jwt :as jwt]
+            [clj-time.core :as time]
+            [clojure.tools.logging :as log]))
 
-(defn login-page [env req]
-  (log/debug "enter login page.....")
-  (-> (resp/response (tmpl/render-file "login.html" {}))
-      (resp/content-type "text/html")))
 
 (defn login-auth
   "login to backend."
-  [env username password]
+  [{:keys [db] :as env} username password]
   (log/debug "Enter login auth. username: " username " password: " password "env: " env)
-  (let [db (:db env)
-        user (user-db/get-user-by-name db username)]
-    (log/debug "user: " user)
-    (if (and user (buddy-hashers/check password (:password user)))
-      (let [token (create-user-token db (:id user))]
+  (let [user (user-db/get-user-by-name db username)] 
+    (log/debug "Get a User: " user)
+    (if (and user (buddy-hashers/check password (:password user))) 
+      (let [_ (log/debug "login User: " user)
+            claims {:user (keyword username)
+                    :exp (time/plus (time/now) (time/seconds (get-in env [:options :jwt :exp] 3600)))}
+            token (jwt/sign claims secret {:alg :hs512})]
         (resp-util/ok  {:token token
                         :user (dissoc user :password)}))
 
@@ -32,5 +29,4 @@
   (fn [req]
     (let [db (:db env)
           token (req-util/parse-header req "Token")]
-      (user-token-db/disable-user-token db token)
       (resp-util/ok {} "用户退出"))))

@@ -1,15 +1,27 @@
 (ns backend.middleware.auth-middleware
-  (:require [buddy.core.codecs :as codecs]
-            [buddy.core.nonce :as nonce]
+  (:require [backend.db.user-db :as user-db]
+            [backend.db.api-token-db :as user-token-db]
             [backend.util.req-uitl :as req-util]
-            [backend.db.user-token-db :as user-token-db]
-            [backend.db.user-db :as user-db]
-            [ring.util.response :as resp]
+            [buddy.auth :refer [authenticated?]]
+            [buddy.auth.backends.token :refer [jws-backend]]
+            [buddy.auth.middleware :refer [wrap-authentication
+                                           wrap-authorization]]
+            [buddy.core.codecs :as codecs]
+            [buddy.core.nonce :as nonce]
             [clojure.string :as str]
+            [ring.util.response :as resp]
             [taoensso.timbre :as log]))
 
 ;; 盐
 ;; (def private-key "soul")
+(def secret "soulpower")
+;; (def backend (backends/jws {:secret secret}))
+(def auth-backend (jws-backend {:secret secret :options {:alg :hs512}}))
+
+(defn wrap-auth-jwt [handler]
+  (-> handler
+      (wrap-authorization auth-backend)
+      (wrap-authentication auth-backend)))
 
 (defn random-token
   []
@@ -31,10 +43,10 @@
     token))
 
 (defn my-unauthorized-handler
-  [_ message]
+  [req message]
   (-> (resp/bad-request {:status :failed
                          :message message})
-      (assoc :status 403)))
+      (assoc :status 401)))
 
 ;; (defn my-authfn
 ;;   [_ token]
@@ -43,6 +55,12 @@
 ;; (def auth-backend
 ;;   (backends/token-backend {:authfn my-authfn
 ;;                            :unauthorized-handler my-unauthorized-handler}))
+
+(defn wrap-auth-server [handler]
+  (fn [request]
+    (if-not (authenticated? request)
+      (my-unauthorized-handler request "登录已过期")
+      (handler request))))
 
 (defn wrap-auth [handler env role]
   (fn [request]

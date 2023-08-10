@@ -1,7 +1,8 @@
 (ns backend.db.user-db
   (:require [backend.util.db-util :as du]
             [next.jdbc.result-set :as rs]
-            [next.jdbc.sql :as sql]))
+            [next.jdbc.sql :as sql]
+            [clojure.tools.logging :as log]))
 
 (defn query-users
   [db opts]
@@ -9,8 +10,10 @@
         ss (du/opt-to-sort opts)
         [ps pv] (du/opt-to-page opts)
         q-sql (into [(str "select * from users "  ws ss ps)] (into wv pv))
+        _ (log/debug "Query users SQL: " q-sql)
         users (sql/query db q-sql {:builder-fn rs/as-unqualified-maps})
-        t-sql (into [(str "select count(1) :as c from users " ws)] wv)
+        t-sql (into [(str "select count(1) as c from users " ws)] wv)
+        _ (log/debug "Total users SQL: " t-sql)
         total (sql/query db t-sql)]
     {:list (map #(dissoc % :password) users) 
      :total total

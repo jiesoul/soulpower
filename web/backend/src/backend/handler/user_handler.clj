@@ -23,10 +23,9 @@
 (defn update-user! [env user]
   (log/debug "update user " user)
   (let [db (:db env)
-        db-user (user-db/get-user-by-id db (:id user))
-        password (:passowrd user)]
+        db-user (user-db/get-user-by-id db (:id user))]
     (if db-user
-      (let [_ (user-db/update-user! db (assoc user :password (buddy-hashers/derive password)))]
+      (let [_ (user-db/update-user! db (assoc user :password (:psssword db-user)))]
         (resp-util/ok {}))
       (resp-util/not-found "无效的用户ID"))))
 

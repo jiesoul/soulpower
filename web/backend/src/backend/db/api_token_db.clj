@@ -1,4 +1,4 @@
-(ns backend.db.user-token-db
+(ns backend.db.api-token-db
   (:require [backend.util.db-util :as du]
             [clojure.tools.logging :as log]
             [next.jdbc.result-set :as rs]

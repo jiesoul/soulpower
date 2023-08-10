@@ -19,7 +19,8 @@
             [reitit.ring.middleware.muuntaja :as reitit-muuntaja]
             [reitit.ring.middleware.parameters :as reitit-parameters]
             [reitit.swagger :as reitit-swagger]
-            [ring.adapter.jetty :as jetty])
+            [ring.adapter.jetty :as jetty]
+            [backend.middleware.auth-middleware :as auth-mw])
   (:gen-class))
 
 (defn routes [env]
@@ -34,7 +35,8 @@
     (reitit-ring/router routes
                         {:data {:muuntaja mu-core/instance
                                 :coercion reitit.coercion.spec/coercion
-                                :middleware [wrap-cors-middeleware
+                                :middleware [auth-mw/wrap-auth-jwt
+                                             wrap-cors-middeleware
                                              reitit-swagger/swagger-feature
                                              reitit-parameters/parameters-middleware
                                              reitit-muuntaja/format-negotiate-middleware
