@@ -1,11 +1,9 @@
-(ns backend.handler.auth-handler
+(ns backend.handler.login-handler
   (:require [backend.db.user-db :as user-db]
-            [backend.middleware.auth-middleware :refer [secret]]
+            [backend.middleware.auth-middleware :as auth-middleware]
             [backend.util.req-uitl :as req-util]
             [backend.util.resp-util :as resp-util]
             [buddy.hashers :as buddy-hashers]
-            [buddy.sign.jwt :as jwt]
-            [clj-time.core :as time]
             [clojure.tools.logging :as log]))
 
 
@@ -17,11 +15,10 @@
     (log/debug "Get a User: " user)
     (if (and user (buddy-hashers/check password (:password user))) 
       (let [_ (log/debug "login User: " user)
-            claims {:user (keyword username)
-                    :exp (time/plus (time/now) (time/seconds (get-in env [:options :jwt :exp] 3600)))}
-            token (jwt/sign claims secret {:alg :hs512})]
-        (resp-util/ok  {:token token
-                        :user (dissoc user :password)}))
+            token (auth-middleware/create-token (select-keys user [:id :name :roles]) (get-in env [:options :jwt]))]
+        (resp-util/ok  {:user (-> user
+                                  (dissoc :password)
+                                  (assoc :token token))}))
 
       (resp-util/not-found "用户名或密码错误"))))
 

@@ -1,10 +1,11 @@
 (ns backend.server
   (:require [backend.handler.article-handler :as article-handler]
-            [backend.handler.auth-handler :as auth-handler]
             [backend.handler.category-handler :as category-handler]
+            [backend.handler.login-handler :as login-handler]
             [backend.handler.tag-handler :as tag-handler]
             [backend.handler.user-handler :as user-handler]
-            [backend.middleware.auth-middleware :as auth-mw]
+            [backend.middleware.auth-middleware :as auth-mw :refer [admin-middleware
+                                                                    auth-middleware create-token-auth-middleware]]
             [backend.util.req-uitl :as req-util]
             [clojure.spec.alpha :as s]
             [clojure.tools.logging :as log]))
@@ -69,14 +70,16 @@
                      :handler (fn [req]
                                 (let [body (get-in req [:parameters :body])
                                       {:keys [username password]} body]
-                                  (auth-handler/login-auth env username password)))}}]
+                                  (login-handler/login-auth env username password)))}}]
    
    ["/admin" {:no-doc (get-in env [:server :no-doc])
-              :middleware [[auth-mw/wrap-auth-server]]
+              :middleware [(create-token-auth-middleware (get-in env [:options :jwt])) 
+                           auth-middleware 
+                           admin-middleware]
               :parameters {:header {:authorization ::token}}} 
 
     ["/logout" {:post {:summary "user logout"
-                       :handler (auth-handler/logout env)}}]
+                       :handler (login-handler/logout env)}}]
 
     ["/users"
 

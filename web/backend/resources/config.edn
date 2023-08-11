@@ -6,13 +6,16 @@
  
  :backend/options {:jwt {:exp #profile {:prod 3600
                                         :dev 36000
-                                        :test 36000}}
+                                        :test 36000}
+                         :private-key #profile {:prod ""
+                                                :dev "soulpower"
+                                                :test "soulpower"}}
+                   
                    :server {:no-doc #profile {:prod true 
                                               :dev false 
                                               :test false}}}
  
  :backend/env {:profile #ig/ref :backend/profile
-               :data-dir "resources/database"
                :options #ig/ref :backend/options
                :db #ig/ref :backend/db}
  

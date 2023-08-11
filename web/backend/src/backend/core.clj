@@ -35,8 +35,7 @@
     (reitit-ring/router routes
                         {:data {:muuntaja mu-core/instance
                                 :coercion reitit.coercion.spec/coercion
-                                :middleware [auth-mw/wrap-auth-jwt
-                                             wrap-cors-middeleware
+                                :middleware [wrap-cors-middeleware
                                              reitit-swagger/swagger-feature
                                              reitit-parameters/parameters-middleware
                                              reitit-muuntaja/format-negotiate-middleware
