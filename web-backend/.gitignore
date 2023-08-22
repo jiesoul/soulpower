@@ -1,0 +1,28 @@
+## IDEA
+.idea/
+jiesoul.iml
+
+## vscode
+.calva/
+.clj-kondo/
+.cpcache
+.history/
+.lsp
+.vscode/
+.portal/
+.joyride/
+
+## Mac
+.DS_Store
+
+## clojure
+.nrepl-port
+.shadow-cljs/
+node_modules/
+public/js
+public/css
+resources/data/jiesoul.db
+
+logs/
+package-lock.json
+dev-resources/
