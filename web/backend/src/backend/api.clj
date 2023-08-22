@@ -24,7 +24,7 @@
     {:get {:no-doc true
            :swagger {:info {:title "my-api"
                             :description "site api"}
-                     :tags [{:name "api", :description "api"}]} ;; prefix for all paths
+                     :tags [{:name "api", :description "api"}]}
            :handler (reitit-swagger/create-swagger-handler)}}]
   
    ["/api/v1"

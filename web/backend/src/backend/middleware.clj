@@ -1,8 +1,6 @@
 (ns backend.middleware
   (:require [clojure.tools.logging :as log]
-            [reitit.ring.middleware.exception :as exception]
-            [ring.util.response :as resp]
-            [selmer.parser :as tmpl]))
+            [reitit.ring.middleware.exception :as exception]))
 
 (defn wrap-cors-middeleware
   "Wrap the server response with new headers to allow Cross Origin."
@@ -18,9 +16,6 @@
             (assoc-in [:headers "Access-Control-Allow-Headers"] "Content-Type, Authorization")
             (assoc-in [:headers "Access-Control-Allow-Methods"] "GET,PUT,POST,DELET,PATCH,OPTIONS,HEADERS")))))
 
-
-
-
 (derive ::error ::exception)
 (derive ::failure ::exception)
 (derive ::horror ::exception)
@@ -33,7 +28,6 @@
            :exception (.getClass exception)
            :data (ex-data exception)
            :uri (:uri request)}})
-
 
 (def exception-middleware
   (exception/create-exception-middleware
@@ -53,25 +47,3 @@
 
      ::exception/wrap (fn [handler e request] 
                         (handler e request))})))
-
-(def ^:private changes
-  "Count the number of changes (since the last reload)."
-  (atom 0))
-
-(defn render-page
-  [req]
-  (let [data (assoc (:params req) :changes @changes)
-        view (:application/view req "default")
-        html (tmpl/render-file (str "views/user/" view ".html") data)]
-    (-> (resp/response (tmpl/render-file "layouts/default.html"
-                                         (assoc data :body [:safe html])))
-        (resp/content-type "text/html"))))
-
-(defn render-middleware
-  [handler key]
-  (fn [req]
-    (case key
-      :page (let [resp (handler req)]
-              (if (resp/response? resp)
-                resp
-                (render-page resp))))))

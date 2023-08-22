@@ -6,7 +6,6 @@
             [buddy.hashers :as buddy-hashers]
             [clojure.tools.logging :as log]))
 
-
 (defn login-auth
   "login to backend."
   [{:keys [db] :as env} username password]

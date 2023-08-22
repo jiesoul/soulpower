@@ -19,8 +19,7 @@
             [reitit.ring.middleware.muuntaja :as reitit-muuntaja]
             [reitit.ring.middleware.parameters :as reitit-parameters]
             [reitit.swagger :as reitit-swagger]
-            [ring.adapter.jetty :as jetty]
-            [backend.middleware.auth-middleware :as auth-mw])
+            [ring.adapter.jetty :as jetty])
   (:gen-class))
 
 (defn routes [env]
