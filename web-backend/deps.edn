@@ -9,6 +9,7 @@
         aero/aero {:mvn/version "1.1.6"}
         metosin/potpuri {:mvn/version "0.5.3"}
         integrant/integrant {:mvn/version "0.8.1"}
+        integrant/repl {:mvn/version "0.3.3"}
         metosin/reitit {:mvn/version "0.6.0"}
         metosin/ring-http-response {:mvn/version "0.9.3"}
         clj-time/clj-time {:mvn/version "0.15.2"}
@@ -36,8 +37,7 @@
         nrepl/nrepl {:mvn/version "1.0.0"}}
  
  :aliases {:dev {:extra-paths ["dev"]
-                 :extra-deps {integrant/repl {:mvn/version "0.3.3"}
-                              clj-kondo/clj-kondo {:mvn/version "2023.02.17"}}}
+                 :extra-deps {clj-kondo/clj-kondo {:mvn/version "2023.02.17"}}}
            
            :test {:extra-paths ["test"]
                   :extra-deps {lambdaisland/kaocha {:mvn/version "1.80.1274"}
@@ -52,5 +52,5 @@
                          :port 5555
                          :accept clojure.core.server/repl}
            
-           :build {:deps {io.github.clojure/tools.build {:mvn/version "0.9.4"}}
+           :build {:deps {io.github.clojure/tools.build {:mvn/version "0.9.5"}}
                    :ns-default build}}}

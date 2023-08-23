@@ -23,6 +23,8 @@ public/js
 public/css
 resources/data/jiesoul.db
 
+## project
 logs/
 package-lock.json
-dev-resources/
+prod-resources/
+target/

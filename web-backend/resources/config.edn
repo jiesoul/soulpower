@@ -1,19 +1,21 @@
-{:backend/db #profile {:dev {:dbtype "postgresql" :dbname "soulpower" :user "jiesoul" :password "soul1982"}}
+{ :backend/profile #profile {:dev :dev
+                             :test :test
+                             :prod :prod}
  
- :backend/profile #profile {:prod :prod 
-                            :dev :dev 
-                            :test :test}
+ :backend/db #profile {:dev {:dbtype "postgresql" :dbname "soulpower" :user "jiesoul" :password "soul1982"}
+                       :test {:dbtype "postgresql" :dbname "soulpower" :user "jiesoul" :password "soul1982"}
+                       :prod {:dbtype "postgresql" :dbname "soulpower" :user "jiesoul" :password "soul1982"}} 
  
- :backend/options {:jwt {:exp #profile {:prod 3600
-                                        :dev 36000
-                                        :test 36000}
-                         :private-key #profile {:prod ""
-                                                :dev "soulpower"
-                                                :test "soulpower"}}
+ :backend/options {:jwt {:exp #profile {:dev 36000
+                                        :test 36000
+                                        :prod 3600}
+                         :private-key #profile {:dev "soulpower"
+                                                :test "soulpower"
+                                                :prod "soulpower"}}
                    
-                   :server {:no-doc #profile {:prod true 
-                                              :dev false 
-                                              :test false}}}
+                   :server {:no-doc #profile {:dev false 
+                                              :test false
+                                              :prod true }}}
  
  :backend/env {:profile #ig/ref :backend/profile
                :options #ig/ref :backend/options

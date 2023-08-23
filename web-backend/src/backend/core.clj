@@ -62,7 +62,6 @@
   env)
 
 ;; env
-
 (defmethod ig/init-key :backend/profile [_ profile]
   profile)
 
@@ -83,7 +82,6 @@
   old-impl)
 
 ;; jetty web server
-
 (defmethod ig/init-key :backend/jetty [_ {:keys [port join? env]}]
   (log/debug "Enter ig/init-key :backend/jetty")
   (-> (handler (routes env))
@@ -94,13 +92,11 @@
   (.stop server))
 
 ;; init options
-
 (defmethod ig/init-key :backend/options [_ options]
   (log/debug"Enter ig/init-key :backend/options")
   options)
 
 ;; nrepl
-
 (defmethod ig/init-key :backend/nrepl [_ {:keys [bind port]}]
   (log/debug "Enter ig/init-key :backend/nrepl")
   (if (and bind port)
@@ -122,7 +118,6 @@
   old-impl)
 
 ;; config
-
 (defn read-config [profile]
   (log/debug "Enter read config " profile)
   (let [local-config (let [file (io/file "config-local.edn")]
@@ -132,20 +127,19 @@
             local-config (p/deep-merge local-config))))
 
 (defn system-config [myprofile]
-  (log/debug "Enter system config read...")
+  (log/debug "Enter system config read..." myprofile)
   (let [profile (or myprofile (some-> (System/getenv "PROFILE") keyword) :dev)
         _ (log/info "I using profile " profile)
         config (read-config profile)]
     config))
 
 (defn system-config-start []
-  (log/debug "Enter system-config-start")
+  (log/debug "Enter system-config-start ")
   (system-config nil))
 
 ;; main
-
 (defn -main []
-  (log/info "System starting...")
+  (log/info "System starting... ")
   (let [config (system-config-start)
         _ (log/info "Config:" config)]
     (ig-repl/set-prep! (constantly config))

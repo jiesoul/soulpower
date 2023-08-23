@@ -4,7 +4,6 @@
             [backend.handler.tag-handler :as tag-handler]
             [backend.util.req-uitl :as req-util]
             [clojure.spec.alpha :as s]
-
             [reitit.swagger :as reitit-swagger]
             [reitit.swagger-ui :as reitit-swagger-ui]))
 
@@ -21,16 +20,14 @@
 (defn routes [env]
 
   [["/swagger.json"
-    {:get {:no-doc true
-           :swagger {:info {:title "my-api"
+    {:get {:swagger {:info {:title "my-api"
                             :description "site api"}
                      :tags [{:name "api", :description "api"}]}
            :handler (reitit-swagger/create-swagger-handler)}}]
   
    ["/api/v1"
     ["/api-docs/*"
-     {:get {:no-doc true
-            :handler (reitit-swagger-ui/create-swagger-ui-handler
+     {:get {:handler (reitit-swagger-ui/create-swagger-ui-handler
                       {:config {:validatorUrl nil}
                        :url "/swagger.json"})}}]
     
