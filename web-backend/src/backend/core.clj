@@ -119,28 +119,26 @@
 
 ;; config
 (defn read-config [profile]
-  (log/debug "Enter read config " profile)
-  (let [local-config (let [file (io/file "config-local.edn")]
-                           #_{:clj-kondo/ignore [:missing-else-branch]}
-                           (if (.exists file) (edn/read-string (slurp file))))]
-    (cond-> (aero/read-config (io/resource "config.edn") {:profile profile})
-            local-config (p/deep-merge local-config))))
+  (log/info "Enter read config " profile)
+  (let [config (aero/read-config (io/resource "config.edn") {:profile profile})]
+    config))
 
 (defn system-config [myprofile]
-  (log/debug "Enter system config read..." myprofile)
-  (let [profile (or myprofile (some-> (System/getenv "PROFILE") keyword) :dev)
+  (log/info "Enter system config read..." myprofile)
+  (let [profile (or (keyword myprofile) (some-> (System/getenv "PROFILE") keyword) :dev)
         _ (log/info "I using profile " profile)
         config (read-config profile)]
     config))
 
-(defn system-config-start []
-  (log/debug "Enter system-config-start ")
-  (system-config nil))
+(defn system-config-start [& myprofile]
+  (log/debug "Enter system-config-start " myprofile)
+  (system-config (first myprofile)))
 
 ;; main
-(defn -main []
+(defn -main [& args]
   (log/info "System starting... ")
-  (let [config (system-config-start)
+  (log/info "System args: " args)
+  (let [config (system-config-start (first args))
         _ (log/info "Config:" config)]
     (ig-repl/set-prep! (constantly config))
     (ig-repl/go)))

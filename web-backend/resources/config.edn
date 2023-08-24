@@ -6,16 +6,15 @@
                        :test {:dbtype "postgresql" :dbname "soulpower" :user "jiesoul" :password "soul1982"}
                        :prod {:dbtype "postgresql" :dbname "soulpower" :user "jiesoul" :password "soul1982"}} 
  
- :backend/options {:jwt {:exp #profile {:dev 36000
-                                        :test 36000
-                                        :prod 3600}
-                         :private-key #profile {:dev "soulpower"
-                                                :test "soulpower"
-                                                :prod "soulpower"}}
-                   
-                   :server {:no-doc #profile {:dev false 
-                                              :test false
-                                              :prod true }}}
+ :backend/options {:exp #profile {:dev 36000
+                                  :test 36000
+                                  :prod 3600}
+                   :private-key #profile {:dev "soulpower"
+                                          :test "soulpower"
+                                          :prod "soulpower"}
+                   :no-doc #profile {:dev false
+                                     :test false
+                                     :prod true}}
  
  :backend/env {:profile #ig/ref :backend/profile
                :options #ig/ref :backend/options
@@ -29,5 +28,5 @@
  :backend/nrepl {:bind #profile {:prod "0.0.0.0"
                                  :dev "localhost"}
                  :port #profile {:dev #long #or [#env PORT 3010]
-                                 :prod #lang #or [#env PORT 3011]}}
+                                 :prod #long #or [#env PORT 3011]}}
  }

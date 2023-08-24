@@ -62,45 +62,48 @@
   (s/keys :req-un [::id ::name]
           :opt-un [::description]))
 
-(defn routes [env]
-  [["/login" {:no-doc (get-in env [:server :no-doc])
-              :post {:summary "login to the web site"
-                     :parameters {:body {:username ::username
-                                         :password ::password}}
-                     :handler (fn [req]
-                                (let [body (get-in req [:parameters :body])
-                                      {:keys [username password]} body]
-                                  (login-handler/login-auth env username password)))}}]
-   
-   ["/admin" {:no-doc (get-in env [:server :no-doc])
-              :middleware [(create-token-auth-middleware (get-in env [:options :jwt])) 
-                           auth-middleware 
-                           admin-middleware]
-              :parameters {:header {:authorization ::token}}} 
+(defn routes [{:keys [options] :as env}]
+  (let [no-doc (:no-doc options)]
+    [["/login" {:no-doc no-doc
+                :swagger {:tags ["Login"]}
+                :post {:summary "login to the web site"
+                       :parameters {:body {:username ::username
+                                           :password ::password}}
+                       :handler (fn [req]
+                                  (let [body (get-in req [:parameters :body])
+                                        {:keys [username password]} body]
+                                    (login-handler/login-auth env username password)))}}]
 
-    ["/logout" {:post {:summary "user logout"
-                       :handler (login-handler/logout env)}}]
+     ["/admin" {:no-doc no-doc
+                :middleware [(create-token-auth-middleware options)
+                             auth-middleware
+                             admin-middleware]
+                :parameters {:header {:authorization ::token}}}
 
-    ["/users"
+      ["/logout"  {:swagger {:tags ["Login"]}
+                   :post {:summary "user logout"
+                         :handler (login-handler/logout env)}}]
 
-     ["" {:get {:summary "Query users" 
-                :parameters {:query ::query}
-                :handler (fn [req]
-                           (let [query (req-util/parse-query req)]
-                             (user-handler/query-users env query)))}}]
+      ["/users" {:swagger {:tags ["User"]}}
+       
+       ["" {:get {:summary "Query users"
+                  :parameters {:query ::query}
+                  :handler (fn [req]
+                             (let [query (req-util/parse-query req)]
+                               (user-handler/query-users env query)))}}]
 
-     ["/:id" {:get {:summary "Get a user"
-                    :parameters {:path {:id pos-int?}}
-                    :handler (fn [req]
-                               (let [id (req-util/parse-path req :id)]
-                                 (user-handler/get-user env id)))}
+       ["/:id" {:get {:summary "Get a user"
+                      :parameters {:path {:id pos-int?}}
+                      :handler (fn [req]
+                                 (let [id (req-util/parse-path req :id)]
+                                   (user-handler/get-user env id)))}
 
-              :put {:summary "Update a user"
-                    :parameters {:path {:id pos-int?}
-                                 :body {:user ::UserUpdate}}
-                    :handler (fn [req]
-                               (let [user (req-util/parse-body req :user)]
-                                 (user-handler/update-user! env user)))}
+                :put {:summary "Update a user"
+                      :parameters {:path {:id pos-int?}
+                                   :body {:user ::UserUpdate}}
+                      :handler (fn [req]
+                                 (let [user (req-util/parse-body req :user)]
+                                   (user-handler/update-user! env user)))}
 
                 ;; :delete {:summary "Delete a user"
                 ;;          :parameters {
@@ -108,155 +111,155 @@
                 ;;          :handler (fn [req]
                 ;;                     (let [id (req-util/parse-path req :id)]
                 ;;                       (user-handler/delete-user! env id)))}
-              }]
+                }]
 
-     ["/:id/password" {:put {:summary "Update a user passwrod"
-                             :parameters {:path {:id pos-int?}
-                                          :body {:update-password ::UserPassword}}
-                             :handler (fn [req]
-                                        (let [update-password (req-util/parse-body req :update-password)]
-                                          (user-handler/update-user-password! env update-password)))}}]]
+       ["/:id/password" {:put {:summary "Update a user passwrod"
+                               :parameters {:path {:id pos-int?}
+                                            :body {:update-password ::UserPassword}}
+                               :handler (fn [req]
+                                          (let [update-password (req-util/parse-body req :update-password)]
+                                            (user-handler/update-user-password! env update-password)))}}]]
 
-    ["/categories"
+      ["/categories" {:swagger {:tags ["Categories"]}}
 
-     ["" {:get {:summary "Query categories"
-                :parameters {:query ::query}
-                :handler (fn [req]
-                           (let [query (req-util/parse-query req)]
-                             (category-handler/query-categories env query)))}
+       ["" {:get {:summary "Query categories"
+                  :parameters {:query ::query}
+                  :handler (fn [req]
+                             (let [query (req-util/parse-query req)]
+                               (category-handler/query-categories env query)))}
 
-          :post {:summary "New a category"
-                 :parameters {:body {:category ::CategoryAdd}}
-                 :handler (fn [req]
-                            (let [category (req-util/parse-body req :category)]
-                              (category-handler/create-category! env category)))}}]
+            :post {:summary "New a category"
+                   :parameters {:body {:category ::CategoryAdd}}
+                   :handler (fn [req]
+                              (let [category (req-util/parse-body req :category)]
+                                (category-handler/create-category! env category)))}}]
 
 
-     ["/:id" {:get {:summary "Get a category"
-                    :parameters {:path   {:id pos-int?}}
-                    :handler (fn [req]
-                               (let [id (req-util/parse-path req :id)]
-                                 (category-handler/get-category env id)))}
-
-              :patch {:summary "Update a category"
-                      :parameters {:path {:id pos-int?}
-                                   :body {:category ::CategoryUpdate}}
-
+       ["/:id" {:get {:summary "Get a category"
+                      :parameters {:path   {:id pos-int?}}
                       :handler (fn [req]
-                                 (let [category (req-util/parse-body req :category)]
-                                   (category-handler/update-category! env category)))}
+                                 (let [id (req-util/parse-path req :id)]
+                                   (category-handler/get-category env id)))}
 
-              :delete {:summary "Delete a category"
-                       :parameters {:path {:id pos-int?}}
-                       :handler (fn [req]
-                                  (let [id (req-util/parse-path req :id)]
-                                    (category-handler/delete-category! env id)))}}]]
+                :patch {:summary "Update a category"
+                        :parameters {:path {:id pos-int?}
+                                     :body {:category ::CategoryUpdate}}
 
-    ["/tags"
+                        :handler (fn [req]
+                                   (let [category (req-util/parse-body req :category)]
+                                     (category-handler/update-category! env category)))}
 
-     ["" {:get {:summary "Query tags"
-                :parameters {:query ::query}
-                :handler (fn [req]
-                           (let [opt (req-util/parse-query req)]
-                             (tag-handler/query-tags env opt)))}
+                :delete {:summary "Delete a category"
+                         :parameters {:path {:id pos-int?}}
+                         :handler (fn [req]
+                                    (let [id (req-util/parse-path req :id)]
+                                      (category-handler/delete-category! env id)))}}]]
 
-          :post {:summary "New a tag"
-                 :parameters {:body {:tag ::TagAdd}}
-                 :handler (fn [req]
-                            (let [tag (req-util/parse-body req :tag)]
-                              (tag-handler/create-tag! env tag)))}}]
+      ["/tags" {:swagger {:tags ["Tags"]}}
 
+       ["" {:get {:summary "Query tags"
+                  :parameters {:query ::query}
+                  :handler (fn [req]
+                             (let [opt (req-util/parse-query req)]
+                               (tag-handler/query-tags env opt)))}
 
-     ["/:id" {:get {:summary "Get a tag"
-                    :parameters {:path {:id pos-int?}}
-                    :handler (fn [req]
-                               (let [id (req-util/parse-path req :id)]
-                                 (tag-handler/get-tag env id)))}
-
-              :put {:summary "Update a tag"
-                    :parameters {:path {:id pos-int?}
-                                 :body {:tag ::TagUpdate}}
-                    :handler (fn [req]
-                               (let [tag (req-util/parse-body req :tag)]
-                                 (tag-handler/update-tag! env tag)))}
-
-              :delete {:summary "Delete a tag"
-                       :parameters {:path {:id pos-int?}}
-                       :handler (fn [req]
-                                  (let [id (req-util/parse-path req :id)]
-                                    (tag-handler/delete-tag! env id)))}}]]
+            :post {:summary "New a tag"
+                   :parameters {:body {:tag ::TagAdd}}
+                   :handler (fn [req]
+                              (let [tag (req-util/parse-body req :tag)]
+                                (tag-handler/create-tag! env tag)))}}]
 
 
-    ["/articles"
+       ["/:id" {:get {:summary "Get a tag"
+                      :parameters {:path {:id pos-int?}}
+                      :handler (fn [req]
+                                 (let [id (req-util/parse-path req :id)]
+                                   (tag-handler/get-tag env id)))}
 
-     ["" {:get {:summary "Query articles"
-                :parameters {:query ::query}
-                :handler (fn [req]
-                           (let [opt (req-util/parse-query req)]
-                             (article-handler/query-articles env opt)))}
+                :put {:summary "Update a tag"
+                      :parameters {:path {:id pos-int?}
+                                   :body {:tag ::TagUpdate}}
+                      :handler (fn [req]
+                                 (let [tag (req-util/parse-body req :tag)]
+                                   (tag-handler/update-tag! env tag)))}
 
-          :post {:summary "New a article"
-                 :handler (fn [req]
-                            (log/debug  "new a article req: " (:body-params req))
-                            (let [article (req-util/parse-body req :article)]
-                              (article-handler/create-article! env article)))}}]
+                :delete {:summary "Delete a tag"
+                         :parameters {:path {:id pos-int?}}
+                         :handler (fn [req]
+                                    (let [id (req-util/parse-path req :id)]
+                                      (tag-handler/delete-tag! env id)))}}]]
 
 
-     ["/:id" {:get {:summary "Get a article"
-                    :parameters {:path {:id string?}}
-                    :handler (fn [req]
-                               (let [id (req-util/parse-path req :id)]
-                                 (article-handler/get-article env id)))}
+      ["/articles" {:swagger {:tags ["Articles"]}}
 
-              :patch {:summary "Update a article"
+       ["" {:get {:summary "Query articles"
+                  :parameters {:query ::query}
+                  :handler (fn [req]
+                             (let [opt (req-util/parse-query req)]
+                               (article-handler/query-articles env opt)))}
+
+            :post {:summary "New a article"
+                   :handler (fn [req]
+                              (log/debug  "new a article req: " (:body-params req))
+                              (let [article (req-util/parse-body req :article)]
+                                (article-handler/create-article! env article)))}}]
+
+
+       ["/:id" {:get {:summary "Get a article"
                       :parameters {:path {:id string?}}
                       :handler (fn [req]
-                                 (let [article (req-util/parse-body req :article)]
-                                   (article-handler/update-article! env article)))}
+                                 (let [id (req-util/parse-path req :id)]
+                                   (article-handler/get-article env id)))}
 
-              :delete {:summary "Delete a article"
-                       :parameters {:path {:id string?}}
-                       :handler (fn [req]
-                                  (let [id (req-util/parse-path req :id)]
-                                    (article-handler/delete-article! env id)))}}]
+                :patch {:summary "Update a article"
+                        :parameters {:path {:id string?}}
+                        :handler (fn [req]
+                                   (let [article (req-util/parse-body req :article)]
+                                     (article-handler/update-article! env article)))}
 
-     ["/:id/push" {:patch {:summary "Query the comments of a article"
-                           :parameters {:path {:id string?}}
-                           :handler (fn [req]
-                                      (let [article (req-util/parse-body req :article)]
-                                        (article-handler/push! env article)))}}]
+                :delete {:summary "Delete a article"
+                         :parameters {:path {:id string?}}
+                         :handler (fn [req]
+                                    (let [id (req-util/parse-path req :id)]
+                                      (article-handler/delete-article! env id)))}}]
 
-     ["/:id/comments" {:get {:summary "Query the comments of a article"
+       ["/:id/push" {:patch {:summary "Query the comments of a article"
                              :parameters {:path {:id string?}}
                              :handler (fn [req]
-                                        (let [article-id (req-util/parse-path req :id)]
-                                          (article-handler/get-comments-by-article-id env article-id)))}
-                       :post {:summary "add a comments of the article"
-                              :parameters {:path {:id string?}}
-                              :handler (fn [req]
-                                         (let [comment (req-util/parse-body req :comment)]
-                                           (article-handler/save-comment! env comment)))}}]]
+                                        (let [article (req-util/parse-body req :article)]
+                                          (article-handler/push! env article)))}}]
+
+       ["/:id/comments" {:get {:summary "Query the comments of a article"
+                               :parameters {:path {:id string?}}
+                               :handler (fn [req]
+                                          (let [article-id (req-util/parse-path req :id)]
+                                            (article-handler/get-comments-by-article-id env article-id)))}
+                         :post {:summary "add a comments of the article"
+                                :parameters {:path {:id string?}}
+                                :handler (fn [req]
+                                           (let [comment (req-util/parse-body req :comment)]
+                                             (article-handler/save-comment! env comment)))}}]]
 
 
-    ["/articles-comments"
+      ["/articles-comments" {:swagger {:tags ["Articles Comments"]}}
 
-     ["" {:get {:summary "Query all articles comments"
-                :parameters {:query ::query}
-                :handler (fn [req]
-                           (let [query (req-util/parse-query req)]
-                             (article-handler/query-articles-comments env query)))}}]
+       ["" {:get {:summary "Query all articles comments"
+                  :parameters {:query ::query}
+                  :handler (fn [req]
+                             (let [query (req-util/parse-query req)]
+                               (article-handler/query-articles-comments env query)))}}]
 
-     ["/:id" {:get {:summary "Get a article comment"
-                    :parameters {:path {:id pos-int?}}
-                    :handler (fn [req]
-                               (let [id (req-util/parse-path req :id)]
-                                 (article-handler/get-articles-comments-by-id env id)))}
+       ["/:id" {:get {:summary "Get a article comment"
+                      :parameters {:path {:id pos-int?}}
+                      :handler (fn [req]
+                                 (let [id (req-util/parse-path req :id)]
+                                   (article-handler/get-articles-comments-by-id env id)))}
 
-              :delete {:summary "Delete a article comment"
-                       :parameters {:path {:id pos-int?}}
-                       :handler (fn [req]
-                                  (let [id (req-util/parse-path req :id)]
-                                    (article-handler/delete-articles-comments-by-id env id)))}}]]]])
+                :delete {:summary "Delete a article comment"
+                         :parameters {:path {:id pos-int?}}
+                         :handler (fn [req]
+                                    (let [id (req-util/parse-path req :id)]
+                                      (article-handler/delete-articles-comments-by-id env id)))}}]]]]))
 
 
       ;; ["/files"
