@@ -82,7 +82,8 @@
 
       ["/logout"  {:swagger {:tags ["Login"]}
                    :post {:summary "user logout"
-                         :handler (login-handler/logout env)}}]
+                         :handler (fn [req] 
+                                    (login-handler/logout env req))}}]
 
       ["/users" {:swagger {:tags ["User"]}}
        

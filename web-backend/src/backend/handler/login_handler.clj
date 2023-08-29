@@ -21,8 +21,7 @@
 
       (resp-util/not-found "用户名或密码错误"))))
 
-(defn logout [env]
-  (fn [req]
+(defn logout [env user]
     (let [db (:db env)
-          token (req-util/parse-header req "Token")]
-      (resp-util/ok {} "用户退出"))))
+        ]
+      (resp-util/ok {} "用户退出")))

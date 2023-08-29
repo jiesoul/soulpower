@@ -21,12 +21,12 @@
                :db #ig/ref :backend/db}
  
  :backend/jetty {:port #profile {:dev #long #or [#env PORT 8080]
-                                 :prod #long #or [#env PORT 8080]}
+                                 :test #long #or [#env PORT 8080]}
                  :join? false 
                  :env #ig/ref :backend/env}
  
- :backend/nrepl {:bind #profile {:prod "0.0.0.0"
+ :backend/nrepl {:bind #profile {:test "0.0.0.0"
                                  :dev "localhost"}
                  :port #profile {:dev #long #or [#env PORT 3010]
-                                 :prod #long #or [#env PORT 3011]}}
+                                 :tests #long #or [#env PORT 3011]}}
  }
