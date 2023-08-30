@@ -1,6 +1,5 @@
 (ns backend.core-test
-  (:require [clojure.test :refer :all]
-            [integrant.repl :as ig-repl]
+  (:require [integrant.repl :as ig-repl]
             [integrant.repl.state :as state]
             [backend.core :as core]))
 
@@ -12,7 +11,7 @@
 
 (defn env [] (:backend/env (system)))
 
-(defn profile [] (:backend/env (system)))
+;; (defn profile [] (:backend/env (system)))
 
 (ig-repl/go)
 

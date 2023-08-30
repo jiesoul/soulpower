@@ -38,3 +38,6 @@
 
 (defn get-all-tags [db]
   (sql/query db ["select * from tag"] {:builder-fn rs/as-unqualified-kebab-maps}))
+
+(defn get-hot-tags [db]
+  (sql/query db ["select * from tag"] {:builder-fn rs/as-unqualified-kebab-maps}))

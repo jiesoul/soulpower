@@ -32,7 +32,9 @@
     (resp-util/ok {})))
 
 (defn get-all-tags [{:keys [db]}]
-  (let [rs (tag-db/get-all-tags db)]))
+  (let [rs (tag-db/get-all-tags db)]
+    rs))
 
-(defn get-hot-tags [{:keys [db]} query]
-  )
+(defn get-hot-tags [{:keys [db]} _]
+  (let [rs (tag-db/get-hot-tags db)]
+    rs))

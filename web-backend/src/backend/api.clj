@@ -39,7 +39,7 @@
 
       ["" {:get {:summary "get all categories"
                  :parameters {:query ::query}
-                 :handler (fn [req]
+                 :handler (fn [_]
                             (category-handler/get-all-categories env))}}]]
 
      ["/tags"
@@ -47,7 +47,7 @@
 
       ["" {:get {:summary "get hot tags"
                  :parameters {:query ::query}
-                 :handler (fn [req]
+                 :handler (fn [_]
                             (tag-handler/get-all-tags env))}}]]
 
      ["/articles"

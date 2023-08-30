@@ -21,7 +21,6 @@ jiesoul.iml
 node_modules/
 public/js
 public/css
-resources/data/jiesoul.db
 
 ## project
 logs/

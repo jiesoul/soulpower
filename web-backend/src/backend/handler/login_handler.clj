@@ -1,7 +1,6 @@
 (ns backend.handler.login-handler
   (:require [backend.db.user-db :as user-db]
             [backend.middleware.auth-middleware :as auth-middleware]
-            [backend.util.req-uitl :as req-util]
             [backend.util.resp-util :as resp-util]
             [buddy.hashers :as buddy-hashers]
             [clojure.tools.logging :as log]))
@@ -21,7 +20,6 @@
 
       (resp-util/not-found "用户名或密码错误"))))
 
-(defn logout [env user]
-    (let [db (:db env)
-        ]
+(defn logout [_ user]
+    (let [_ (log/info "User: " user " is logout")]
       (resp-util/ok {} "用户退出")))

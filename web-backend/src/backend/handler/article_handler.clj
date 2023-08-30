@@ -1,7 +1,6 @@
 (ns backend.handler.article-handler
   (:require [backend.db.article-db :as article-db]
             [clojure.tools.logging :as log]
-            [ring.util.response :as resp]
             [backend.db.article-comment-db :as article-comment-db]
             [backend.util.resp-util :as resp-util]))
 
@@ -23,7 +22,7 @@
   (let [data (article-db/get-pushed-by-year db year)]
     (resp-util/ok {(keyword year) data})))
 
-(defn get-article-archive [{:keys [db]} req]
+(defn get-article-archive [{:keys [db]} _]
   (let [data (article-db/get-archive db)]
     (resp-util/ok data)))
 
@@ -81,11 +80,11 @@
     (if (= (:push-flag old-article) 1) 
       (resp-util/bad-request "Aritcle been pushed")
       (let [push-time (java.time.LocalDateTime/now)
-            result (article-db/push! db (assoc article 
+            _ (article-db/push! db (assoc article 
                                                :push_time push-time
                                                :push_flag 1))]
         (resp-util/ok {})))))
 
 (defn save-comment! [{:keys [db]} comment]
-  (let [result (article-db/save-comment! db comment)]
+  (let [_ (article-db/save-comment! db comment)]
     (resp-util/ok {})))

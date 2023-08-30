@@ -7,12 +7,10 @@
             [clojure.java.io :as io]
             [clojure.pprint]
             [clojure.tools.logging :as log]
-            [clojure.tools.reader.edn :as edn]
             [integrant.core :as ig]
             [integrant.repl :as ig-repl]
             [muuntaja.core :as mu-core]
             [nrepl.server :as nrepl]
-            [potpuri.core :as p]
             [reitit.coercion.spec]
             [reitit.ring :as reitit-ring]
             [reitit.ring.coercion :as reitit-coercion]
@@ -52,8 +50,8 @@
      (reitit-ring/create-resource-handler {:path "/"})
      (reitit-ring/create-default-handler {:not-found (constantly {:status 404 :body "not found"})})))))
 
-(defn env-value [key default]
-  (some-> (or (System/getenv (name key)) default)))
+;; (defn env-value [key default]
+;;   (some-> (or (System/getenv (name key)) default)))
 
 (defmethod aero/reader 'ig/ref [_ _ value] (ig/ref value))
 
