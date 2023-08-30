@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [test])
   (:require [clojure.tools.build.api :as b]))
 
-(def lib 'soulpower)
+(def lib 'soulpower-backend)
 (def version (format "1.0.%s" (b/git-count-revs nil)))
 (def main 'backend.core)
 (def class-dir "target/classes")

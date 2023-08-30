@@ -1,11 +1,30 @@
 # Docs
 
+web backend server include private api and public api.
+
 ## lib
 
-* [Hiccup](https://github.com/weavejester/hiccup)
-* [Ring](https://github.com/ring-clojure/ring)
-* [Intgrant](https://github.com/weavejester/integrant)
-* [Compure](https://github.com/weavejester/compojure)
-* [Reitit](https://github.com/metosin/reitit)
-* [Selmer](https://github.com/yogthos/Selmer)
-* [Pedestal](http://pedestal.io/guides/index)
+* [Ring](https://github.com/ring-clojure/ring) web service
+* [Intgrant](https://github.com/weavejester/integrant) DI
+* [Reitit](https://github.com/metosin/reitit) API Routes
+
+## Run
+
+### dev
+
+```clojure
+clj -M:dev:test 
+
+clj꞉user꞉> (go)
+:initiated
+
+```
+
+### prod
+
+```clojure
+clj -T:build uber
+
+java -jar .\target\xxxxx-1.0.13.jar prod
+
+```
