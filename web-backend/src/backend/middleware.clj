@@ -8,7 +8,7 @@
   (wrap-cors handler
              :access-control-allow-origin [#".*"]
             ;;  :access-control-allow-headers [:content-type :authorization]
-             :access-control-allow-methods [:get :put :post :patch :options]))
+             :access-control-allow-methods [:get :put :post :patch :delete :options]))
 
 (derive ::error ::exception)
 (derive ::failure ::exception)
