@@ -28,7 +28,7 @@
    (f-http/http-get db
                     (f-http/api-uri "/admin/articles-comments")
                     data
-                    ::query-articles-comments-ok)))
+                    [::query-articles-comments-ok])))
 
 (re-frame/reg-event-fx
  ::add-article-comments-ok
@@ -44,7 +44,7 @@
    (f-http/http-post db
                      (f-http/api-uri "/article-commentss-comments")
                      {:article-comments article-comments}
-                     ::add-article-comments-ok)))
+                     [::add-article-comments-ok])))
 
 (re-frame/reg-event-db
  ::get-article-comments-ok
@@ -58,7 +58,7 @@
    (f-http/http-get db
                     (f-http/api-uri "/admin/article-commentss-comments/" id)
                     {}
-                    ::get-article-comments-ok)))
+                    [::get-article-comments-ok])))
 
 (re-frame/reg-sub
  ::article-comments-current
@@ -82,36 +82,13 @@
    (f-http/http-delete db
                        (f-http/api-uri "/admin/article-commentss-comments/" id)
                        {}
-                       ::delete-article-comments-ok)))
+                       [::delete-article-comments-ok])))
 
 (defn check-name [v]
   (f-util/clog "check name")
   (if (or (nil? v) (str/blank? v))
     (reset! name-error "名称不能为空")
     (reset! name-error nil)))
-
-(defn add-form []
-  (let [article-comments (r/atom {})]
-    [:form
-     [:div {:class "grid gap-4 mb-6 sm:grid-cols-2"}
-
-      [:div
-       (text-input-backend {:label "Name"
-                            :name "name"
-                            :required true
-                            :on-blur #(check-name (f-util/get-value %))
-                            :on-change #(swap! article-comments assoc :name (f-util/get-value %))})
-       (when @name-error
-         [:p {:class "mt-2 text-sm text-red-600 dark:text-red-500"}
-          [:span {:class "font-medium"}]
-          @name-error])]
-      [:div
-       (text-input-backend {:label "Description"
-                            :name "descrtiption"
-                            :on-change #(swap! article-comments assoc :description (f-util/get-value %))})]]
-     [:div {:class "flex justify-center items-center space-x-4 mt-4"}
-      [new-button {:on-click #(re-frame/dispatch [::add-article-comments @article-comments])}
-       "Add"]]]))
 
 (defn delete-form []
   (let [current (re-frame/subscribe [::article-comments-current])
@@ -130,12 +107,12 @@
   [:div
    [edit-button {:on-click #(do
                               (re-frame/dispatch [::get-article (:id d)])
-                              (re-frame/dispatch [::f-state/show-edit-modal true]))}
+                              (re-frame/dispatch [::modals/show-modal :edit-modal?]))}
     "Edit"] 
    [:span " | "]
    [delete-button {:on-click #(do
                                 (re-frame/dispatch [::get-article (:id d)])
-                                (re-frame/dispatch [::f-state/show-delete-modal true]))}
+                                (re-frame/dispatch [::modals/show-modal :delete-modal?]))}
     "Del"]])
 
 (def columns [{:key :id :title "ID"}
@@ -148,7 +125,7 @@
 
 (defn index []
   (let [{:keys [list total opts]} @(re-frame/subscribe [::f-state/current-route-result])
-        delete-modal-show? @(re-frame/subscribe [::f-state/delete-modal-show?])
+        delete-modal-show? @(re-frame/subscribe [::f-state/current-delete-modal?])
         pagination (assoc opts :total total :query-params opts :url ::query-articles-comments)
         data-sources list
         q-data (r/atom {:page-size 10 :page 1 :filter "" :sort ""})
@@ -158,9 +135,7 @@
       [:div 
        [modals/modal delete-modal-show? {:id "Delete-article-comments"
                                          :title "Delete article-comments"
-                                         :on-close #(do
-                                                      (re-frame/dispatch [::f-state/clean-current-route-edit])
-                                                      (re-frame/dispatch [::f-state/show-delete-modal false]))}
+                                         :on-close #(re-frame/dispatch [::modals/close-modal :delete-modal?])}
         [delete-form]]]
      
       ;; page query form

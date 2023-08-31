@@ -1,5 +1,6 @@
 (ns frontend.shared.toasts 
   (:require [frontend.shared.svg :as svg]
+            [frontend.state :as f-state]
             [frontend.util :as f-util]
             [re-frame.core :as re-frame]
             [reagent.core :as r]))
@@ -29,10 +30,7 @@
 (def MAX-TIMEOUT 5000)
 (def TIMEOUT 3)
 
-(re-frame/reg-sub
- ::toasts
- (fn [db]
-   (get-in db [:toasts])))
+
 
 (re-frame/reg-event-db
  ::pop
@@ -70,7 +68,7 @@
       [:div {:class "hidden"} @seconds-elapsed])))
 
 (defn toasts []
-  (let [toasts @(re-frame/subscribe [::toasts])]
+  (let [toasts @(re-frame/subscribe [::f-state/toasts])]
     (when toasts
       [:div {:class "fixed top-5 right-5 z-50 w-full max-w-xs"} 
        (for [{:keys [id type content]} toasts] 

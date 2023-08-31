@@ -1,6 +1,6 @@
 (ns frontend.routes.user-token 
   (:require [frontend.http :as f-http]
-            [frontend.shared.buttons :refer [btn delete-button edit-button]]
+            [frontend.shared.buttons :refer [btn]]
             [frontend.shared.css :as css]
             [frontend.shared.form-input :refer [text-input-backend]]
             [frontend.shared.layout :refer [layout-admin]]
@@ -24,7 +24,7 @@
    (f-http/http-get db
                     (f-http/api-uri "/admin/users-tokens")
                     data
-                    ::query-user-tokens-ok)))
+                    [::query-user-tokens-ok])))
 
 (defn query-form []
   ;; page query form

@@ -17,42 +17,58 @@
    (get-in db [:current-route :edit])))
 
 (re-frame/reg-sub
+ ::current-modal-back?
+ (fn [db]
+   (get-in db [:current-route :modal :back])))
+
+(re-frame/reg-sub
+ ::current-new-modal?
+ (fn [db _]
+   (get-in db [:current-route :modal :new-modal?])))
+
+(re-frame/reg-sub
+ ::current-edit-modal?
+ (fn [db _]
+   (get-in db [:current-route :modal :edit-modal?])))
+
+(re-frame/reg-sub
+ ::current-delete-modal?
+ (fn [db _]
+   (get-in db [:current-route :modal :delete-modal?])))
+
+(re-frame/reg-sub
+ ::current-push-modal?
+ (fn [db _]
+   (get-in db [:current-route :modal :push-modal?])))
+
+(re-frame/reg-sub
  ::token
  (fn [db]
-   (:token db)))
+   (get-in db [:login :user :token])))
 
 (re-frame/reg-sub
- ::modal-backdrop-show?
+ ::toasts
  (fn [db]
-   (:modal-backdrop-show? db)))
-
-(re-frame/reg-sub
- ::modal-back-show?
- (fn [db] 
-   (:modal-show? db)))
+   (get-in db [:toasts])))
 
 (re-frame/reg-sub
  ::login-user
  (fn [db]
-   (:login-user db)))
+   (get-in db [:login :user])))
 
 (re-frame/reg-sub
  ::login-status
  (fn [db]
-   (:login-status db)))
+   (get-in db [:login :status])))
 
 (re-frame/reg-sub
  ::debug
  (fn [db]
    (:debug db)))
 
+
 (re-frame/reg-sub
  ::current-route-categories
  (fn [db _]
    (get-in db [:current-route :categories])))
-
-(re-frame/reg-sub
- ::home-articles
- (fn [db _]
-   (get-in db [:current-route :articles])))
 

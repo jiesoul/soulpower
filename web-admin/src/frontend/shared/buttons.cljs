@@ -1,4 +1,6 @@
-(ns frontend.shared.buttons)
+(ns frontend.shared.buttons 
+  (:require [re-frame.core :as re-frame]
+            [frontend.shared.modals :as modals]))
 
 (def css-default "text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
                      focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg 
@@ -86,4 +88,16 @@
   [:a (merge {:class "font-medium text-blue-600 dark:text-blue-500 hover:underline"}
              props)
    children])
+
+(defn edit-del-modal-btns [edit-fn]
+  [:div
+   [edit-button {:on-click #(do
+                              (re-frame/dispatch edit-fn)
+                              (re-frame/dispatch [::modals/show-modal :edit-modal?]))}
+    "Edit"]
+   [:span " | "]
+   [delete-button {:on-click #(do
+                                (re-frame/dispatch edit-fn)
+                                (re-frame/dispatch [::modals/show-modal :delete-modal?]))}
+    "Del"]])
 

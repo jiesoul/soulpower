@@ -3,6 +3,7 @@
             [frontend.state :as f-state]
             [re-frame.core :as re-frame]
             [frontend.util :as f-util]
+            [frontend.shared.toasts :as toasts]
             [reagent.core :as r]))
 
 (defn empty-creds []
@@ -25,33 +26,28 @@
  (fn [db [_ res-body]]
    (f-util/clog "login ok res-body" res-body)
    (-> db
-       (assoc-in [:login :response] res-body)
-       (assoc-in [:token] (-> res-body :data :user :token))
-       (assoc-in [:login-user] (:user (:data res-body)))
-       (assoc-in [:login-status] :logged-in))))
-
-(re-frame/reg-event-db
- ::login-ret-failed
- (fn [db [_ res-body]]
-   (f-util/clog "reg-event-db failed" (:response res-body))
-   (assoc-in db [:login :response] (:response res-body))))
+       (assoc-in [:login :user] (:user (:data res-body)))
+       (assoc-in [:login :status] :logged-in))))
 
 (re-frame/reg-event-fx
- ::login-user 
+ ::login-ret-failed
+ (fn [{:keys [db]} [_ res-body]]
+   (f-util/clog "reg-event-db failed" (:response res-body))
+   {:db (-> db (assoc-in [:login :status] :failed))
+    :fx [[:dispatch [::toasts/push {:type :error :message "登录失败"}]]]}))
+
+(re-frame/reg-event-fx
+ ::f-state/login! 
  (fn [{:keys [db]} [_ user-data]]
-   (f-util/clog "login-user, user-data" user-data)
-   (f-http/http-post db (f-http/api-uri "/login") user-data ::login-ret-ok ::login-ret-failed)))
+   (f-http/http-post db (f-http/api-uri "/login") user-data [::login-ret-ok] ::login-ret-failed)))
 
 (re-frame/reg-event-fx
  ::f-state/logout
- (fn [cofx [_]]
-   (let [db (:db cofx)]
-     {:db (-> db
-              (assoc-in [:login] nil)
-              (assoc-in [:username] nil)
-              (assoc-in [:login-status] nil)
-              (assoc-in [:token] nil))
-      :fx [[:dispatch [::f-state/navigate ::f-state/login]]]})))
+ (fn [{:keys [db]} [_]]
+   {:db (-> db
+            (assoc-in [:login] nil)
+            (assoc-in [:current-route] nil))
+    :fx [[:dispatch [::f-state/navigate ::f-state/login]]]}))
 
 (def css-input "form-input mt-1 block w-full rounded-md focus:border-indigo-600")
 
@@ -72,7 +68,7 @@
             _ (when-not error (re-frame/dispatch [::f-state/navigate ::f-state/dashboard]))] 
         [:div {:class "flex justify-center items-center h-screen bg-gray-200 px-6"}
          [:div {:class "p-6 max-w-sm w-full bg-white shadow-md rounded-md"}
-          [:div {:class "flex justify-center items-center"}
+          [:div {:class "p-6 flex justify-center items-center"}
            [:span {:class "text-gray-700 font-semibold text-2xl"} title]] 
           (when (= status "failed")
             [:div {:class "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"}
@@ -92,5 +88,5 @@
             [:button {:class "py-2 px-4 text-center bg-indigo-600 rounded-md w-full text-white text-sm hover:bg-indigo-500"
                       :on-click (fn [e]
                                   (.preventDefault e)
-                                  (re-frame/dispatch [::login-user @login-data]))}
+                                  (re-frame/dispatch [::f-state/login! @login-data]))}
              "Login"]]]]]))))

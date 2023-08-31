@@ -1,7 +1,6 @@
 (ns frontend.shared.page
   (:require [frontend.shared.svg :as svg]
-            [re-frame.core :as re-frame]
-            [frontend.util :as f-util]))
+            [re-frame.core :as re-frame]))
 
 (def css-page-no-current
   "z-10 px-3 py-2 leading-tight text-blue-600 border border-blue-300 bg-blue-50 
@@ -57,16 +56,3 @@
                   :class css-page-no
                   :disabled (if (>= page total-pages) true false)}
          (svg/chevron-right)]]]])))
-
-(defn home-pagation [{:keys [page page-size total]}]
-  (let [total-pages (quot (dec (+ total page-size)) page-size)
-        prev-page (if (<= page 1) 1 (dec page))
-        next-page (if (< page total-pages) (inc page) total-pages)]
-    [:div {:class "flex items-center justify-between"}
-     (if (> page 1)
-      [:a {:class ""} "上一页"]
-       [:span ""])
-     [:p page]
-     (if (< page total-pages)
-       [:a {:class ""} "下一页"]
-       [:span ""])]))

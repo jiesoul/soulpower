@@ -77,7 +77,7 @@
    (when errors
      [:p {:class css-form-errors} errors])])
 
-(defn dropzone [{:keys [label name class help errors] :as props} & children]
+(defn dropzone [{:keys [label name class help ]} & children]
   [:div {:class class}
    [:label {:for name 
             :class css-dropzone-label}

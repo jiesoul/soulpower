@@ -1,8 +1,7 @@
 (ns frontend.routes.tag 
   (:require [clojure.string :as str]
             [frontend.http :as f-http]
-            [frontend.shared.buttons :refer [btn css-delete delete-button
-                                             edit-button new-button red-button]]
+            [frontend.shared.buttons :refer [btn edit-del-modal-btns new-button red-button]]
             [frontend.shared.css :as css]
             [frontend.shared.form-input :refer [text-input-backend]]
             [frontend.shared.layout :refer [layout-admin]]
@@ -29,23 +28,22 @@
    (f-http/http-get db
                     (f-http/api-uri "/admin/tags")
                     data
-                    ::query-tags-ok)))
+                    [::query-tags-ok])))
 
 (re-frame/reg-event-fx
  ::new-tag-ok
- (fn [{:keys [db]} [_ resp]]
-   (f-util/clog "add tag ok: " resp)
+ (fn [{:keys [db]} [_ tag]]
+   (let [_ (f-util/clog "add tag ok: " tag)]
    {:db db
-    :fx [[:dispatch [::toasts/push {:content "添加成功" :type :info}]]]}))
+    :fx [[:dispatch [::toasts/push {:content (str  "Tag " (:name tag) " 添加成功") :type :info}]]]})))
 
 (re-frame/reg-event-fx
  ::new-tag
  (fn [{:keys [db]} [_ tag]]
-   (f-util/clog "add tag: " tag)
    (f-http/http-post db
                      (f-http/api-uri "/admin/tags")
                      {:tag tag}
-                     ::new-tag-ok)))
+                     [::new-tag-ok tag])))
 
 (re-frame/reg-event-fx
  ::get-tag-ok
@@ -60,7 +58,7 @@
    (f-http/http-get db
                     (f-http/api-uri "/admin/tags/" id)
                     {}
-                    ::get-tag-ok)))
+                    [::get-tag-ok])))
 
 (re-frame/reg-event-fx
  ::update-tag-ok
@@ -76,7 +74,7 @@
    (f-http/http-put db
                     (f-http/api-uri "/admin/tags/" (:id tag))
                     {:tag tag}
-                    ::update-tag-ok)))
+                    [::update-tag-ok])))
 
 (re-frame/reg-event-fx
  ::delete-tag-ok
@@ -94,7 +92,7 @@
    (f-http/http-delete db
                        (f-http/api-uri "/admin/tags/" id)
                        {}
-                       ::delete-tag-ok)))
+                       [::delete-tag-ok])))
 
 (defn check-name [v]
   (f-util/clog "check name")
@@ -162,52 +160,21 @@
                                 (re-frame/dispatch [::delete-tag (:id @current)]))}
        "Delete"]]]))
 
-(defn action-btns [d]
-  [:div 
-   [edit-button {:on-click #(do
-                              (re-frame/dispatch [::get-tag (:id d)])
-                              (re-frame/dispatch [::f-state/show-edit-modal true]))}
-    "Edit"]
-   [:span " | "]
-   [delete-button {:on-click #(do
-                                (re-frame/dispatch [::get-tag (:id d)])
-                                (re-frame/dispatch [::f-state/show-delete-modal true]))}
-    "Del"]])
+(defn action-fn [d]
+  [edit-del-modal-btns [::get-category (:id d)]])
 
 (def columns [{:key :name :title "Name"}
               {:key :description :title "Description"}
-              {:key :operation :title "Actions" :render action-btns}])
+              {:key :operation :title "Actions" :render action-fn}])
 
 (defn index []
   (let [{:keys [list total opts]} @(re-frame/subscribe [::f-state/current-route-result])
         pagination (assoc opts :total total :query-params opts :url ::query-tags)
         data-sources list
-        new-modal-show? @(re-frame/subscribe [::f-state/new-modal-show?])
-        edit-modal-show? @(re-frame/subscribe [::f-state/edit-modal-show?])
-        delete-modal-show? @(re-frame/subscribe [::f-state/delete-modal-show?])
         q-data (r/atom {:page-size 10 :page 1 :filter "" :sort ""})
         filter (r/cursor q-data [:filter])]
     [layout-admin 
-     [:div
-      [modals/modal  {:key "new-tag"
-                      :show? new-modal-show?
-                      :title "Add Tag"
-                      :on-close #(re-frame/dispatch [::f-state/show-new-modal false])}
-       [new-form]]
-      [modals/modal  {:key "update-tag"
-                      :show? edit-modal-show?
-                      :title "Update Tag"
-                      :on-close #(do
-                                   (re-frame/dispatch [::f-state/clean-current-route-edit])
-                                   (re-frame/dispatch [::f-state/show-edit-modal false]))}
-       [edit-form]]
-      [modals/modal  {:key "Delete-Tag"
-                      :show? delete-modal-show?
-                      :title "Delete Tag"
-                      :on-close #(do
-                                   (re-frame/dispatch [::f-state/clean-current-route-edit])
-                                   (re-frame/dispatch [::f-state/show-delete-modal false]))}
-       [delete-form]]]
+     [modals/modals-crud "Tag" new-form edit-form delete-form]
       ;; page query form
      [:form
       [:div {:class "flex-1 flex-col my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"}

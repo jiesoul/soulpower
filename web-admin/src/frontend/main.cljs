@@ -5,7 +5,6 @@
             [frontend.routes.category :as category]
             [frontend.routes.dashboard :as dashboard]
             [frontend.routes.user-token :as user-token]
-            [frontend.routes.index :as f-index]
             [frontend.routes.login :as f-login]
             [frontend.routes.tag :as tag]
             [frontend.routes.user :as user]
@@ -26,12 +25,8 @@
  (fn [_ _]
    {:current-route nil
     :toasts (vec [])
-    :toasts-sum 0
-    :error nil
-    :token nil
     :debug true
-    :login-status nil
-    :login-user nil}))
+    :login {:status nil}}))
 
 (re-frame/reg-event-fx
  ::f-state/load-localstore
@@ -46,11 +41,6 @@
    {:db db
     :fx [[:dispatch [::toasts/push {:content (:message response)
                                     :type :error}]]]}))
-
-(re-frame/reg-event-db
- ::f-state/init
- (fn [db [_ k]]
-   (assoc db k nil)))
 
 (re-frame/reg-event-fx
  ::f-state/navigate
@@ -109,20 +99,18 @@
                   :view category/index
                   :link-text "Categories"
                   :controllers [{:start (fn [& params] 
-                                          (re-frame/dispatch [::f-state/init-modal nil]) 
+                                        
                                           (js/console.log (str "Entering categories, params: " params)))
                                  :stop (fn [& params] 
-                                         (re-frame/dispatch [::f-state/init-modal nil])
+                                         
                                          (js/console.log (str "Leaving categories, params: " params)))}]}]
 
    ["tags" {:name ::f-state/tags
             :view tag/index
             :link-text "Tags"
             :controllers [{:start (fn [& params] 
-                                    (re-frame/dispatch [::f-state/init-modal nil])
                                     (js/console.log (str "Entering tags, params: " params)))
                            :stop (fn [& params] 
-                                   (re-frame/dispatch [::f-state/init-modal nil])
                                    (js/console.log (str "Leaving tags, params: " params)))}]}] 
    
    ["articles" {:name ::f-state/articles
@@ -204,5 +192,3 @@
 
 (defn ^:dev/after-load reload []
   (.reload router))
-
-;; (.go js/window.history -1)

@@ -3,13 +3,13 @@
            [frontend.util :as f-util]
            [frontend.state :as f-state]))
 
-(def ^:private api-base "http://localhost:8080")
+(def ^:private api-base "http://localhost:8088")
 
 (defn api-uri [route & s]
   (apply str api-base route s))
 
 (defn get-headers [db]
-  (let [token (get-in db [:token])
+  (let [token (get-in db [:login :user :token])
         ret (cond-> {:Accept "application/json" :Content-Type "application/json"}
                     token (assoc :authorization (str "Token " token)))
         _ (f-util/clog "get-headers, ret" ret)]
@@ -23,7 +23,7 @@
                        :headers (get-headers db)
                        :format (ajax/json-request-format)
                        :response-format (ajax/json-response-format {:keywords? true})
-                       :on-success [on-success]
+                       :on-success on-success
                        :on-failure (if on-failure [on-failure] [::f-state/req-failed-message])}
                       data (assoc :params data))]
     {:http-xhrio xhrio
