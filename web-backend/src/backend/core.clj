@@ -2,7 +2,7 @@
   (:require [aero.core :as aero]
             [backend.api :as api]
             [backend.middleware :refer [exception-middleware
-                                        wrap-cors-middeleware]]
+                                        wrap-cors-middleware]]
             [backend.server :as server]
             [clojure.java.io :as io]
             [clojure.pprint]
@@ -32,7 +32,7 @@
     (reitit-ring/router routes
                         {:data {:muuntaja mu-core/instance
                                 :coercion reitit.coercion.spec/coercion
-                                :middleware [wrap-cors-middeleware
+                                :middleware [wrap-cors-middleware
                                              reitit-swagger/swagger-feature
                                              reitit-parameters/parameters-middleware
                                              reitit-muuntaja/format-negotiate-middleware
