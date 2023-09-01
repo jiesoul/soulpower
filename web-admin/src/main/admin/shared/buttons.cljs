@@ -1,6 +1,6 @@
-(ns frontend.shared.buttons 
+(ns admin.shared.buttons 
   (:require [re-frame.core :as re-frame]
-            [frontend.shared.modals :as modals]))
+            [admin.shared.modals :as modals]))
 
 (def css-default "text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 
                      focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg 

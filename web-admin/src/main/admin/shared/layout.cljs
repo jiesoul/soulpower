@@ -1,12 +1,12 @@
-(ns frontend.shared.layout
-  (:require [frontend.routes.login :refer [login]]
-            [frontend.shared.css :as css]
-            [frontend.shared.footer :refer [footer-home]]
-            [frontend.shared.header :refer [header-dash nav-home]]
-            [frontend.shared.modals :as modals :refer [modal-back]] 
-            [frontend.shared.sidebar :refer [sidebar-dash]] 
-            [frontend.shared.toasts :refer [toasts]]
-            [frontend.state :as f-state]
+(ns admin.shared.layout
+  (:require [admin.views.login :refer [login]]
+            [admin.shared.css :as css]
+            [admin.shared.footer :refer [footer-home]]
+            [admin.shared.header :refer [header-dash nav-home]]
+            [admin.shared.modals :as modals :refer [modal-back]] 
+            [admin.shared.sidebar :refer [sidebar-dash]] 
+            [admin.shared.toasts :refer [toasts]]
+            [admin.state :as f-state]
             [re-frame.core :as re-frame]))
 
 (defn layout-dash [children]

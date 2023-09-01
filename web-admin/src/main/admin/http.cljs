@@ -1,7 +1,7 @@
-(ns frontend.http 
+(ns admin.http 
  (:require [ajax.core :as ajax]
-           [frontend.util :as f-util]
-           [frontend.state :as f-state]))
+           [admin.util :as f-util]
+           [admin.state :as f-state]))
 
 (def ^:private api-base "http://localhost:8080")
 

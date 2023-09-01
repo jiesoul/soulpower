@@ -1,4 +1,4 @@
-(ns frontend.shared.msg)
+(ns admin.shared.msg)
 
 (defn resp-message [{:keys [status message] :as m}]
   (when m

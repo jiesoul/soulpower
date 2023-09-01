@@ -1,9 +1,9 @@
-(ns frontend.shared.sidebar 
+(ns admin.shared.sidebar 
   (:require [reagent.core :as r]
             [re-frame.core :as re-frame]
-            [frontend.state :as f-state]
-            [frontend.shared.svg :as svg]
-            [frontend.util :as f-util]))
+            [admin.state :as f-state]
+            [admin.shared.svg :as svg]
+            [admin.util :as f-util]))
 
 (def articles-nav-show? (r/atom true))
 

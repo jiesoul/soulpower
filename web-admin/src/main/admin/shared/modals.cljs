@@ -1,6 +1,6 @@
-(ns frontend.shared.modals 
-  (:require [frontend.shared.svg :as svg]
-            [frontend.state :as f-state]
+(ns admin.shared.modals 
+  (:require [admin.shared.svg :as svg]
+            [admin.state :as f-state]
             [re-frame.core :as re-frame]))
 
 (re-frame/reg-event-db

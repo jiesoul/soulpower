@@ -1,7 +1,7 @@
-(ns frontend.shared.toasts 
-  (:require [frontend.shared.svg :as svg]
-            [frontend.state :as f-state]
-            [frontend.util :as f-util]
+(ns admin.shared.toasts 
+  (:require [admin.shared.svg :as svg]
+            [admin.state :as f-state]
+            [admin.util :as f-util]
             [re-frame.core :as re-frame]
             [reagent.core :as r]))
 

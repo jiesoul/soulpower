@@ -1,15 +1,15 @@
-(ns frontend.routes.tag 
+(ns admin.views.tag 
   (:require [clojure.string :as str]
-            [frontend.http :as f-http]
-            [frontend.shared.buttons :refer [btn edit-del-modal-btns new-button red-button]]
-            [frontend.shared.css :as css]
-            [frontend.shared.form-input :refer [text-input-backend]]
-            [frontend.shared.layout :refer [layout-admin]]
-            [frontend.shared.modals :as modals]
-            [frontend.shared.tables :refer [table-admin]]
-            [frontend.shared.toasts :as toasts]
-            [frontend.state :as f-state]
-            [frontend.util :as f-util]
+            [admin.http :as f-http]
+            [admin.shared.buttons :refer [btn edit-del-modal-btns new-button red-button]]
+            [admin.shared.css :as css]
+            [admin.shared.form-input :refer [text-input-backend]]
+            [admin.shared.layout :refer [layout-admin]]
+            [admin.shared.modals :as modals]
+            [admin.shared.tables :refer [table-admin]]
+            [admin.shared.toasts :as toasts]
+            [admin.state :as f-state]
+            [admin.util :as f-util]
             [re-frame.core :as re-frame]
             [reagent.core :as r]))
 

@@ -1,5 +1,5 @@
 {
-  "name": "clojurescript-frontend",
+  "name": "soulpower-web-admin",
   "version": "0.0.1",
   "scripts": {
     "shadow:watch": "shadow-cljs watch app",

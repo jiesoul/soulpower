@@ -1,4 +1,4 @@
-(ns frontend.shared.svg)
+(ns admin.shared.svg)
 
 (def archive-box-d "M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 
                     0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 

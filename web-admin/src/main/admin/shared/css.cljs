@@ -1,4 +1,4 @@
-(ns frontend.shared.css)
+(ns admin.shared.css)
 
 (def main-container "flex-1 border flex-col p-2 bg-white h-auto w-full")
 (def page-title "text-gray-700 text-2xl font-medium border-b")

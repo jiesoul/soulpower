@@ -1,10 +1,10 @@
-(ns frontend.shared.header 
+(ns admin.shared.header 
   (:require [cljs.pprint]
-            [frontend.shared.css :as css]
-            [frontend.state :as f-state]
+            [admin.shared.css :as css]
+            [admin.state :as f-state]
             [re-frame.core :as re-frame]
             [reagent.core :as r]
-            [frontend.util :as f-util]))
+            [admin.util :as f-util]))
 
 (def css-user-dropdown-li-a "block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white")
 (def user-dropdown-show? (r/atom true))

@@ -1,5 +1,5 @@
-(ns frontend.shared.page
-  (:require [frontend.shared.svg :as svg]
+(ns admin.shared.page
+  (:require [admin.shared.svg :as svg]
             [re-frame.core :as re-frame]))
 
 (def css-page-no-current

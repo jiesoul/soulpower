@@ -1,5 +1,5 @@
-(ns frontend.routes.dashboard
-  (:require  [frontend.shared.layout :refer [layout-dash]]))
+(ns admin.views.dashboard
+  (:require  [admin.shared.layout :refer [layout-dash]]))
 
 (defn index [] 
   [layout-dash 

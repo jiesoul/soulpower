@@ -1,4 +1,4 @@
-(ns frontend.shared.footer)
+(ns admin.shared.footer)
 
 (defn footer-home []
   [:footer {:class "w-full max-w-5xl bg-white p-8"}

@@ -1,4 +1,4 @@
-(ns frontend.shared.logo)
+(ns admin.shared.logo)
 
 (defn logo [props]
   [:svg (merge props {:view-box "0 0 1185 266", :xmlns "http://www.w3.org/2000/svg"})

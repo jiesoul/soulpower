@@ -1,5 +1,5 @@
-(ns frontend.shared.tables 
-  (:require [frontend.shared.page :refer [page-dash]] ))
+(ns admin.shared.tables 
+  (:require [admin.shared.page :refer [page-dash]] ))
 
 (def css-list "relative shadow-md sm:rounded-lg w-full whitespace-nowrap overflow-x-auto")
 (def css-list-table "w-full p-2 overflow-x-auto border-collapse border border-gray-100 text-sm text-center text-gray-500 dark:text-gray-400")

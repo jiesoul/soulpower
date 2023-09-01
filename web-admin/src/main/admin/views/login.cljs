@@ -1,9 +1,9 @@
-(ns frontend.routes.login 
-  (:require [frontend.http :as f-http]
-            [frontend.state :as f-state]
+(ns admin.views.login 
+  (:require [admin.http :as f-http]
+            [admin.state :as f-state]
             [re-frame.core :as re-frame]
-            [frontend.util :as f-util]
-            [frontend.shared.toasts :as toasts]
+            [admin.util :as f-util]
+            [admin.shared.toasts :as toasts]
             [reagent.core :as r]))
 
 (defn empty-creds []

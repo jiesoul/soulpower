@@ -1,18 +1,18 @@
-(ns frontend.routes.article
+(ns admin.views.article
     (:require ["moment" :as moment]
               [clojure.string :as str]
-              [frontend.http :as f-http]
-              [frontend.shared.buttons :refer [default-button edit-del-modal-btns
+              [admin.http :as f-http]
+              [admin.shared.buttons :refer [default-button edit-del-modal-btns
                                                edit-button new-button red-button]]
-              [frontend.shared.form-input :refer [checkbox-input select-input
+              [admin.shared.form-input :refer [checkbox-input select-input
                                                   text-input
                                                   text-input-backend textarea]]
-              [frontend.shared.layout :refer [layout-admin layout-home]]
-              [frontend.shared.modals :as modals]
-              [frontend.shared.tables :refer [table-admin]]
-              [frontend.shared.toasts :as toasts]
-              [frontend.state :as f-state]
-              [frontend.util :as f-util]
+              [admind.layout :refer [layout-admin layout-home]]
+              [admin.shared.modals :as modals]
+              [admin.shared.tables :refer [table-admin]]
+              [admin.shared.toasts :as toasts]
+              [admin.state :as f-state]
+              [admin.util :as f-util]
               [re-frame.core :as re-frame]
               [reagent.core :as r]))
 

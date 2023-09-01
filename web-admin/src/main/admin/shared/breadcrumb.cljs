@@ -1,4 +1,4 @@
-(ns frontend.shared.breadcrumb)
+(ns admin.shared.breadcrumb)
 
 (defn breadcrumb-dash [b-data]
   [:nav {:class "flex border-b"}

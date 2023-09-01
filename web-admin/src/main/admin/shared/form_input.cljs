@@ -1,4 +1,4 @@
-(ns frontend.shared.form-input)
+(ns admin.shared.form-input)
 
 (def css-form-label-backend "block mb-2 text-base font-medium text-gray-900 dark:text-white")
 (def css-form-input-backend "block w-full mb-2 p-2 text-gray-900 border border-gray-300 rounded-lg 
