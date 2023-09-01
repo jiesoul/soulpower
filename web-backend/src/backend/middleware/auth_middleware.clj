@@ -33,13 +33,13 @@
     (log/debug "Identity: " (-> req :identity))
     (if (-> req :identity :roles (str/split #",") set (contains? "admin"))
       (handler req)
-      {:status 403 :body {:error "未授权"}})))
+      {:status 403 :body {:message "未授权"}})))
 
 (defn auth-middleware
   [handler]
   (fn [request]
     (if (authenticated? request)
       (handler request)
-      {:status 401 :body {:error "登录已过超时或未登录"}})))
+      {:status 401 :body {:message "登录已过超时或未登录"}})))
 
 
