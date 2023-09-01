@@ -4,7 +4,7 @@ CREATE TABLE article
     id VARCHAR PRIMARY KEY NOT NULL,    -- 博文ID
     author VARCHAR(32),                 -- 发表用户
     title VARCHAR(1024),                -- 博文标题
-    create_time timestamp,               -- 创建时间
+    create_time timestamp DEFAULT now(),               -- 创建时间
     like_count INT DEFAULT 0,           -- 点赞数
     comment_count INT DEFAULT 0,        -- 评论数
     read_count INT DEFAULT 0,           -- 浏览量

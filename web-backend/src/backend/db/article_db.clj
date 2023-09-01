@@ -35,9 +35,12 @@
 (defn create! [db {:keys [detail id] :as article}]
   (try 
     (with-open [con (jdbc/get-connection db)]
-      (let [detail (assoc detail :article_id id)]
+      (let [detail (-> detail (assoc :article_id id))
+            article (dissoc article :detail)]
         (jdbc/with-transaction [tx con]
-          (sql/insert! tx :article (dissoc article :detail))
+          (log/info "insert Article: " article)
+          (sql/insert! tx :article article)
+          (log/info "insert Article Detail: " detail)
           (sql/insert! tx :article_detail detail))))
     (catch java.sql.SQLException se (throw (ex-info "insert article: " se)))))
 
