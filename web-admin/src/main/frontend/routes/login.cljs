@@ -33,13 +33,13 @@
  ::login-ret-failed
  (fn [{:keys [db]} [_ res-body]]
    (f-util/clog "reg-event-db failed" (:response res-body))
-   {:db (-> db (assoc-in [:login :status] :failed))
+   {:db (-> db (assoc-in [:login] nil))
     :fx [[:dispatch [::toasts/push {:type :error :message "登录失败"}]]]}))
 
 (re-frame/reg-event-fx
  ::f-state/login! 
  (fn [{:keys [db]} [_ user-data]]
-   (f-http/http-post db (f-http/api-uri "/login") user-data [::login-ret-ok] ::login-ret-failed)))
+   (f-http/http-post db (f-http/api-uri "/login") user-data [::login-ret-ok] [::login-ret-failed])))
 
 (re-frame/reg-event-fx
  ::f-state/logout
