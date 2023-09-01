@@ -7,7 +7,7 @@
               [admin.shared.form-input :refer [checkbox-input select-input
                                                   text-input
                                                   text-input-backend textarea]]
-              [admind.layout :refer [layout-admin layout-home]]
+              [admin.shared.layout :refer [layout-admin layout-home]]
               [admin.shared.modals :as modals]
               [admin.shared.tables :refer [table-admin]]
               [admin.shared.toasts :as toasts]

@@ -2,7 +2,7 @@
     (:require [clojure.string :as str]
               [admin.http :as f-http]
               [admin.shared.buttons :refer [default-button delete-button
-                                               edit-button new-button red-button]]
+                                               edit-button red-button]]
               [admin.shared.form-input :refer [text-input-backend]]
               [admin.shared.layout :refer [layout-admin]]
               [admin.shared.modals :as modals]

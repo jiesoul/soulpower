@@ -33,9 +33,8 @@
 (re-frame/reg-event-fx
  ::new-tag-ok
  (fn [{:keys [db]} [_ tag]]
-   (let [_ (f-util/clog "add tag ok: " tag)]
    {:db db
-    :fx [[:dispatch [::toasts/push {:content (str  "Tag " (:name tag) " 添加成功") :type :info}]]]})))
+    :fx [[:dispatch [::toasts/push {:content (str  "Tag " (:name tag) " 添加成功") :type :info}]]]}))
 
 (re-frame/reg-event-fx
  ::new-tag
@@ -62,37 +61,35 @@
 
 (re-frame/reg-event-fx
  ::update-tag-ok
- (fn [{:keys [db]} [_ resp]]
-   (f-util/clog "update tag ok: " resp)
+ (fn [{:keys [db]} [_ tag]]
    {:db db
-    :fx [[:dispatch [::toasts/push {:content "保存成功" :type :success}]]]}))
+    :fx [[:dispatch [::toasts/push {:content (str "Tag:" (:name tag)  " 更新成功") 
+                                    :type :success}]]]}))
 
 (re-frame/reg-event-fx
  ::update-tag
  (fn [{:keys [db]} [_ tag]]
-   (f-util/clog "update tag: " tag)
    (f-http/http-put db
                     (f-http/api-uri "/admin/tags/" (:id tag))
                     {:tag tag}
-                    [::update-tag-ok])))
+                    [::update-tag-ok tag])))
 
 (re-frame/reg-event-fx
  ::delete-tag-ok
- (fn [{:keys [db]} [_ resp]]
-   (f-util/clog "delete tag ok: " resp)
-   {:db db
-    :fx [[:dispatch [::toasts/push {:type :success :content "Delete success"}]]
-         [:dispatch [::f-state/clean-current-route-edit]]
-         [:dispatch [::f-state/show-delete-modal false]]]}))
+ (fn [{:keys [db]} [_ {:keys [id name]}]]
+   (let [tags (remove #(= id (:id %)) (-> db :current-route :result :list))]
+     {:db (assoc-in db [:current-route :result :list] tags)
+      :fx [[:dispatch [::toasts/push {:type :success :content (str "Tag: " name " Delete success")}]]
+           [:dispatch [::f-state/clean-current-route-edit]]
+           [:dispatch [::modals/close-modal :delete-modal?]]]})))
 
 (re-frame/reg-event-fx
  ::delete-tag
- (fn [{:keys [db]} [_ id]]
-   (f-util/clog "Delete tag")
+ (fn [{:keys [db]} [_ {:keys [id] :as t}]]
    (f-http/http-delete db
                        (f-http/api-uri "/admin/tags/" id)
                        {}
-                       [::delete-tag-ok])))
+                       [::delete-tag-ok t])))
 
 (defn check-name [v]
   (f-util/clog "check name")
@@ -157,11 +154,11 @@
        (str "You confirm delete the " @name "? ")]]
      [:div {:class "flex justify-center items-center space-x-4"}
       [red-button {:on-click #(do
-                                (re-frame/dispatch [::delete-tag (:id @current)]))}
+                                (re-frame/dispatch [::delete-tag @current]))}
        "Delete"]]]))
 
 (defn action-fn [d]
-  [edit-del-modal-btns [::get-category (:id d)]])
+  [edit-del-modal-btns [::get-tag (:id d)]])
 
 (def columns [{:key :name :title "Name"}
               {:key :description :title "Description"}
@@ -188,7 +185,7 @@
        [:div {:class "felx inline-flex justify-center items-center w-full"}
         (btn {:on-click #(re-frame/dispatch [::query-tags @q-data])
               :class css/buton-purple} "Query")
-        (btn {:on-click #(re-frame/dispatch [::f-state/show-new-modal true])
+        (btn {:on-click #(re-frame/dispatch [::modals/show-modal :new-modal?])
               :class css/button-green} "New")]]]
       ;; data table 
      [table-admin {:columns columns

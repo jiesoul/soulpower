@@ -1,7 +1,7 @@
 (ns admin.util
   (:require [cljs.pprint]
             [clojure.string :as str]
-            [reitit.admin.easy :as rfe]
+            [reitit.frontend.easy :as rfe]
             ["moment" :as moment]))
 
 ;; (def dtf (java.time.format.DateTimeFormatter/ofPattern "yyyyMMddHHmmssSSSSS"))

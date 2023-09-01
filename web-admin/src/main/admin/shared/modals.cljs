@@ -28,6 +28,7 @@
 
 (defn modal [{:keys [id title on-close show?]} & children]
     [:div {:id id
+           :key (str "modal" id)
            :tab-index "-1"
            :class (str (if show? "" "hidden ") "flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-40 
                  justify-center items-center w-full inset-0 h-[calc(100%-1rem)] max-h-full")
@@ -56,17 +57,20 @@
         delete-modal? @(re-frame/subscribe [::f-state/current-delete-modal?])]
     [:div
      [modal  {:id "add-modal"
-                     :show? new-modal?
-                     :title (str title " Add")
-                     :on-close #(re-frame/dispatch [::close-modal :new-modal?])}
+              :key (str title "-add-modal")
+              :show? new-modal?
+              :title (str title " Add")
+              :on-close #(re-frame/dispatch [::close-modal :new-modal?])}
       [new-form]]
      [modal  {:id "edit-modal"
-                     :show? edit-modal?
-                     :title (str title " Edit")
-                     :on-close #(re-frame/dispatch [::close-modal :edit-modal?])}
+              :key (str title "-edit-modal")
+              :show? edit-modal?
+              :title (str title " Edit")
+              :on-close #(re-frame/dispatch [::close-modal :edit-modal?])}
       [edit-form]]
      [modal  {:id "delete-modal"
-                     :show? delete-modal?
-                     :title (str title "Delete")
-                     :on-close #(re-frame/dispatch [::close-modal :delete-modal?])}
+              :key (str title "-delete-modal")
+              :show? delete-modal?
+              :title (str title "Delete")
+              :on-close #(re-frame/dispatch [::close-modal :delete-modal?])}
       [delete-form]]]))

@@ -18,13 +18,11 @@
 (re-frame/reg-sub
  ::login-response
  (fn [db]
-   (f-util/clog "reg-sub" db)
    (:response (:login db))))
 
 (re-frame/reg-event-db
  ::login-ret-ok
  (fn [db [_ res-body]]
-   (f-util/clog "login ok res-body" res-body)
    (-> db
        (assoc-in [:login :user] (:user (:data res-body)))
        (assoc-in [:login :status] :logged-in))))
@@ -32,7 +30,6 @@
 (re-frame/reg-event-fx
  ::login-ret-failed
  (fn [{:keys [db]} [_ res-body]]
-   (f-util/clog "reg-event-db failed" (:response res-body))
    {:db (-> db (assoc-in [:login] nil))
     :fx [[:dispatch [::toasts/push {:type :error :message "登录失败"}]]]}))
 
@@ -68,7 +65,7 @@
             _ (when-not error (re-frame/dispatch [::f-state/navigate ::f-state/dashboard]))] 
         [:div {:class "flex justify-center items-center h-screen bg-gray-200 px-6"}
          [:div {:class "p-6 max-w-sm w-full bg-white shadow-md rounded-md"}
-          [:div {:class "p-6 flex justify-center items-center"}
+          [:div {:class "flex justify-center items-center"}
            [:span {:class "text-gray-700 font-semibold text-2xl"} title]] 
           (when (= status "failed")
             [:div {:class "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"}

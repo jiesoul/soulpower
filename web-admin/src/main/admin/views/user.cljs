@@ -1,7 +1,7 @@
 (ns admin.views.user 
-  (:require [admin.shared.layout :refer [layout-dash]]))
+  (:require [admin.shared.layout :refer [layout-admin]]))
 
 (defn index
   []
-  [layout-dash
+  [layout-admin
    [:<>]])

@@ -1,6 +1,6 @@
 (ns admin.views.category 
   (:require [clojure.string :as str]
-            [admintp :as f-http]
+            [admin.http :as f-http]
             [admin.shared.buttons :refer [btn edit-del-modal-btns new-button
                                              red-button]]
             [admin.shared.css :as css]
@@ -63,21 +63,20 @@
 
 (re-frame/reg-event-fx
  ::update-category-ok
- (fn [{:keys [db]} _]
-   (let [category (-> db :current-route :edit)
-         _ (f-util/clog "update category: " category)]
+ (fn [{:keys [db]} [_ category]]
+   (let [_ (f-util/clog "update category: " category)]
    {:db db
     :fx [[::dispatch [::f-state/clean-current-route-edit]]
-         [:dispatch [::toasts/push {:content (str (:name category) " 更新成功") :type :success}]]]})))
+         [:dispatch [::toasts/push {:content (str "Category " (:name category) " 更新成功") 
+                                    :type :success}]]]})))
 
 (re-frame/reg-event-fx
  ::update-category
  (fn [{:keys [db]} [_ category]]
-   (f-util/clog "update category: " category)
-   (f-http/http-put db
+   (f-http/http-patch db
                       (f-http/api-uri "/admin/categories/" (:id category))
                       {:category category}
-                      [::update-category-ok])))
+                      [::update-category-ok category])))
 
 (re-frame/reg-event-fx
  ::delete-category-ok
@@ -88,7 +87,7 @@
    {:db (assoc-in db [:current-route :result :list] categories)
     :fx [[:dispatch [::toasts/push {:type :success :content (str "Delete Category " name)}]]
          [:dispatch [::f-state/clean-current-route-edit]]
-         [:dispatch [::f-state/show-delete-modal false]]]})))
+         [:dispatch [::modals/close-modal :delete-modal?]]]})))
 
 (re-frame/reg-event-fx
  ::delete-category

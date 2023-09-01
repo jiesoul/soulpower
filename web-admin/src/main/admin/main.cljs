@@ -13,7 +13,6 @@
             [admin.util :as f-util]
             [re-frame.core :as re-frame]
             [re-frame.db]
-            [reagent-dev-tools.core :as dev-tools]
             [reagent.dom :as rdom]
             [reitit.coercion.spec :as rss]
             [reitit.frontend :as rf]
@@ -186,7 +185,7 @@
 (defn ^:export init! []
   (js/console.log "Enter init!")
   (re-frame/dispatch-sync [::initialize-db])
-  (dev-tools/start! {:state-atom re-frame.db/app-db})
+  ;; (dev-tools/start! {:state-atom re-frame.db/app-db})
   (dev-setup)
   (start))
 

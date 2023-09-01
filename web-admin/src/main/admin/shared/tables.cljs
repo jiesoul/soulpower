@@ -23,7 +23,8 @@
                     (select-keys [:key :class] column)) title])]]
     [:tbody {:class css-list-table-tbody}
      (for [ds datasources]
-       [:tr {:class css-list-table-tbody-tr}
+       [:tr {:class css-list-table-tbody-tr
+             :key (str "tr-" (random-uuid))}
         (for [{:keys [key render format]} columns]
           [:td {:class css-list-table-tbody-tr-td
                 :key (str key ":" (key ds))}
