@@ -1,4 +1,4 @@
-(ns admin.views.user 
+(ns admin.user.views
   (:require [admin.shared.layout :refer [layout-admin]]))
 
 (defn index

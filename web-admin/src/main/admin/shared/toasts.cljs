@@ -1,7 +1,8 @@
 (ns admin.shared.toasts 
   (:require [admin.shared.svg :as svg]
-            [admin.state :as f-state]
-            [admin.util :as f-util]
+            [admin.subs]
+            [admin.events]
+            [admin.db :refer [TIMEOUT MAX-TIMEOUT]]
             [re-frame.core :as re-frame]
             [reagent.core :as r]))
 
@@ -26,49 +27,16 @@
                        dark:hover:bg-red-700")
 
 
-(def MAX-TOASTS 5)
-(def MAX-TIMEOUT 5000)
-(def TIMEOUT 3)
-
-
-
-(re-frame/reg-event-db
- ::pop
- (fn [db _]
-   (update-in db [:toasts] #(-> % rest vec))))
-
-(defonce do-timer (js/setInterval (re-frame/dispatch [::pop]) 3000))
-
-(re-frame/reg-event-db
- ::push
- (fn [db [_ t]]
-   (let [toasts (:toasts db)
-         toasts (if (>= (count toasts) MAX-TOASTS)
-                  (vec (rest toasts)) 
-                  toasts)]
-     (assoc db :toasts (conj toasts (assoc t 
-                                           :id (str (random-uuid))
-                                           :timeout MAX-TIMEOUT))))))
-
-(re-frame/reg-event-db
- ::remove 
- (fn [db [_ id]]
-   (f-util/clog "remove id: " id)
-   (let [toasts (:toasts db)]
-     (assoc db :toasts (->> toasts
-                           (remove #(= (:id %) id))
-                            vec)))))
-
 (defn timer-toasts [id]
   (let [seconds-elapsed (r/atom TIMEOUT)]
     (fn [id]
       (js/setTimeout #(if (pos-int? @seconds-elapsed) 
                        (swap! seconds-elapsed dec)
-                        (re-frame/dispatch [::pop id])) MAX-TIMEOUT)
+                        (re-frame/dispatch [:pop-toast id])) MAX-TIMEOUT)
       [:div {:class "hidden"} @seconds-elapsed])))
 
 (defn toasts []
-  (let [toasts @(re-frame/subscribe [::f-state/toasts])]
+  (let [toasts @(re-frame/subscribe [:toasts])]
     (when toasts
       [:div {:class "fixed top-5 right-5 z-50 w-full max-w-xs"} 
        (for [{:keys [id type content]} toasts] 
@@ -89,5 +57,5 @@
           [timer-toasts id]
           [:button {:type "button"
                     :class css-toast-close-button
-                    :on-click #(re-frame/dispatch [::remove id])}
+                    :on-click #(re-frame/dispatch [:remove-toast id])}
            (svg/close)]])])))

@@ -1,32 +1,16 @@
 (ns admin.shared.layout
-  (:require [admin.views.login :refer [login]]
+  (:require [admin.subs]
             [admin.shared.css :as css]
-            [admin.shared.footer :refer [footer-home]]
-            [admin.shared.header :refer [header-dash nav-home]]
+            [admin.shared.header :refer [header-dash]]
             [admin.shared.modals :as modals :refer [modal-back]] 
             [admin.shared.sidebar :refer [sidebar-dash]] 
             [admin.shared.toasts :refer [toasts]]
-            [admin.state :as f-state]
+            [admin.auth.views :refer [login]]
             [re-frame.core :as re-frame]))
 
-(defn layout-dash [children]
-  (let [token @(re-frame/subscribe [::f-state/token])]
-    (if token 
-      [:div {:class "flex h-screen bg-gray-50 overflow-x-hidden"} 
-       [sidebar-dash]
-       [:div {:class "flex-1 flex flex-col w-full"} 
-        [header-dash]
-        [toasts] 
-        [:main {:class "flex-1 bg-gray-100"} 
-         [:div {:class "px-2 py-2 h-auto"}
-          [:div {:class css/main-container}
-           [:<> children]]]]]
-       [modal-back]]
-      [login])))
-
 (defn layout-admin [modals query-form list-table]
-  (let [token @(re-frame/subscribe [::f-state/token])]
-    (if token
+  (let [login-status @(re-frame/subscribe [:login-status])]
+    (if login-status
       [:div {:class "flex h-screen bg-gray-50 overflow-x-hidden"}
        [:div {:class "flex w-1/6 h-screen"}
         [sidebar-dash]]
@@ -40,9 +24,3 @@
           query-form
           list-table]]]]
       [login])))
-
-(defn layout-home [children]
-  [:div {:class "mx-auto w-full flex flex-col items-center justify-between"}
-   [nav-home]
-   children
-   [footer-home]])

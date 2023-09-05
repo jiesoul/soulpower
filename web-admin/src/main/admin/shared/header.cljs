@@ -1,10 +1,9 @@
 (ns admin.shared.header 
   (:require [cljs.pprint]
             [admin.shared.css :as css]
-            [admin.state :as f-state]
+            [admin.subs]
             [re-frame.core :as re-frame]
-            [reagent.core :as r]
-            [admin.util :as f-util]))
+            [reagent.core :as r]))
 
 (def css-user-dropdown-li-a "block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white")
 (def user-dropdown-show? (r/atom true))
@@ -33,12 +32,12 @@
      [:a {:href "#"
           :class "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 
                   dark:text-gray-200 dark:hover:text-white"
-          :on-click #(re-frame/dispatch [::f-state/logout])}
+          :on-click #(re-frame/dispatch [:logout])}
       "Sign out"]]]])
 
 (defn header-dash [] 
-  (let [login-user @(re-frame/subscribe [::f-state/login-user])
-        current-route @(re-frame/subscribe [::f-state/current-route])]
+  (let [login-user @(re-frame/subscribe [:login-user])
+        current-route @(re-frame/subscribe [:current-route])]
     [:header {:class "flex items-center justify-between px-6 py-4 bg-white border-b border-indigo-600"}
      [:div {:class "flex items-center"}
       [:div {:class "relative mx-4 lg:mx-0"}
@@ -51,29 +50,3 @@
               :on-click #(swap! user-dropdown-show? not)} 
           (when login-user (:username login-user))]
          (user-dropdown)])]]))
-
-(defn nav-home []
-  (let [current-route @(re-frame/subscribe [::f-state/current-route])
-        link-text (get-in current-route [:data :link-text])]
-    [:nav {:class "w-full shadow bg-white border-gray-200 dark:bg-gray-900 z-20 fixed"}
-     [:div {:class "max-w-5xl flex items-center justify-between mx-auto p-4"}
-      [:a {:href (f-util/href ::f-state/home)
-           :class "flex items-center"}
-       [:span {:class "self-center text-2xl font-semibold whitespace-nowrap dark:text-white"}
-        "Jiesoul"]] 
-      [:div {:class ""
-             :id "navbar-default"}
-       [:ul {:class "flex flex-row font-medium mt-0 mr-6 space-x-8 text-xl"}
-        [:li 
-         [:a {:class (if (= "Home" link-text) nav-home-link-current nav-home-link)
-              :href (f-util/href ::f-state/home)}
-          "主页"]]
-        [:li 
-         [:a {:class (if (= "Archive" link-text) nav-home-link-current nav-home-link)
-              :href (f-util/href ::f-state/archive)}
-          "归档"]]
-        [:li 
-         [:a {:class (if (= "About" link-text) nav-home-link-current nav-home-link)
-              :href (f-util/href ::f-state/about)}
-          "关于"]]]]
-      ]]))

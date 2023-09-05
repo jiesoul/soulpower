@@ -1,28 +1,11 @@
 (ns admin.shared.modals 
   (:require [admin.shared.svg :as svg]
-            [admin.state :as f-state]
+            [admin.subs]
+            [admin.events]
             [re-frame.core :as re-frame]))
 
-(re-frame/reg-event-db
- ::set-modal-backdrop-show?
- (fn [db [_ v]]
-   (assoc-in db [:current-route :modal :back] v)))
-
-(re-frame/reg-event-fx
- ::show-modal
- (fn [{:keys [db]} [_ key]]
-   {:db (-> db (assoc-in [:current-route :modal key] true))
-    :fx [[:dispatch [::set-modal-backdrop-show? true]]]}))
-
-(re-frame/reg-event-fx 
- ::close-modal
- (fn [{:keys [db]} [_ key]]
-   {:db (assoc-in db [:current-route :modal key] false)
-    :fx [[:dispatch [::set-modal-backdrop-show? false]]
-         [:dispatch [::f-state/clean-current-route-edit]]]}))
-
 (defn modal-back []
-  (let [modal-show? @(re-frame/subscribe [::f-state/current-modal-back?])]
+  (let [modal-show? @(re-frame/subscribe [:current-modal-back?])]
     [:div {:class (str (if modal-show? "" "hidden ")
                        "bg-gray-900 bg-opacity-50 dark:bg-opacity-80 fixed inset-0 z-30")}]))
 
@@ -52,25 +35,25 @@
 
 (defn modals-crud [title new-form edit-form delete-form]
   ;; modals
-  (let [new-modal? @(re-frame/subscribe [::f-state/current-new-modal?])
-        edit-modal? @(re-frame/subscribe [::f-state/current-edit-modal?])
-        delete-modal? @(re-frame/subscribe [::f-state/current-delete-modal?])]
+  (let [new-modal? @(re-frame/subscribe [:current-new-modal?])
+        edit-modal? @(re-frame/subscribe [:current-edit-modal?])
+        delete-modal? @(re-frame/subscribe [:current-delete-modal?])]
     [:div
      [modal  {:id "add-modal"
               :key (str title "-add-modal")
               :show? new-modal?
               :title (str title " Add")
-              :on-close #(re-frame/dispatch [::close-modal :new-modal?])}
+              :on-close #(re-frame/dispatch [:close-modal :new-modal?])}
       [new-form]]
      [modal  {:id "edit-modal"
               :key (str title "-edit-modal")
               :show? edit-modal?
               :title (str title " Edit")
-              :on-close #(re-frame/dispatch [::close-modal :edit-modal?])}
+              :on-close #(re-frame/dispatch [:close-modal :edit-modal?])}
       [edit-form]]
      [modal  {:id "delete-modal"
               :key (str title "-delete-modal")
               :show? delete-modal?
               :title (str title "Delete")
-              :on-close #(re-frame/dispatch [::close-modal :delete-modal?])}
+              :on-close #(re-frame/dispatch [:close-modal :delete-modal?])}
       [delete-form]]]))

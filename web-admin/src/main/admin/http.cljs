@@ -1,7 +1,7 @@
 (ns admin.http 
  (:require [ajax.core :as ajax]
-           [admin.util :as f-util]
-           [admin.state :as f-state]))
+           [day8.re-frame.http-fx]
+           [admin.util :as util]))
 
 (def ^:private api-base "http://localhost:8080")
 
@@ -10,13 +10,12 @@
 
 (defn get-headers [db]
   (let [token (get-in db [:login :user :token])
-        ret (cond-> {:Accept "application/json" :Content-Type "application/json"}
-                    token (assoc :authorization (str "Token " token)))
-        _ (f-util/clog "get-headers, ret" ret)]
-    ret))
+        header (cond-> {:Accept "application/json" :Content-Type "application/json"}
+                 token (assoc :authorization (str "Token " token)))
+        _ (util/clog "get-headers, header" header)]
+    header))
 
 (defn http [method db uri data on-success & on-failure]
-  (f-util/clog "http, uri" uri)
   (let [xhrio (cond-> {:debug true
                        :method method
                        :uri uri
@@ -24,10 +23,10 @@
                        :format (ajax/json-request-format)
                        :response-format (ajax/json-response-format {:keywords? true})
                        :on-success on-success
-                       :on-failure (if on-failure on-failure [::f-state/req-failed-message])}
+                       :on-failure (if on-failure on-failure [:req-failed-message])}
                       data (assoc :params data))]
     {:http-xhrio xhrio
-     :db db}))
+     :db (assoc db :loading true)}))
 
 (def http-post (partial http :post))
 (def http-get (partial http :get))

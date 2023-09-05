@@ -1,7 +1,8 @@
 (ns admin.shared.sidebar 
   (:require [reagent.core :as r]
             [re-frame.core :as re-frame]
-            [admin.state :as f-state]
+            [admin.subs]
+            [admin.views :as views]
             [admin.shared.svg :as svg]
             [admin.util :as f-util]))
 
@@ -15,7 +16,7 @@
   (if (= path uri) true false))
 
 (defn sidebar-dash []
-  (let [current-route @(re-frame/subscribe [::f-state/current-route])
+  (let [current-route @(re-frame/subscribe [:current-route])
         path (:path current-route)] 
     [:aside {:id "sidebar-dash"
              :class "fixed inset-y-0 left-0 w-64 overflow-y-auto transition duration-300
@@ -27,15 +28,15 @@
      
      [:ul {:class "mt-10"} 
       [:li>a {:class css-sidebar-li-a-top
-              :href (f-util/href ::f-state/dashboard)}
+              :href (f-util/href ::views/dashboard)}
        [:span {:class "mx-2"} "Dashboard"]] 
       
       [:li>a {:class css-sidebar-li-a-top
-              :href (f-util/href ::f-state/categories)}
+              :href (f-util/href ::views/categories)}
        [:span {:class "mx-2"} "Category"]]
       
       [:li>a {:class css-sidebar-li-a-top
-              :href (f-util/href ::f-state/tags)}
+              :href (f-util/href ::views/tags)}
        [:span {:class "mx-2"} "Tag"]]
 
       [:li 
@@ -48,17 +49,17 @@
        [:ul {:class "py-2 space-y-2"
              :hidden @articles-nav-show?}
         
-        [:li>a {:href (f-util/href ::f-state/articles)
+        [:li>a {:href (f-util/href ::views/articles)
                 :class css-sidebar-li-a-second}
          "Articles"] 
-        [:li>a {:href (f-util/href ::f-state/articles-comments)
+        [:li>a {:href (f-util/href ::views/articles-comments)
                 :class css-sidebar-li-a-second}
          "Comments"]]]
       
       [:li>a {:class css-sidebar-li-a-top
-              :href (f-util/href ::f-state/users)}
+              :href (f-util/href ::views/users)}
        [:span {:class "mx-3"} "User"]]
       
       [:li>a {:class css-sidebar-li-a-top
-              :href (f-util/href ::f-state/user-tokens)}
+              :href (f-util/href ::views/user-tokens)}
        [:span {:class "mx-3"} "User Token"]]]]))
