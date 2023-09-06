@@ -9,8 +9,8 @@
             [re-frame.core :as re-frame]))
 
 (defn layout-admin [modals query-form list-table]
-  (let [login-status @(re-frame/subscribe [:login-status])]
-    (if login-status
+  (let [login-user @(re-frame/subscribe [:login-user])]
+    (if login-user
       [:div {:class "flex h-screen bg-gray-50 overflow-x-hidden"}
        [:div {:class "flex w-1/6 h-screen"}
         [sidebar-dash]]

@@ -1,6 +1,6 @@
 (ns admin.events
-  (:require [admin.db :refer [default-db login-status-key MAX-TOASTS MAX-TIMEOUT]]
-            [re-frame.core :refer [reg-event-db reg-event-fx reg-cofx inject-cofx reg-fx dispatch]]
+  (:require [admin.db :refer [default-db MAX-TOASTS MAX-TIMEOUT]]
+            [re-frame.core :refer [reg-event-db reg-event-fx inject-cofx reg-fx dispatch]]
             [admin.auth.events]
             [admin.category.events]
             [admin.article.events]
@@ -18,21 +18,13 @@
  (fn [route]
    (apply rfe/push-state route)))
 
-
 ;;;;; events
-
-(reg-cofx
- :local-store-login-status
- (fn [cofx _]
-   (assoc cofx :local-store-login-status
-          (cljs.reader/read-string (.getItem js/localStorage login-status-key)))))
 
 (reg-event-fx
  :initialize-db
- [(inject-cofx :local-store-login-status)]
- (fn [{:keys [local-store-login-status]} _]
-   (let [db (assoc default-db :login local-store-login-status)
-         _ (util/clog "init default db: " db)]
+ [(inject-cofx :local-store-user)]
+ (fn [{:keys [local-store-user]} _]
+   (let [db (assoc default-db :login-user local-store-user)]
    {:db db})))
 
 (reg-event-fx
@@ -70,10 +62,18 @@
                                            :id (str (random-uuid))
                                            :timeout MAX-TIMEOUT))))))
 
+(defn push-toast 
+  [toasts t]
+  (let [toasts (if (>= (count toasts) MAX-TOASTS)
+                 (vec (rest toasts))
+                 toasts)]
+    (conj toasts (assoc t 
+                        :id (str (random-uuid))
+                        :timeout MAX-TIMEOUT))))
+
 (reg-event-db
  :remove-toast
  (fn [db [_ id]]
-   (util/clog "remove id: " id)
    (let [toasts (:toasts db)]
      (assoc db :toasts (->> toasts
                             (remove #(= (:id %) id))
@@ -86,6 +86,17 @@
    {:db db
     :fx [[:dispatch [:push-toast {:content (:message response)
                                   :type :error}]]]}))
+
+(reg-event-db                                         
+ :api-request-error                                   
+ (fn [db [_ {:keys [request-type loading]} response]]
+   (let [toasts (:toasts db)
+         t {:content (:message response)
+            :type :error}]
+     (-> db
+         (assoc :toasts (push-toast toasts t))
+         (assoc-in [:errors request-type] (get-in response [:response :errors]))
+         (assoc-in [:loading (or loading request-type)] false)))))
 
 ;; current edit
 
@@ -123,3 +134,8 @@
    {:db (assoc-in db [:current-route :modal key] false)
     :fx [[:dispatch [:set-modal-backdrop-show? false]]
          [:dispatch [:clean-current-route-edit]]]}))
+
+(reg-event-db
+ :modal 
+ (fn [db [_ data]]
+   (assoc-in db [:modal] data)))

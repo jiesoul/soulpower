@@ -1,6 +1,7 @@
 (ns admin.shared.header 
   (:require [cljs.pprint]
             [admin.shared.css :as css]
+            [admin.events]
             [admin.subs]
             [re-frame.core :as re-frame]
             [reagent.core :as r]))
@@ -32,7 +33,7 @@
      [:a {:href "#"
           :class "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 
                   dark:text-gray-200 dark:hover:text-white"
-          :on-click #(re-frame/dispatch [:logout])}
+          :on-click #(re-frame/dispatch [:logout!])}
       "Sign out"]]]])
 
 (defn header-dash [] 

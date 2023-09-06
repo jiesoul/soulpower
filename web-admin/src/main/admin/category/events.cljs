@@ -13,7 +13,7 @@
  (fn [{:keys [db]} [_ data]]
    (f-util/clog "query categories: " data)
    (f-http/http-get db
-                    (f-http/api-uri "/admin/categories")
+                    (f-http/api-uri-admin "categories")
                     data
                     [:query-categories-ok])))
 
@@ -29,7 +29,7 @@
  (fn [{:keys [db]} [_ category]]
    (f-util/clog "add category: " category)
    (f-http/http-post db
-                     (f-http/api-uri "/admin/categories")
+                     (f-http/api-uri "admin" "categories")
                      {:category category}
                      [::add-category-ok])))
 

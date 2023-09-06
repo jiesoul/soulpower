@@ -1,6 +1,7 @@
 (ns admin.subs 
   (:require [re-frame.core :as re-frame]
-            [admin.auth.subs]))
+            [admin.auth.subs])
+  (:require-macros [reagent.ratom :refer [reaction]]))
 
 (re-frame/reg-sub 
  :current-route 
@@ -61,4 +62,9 @@
  :current-route-categories
  (fn [db _]
    (get-in db [:current-route :categories])))
+
+(re-frame/reg-sub-raw
+ :modal 
+ (fn [db _]
+   (reaction (:modal @db))))
 

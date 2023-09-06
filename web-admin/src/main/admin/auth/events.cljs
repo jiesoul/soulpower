@@ -1,38 +1,37 @@
 (ns admin.auth.events
-  (:require [re-frame.core :refer [reg-event-fx reg-event-db after]]
-            [admin.db :refer [login->local-store]]
-            [admin.views :as views]
+  (:require [re-frame.core :refer [reg-event-fx after path trim-v]]
+            [admin.db :refer [login->local-store remove->ocal-store]]
             [admin.http :as http]
             [admin.util :as util]))
 
-(def login-interceptors (after login->local-store))
+(def set-user-interceptor [(path :login-user)
+                           (after login->local-store)
+                           trim-v])
 
-(reg-event-db
- :login-ok
- (fn [db [_ res-body]]
-   (let [_ (util/clog "res body: " res-body)
-         login {:user (:user (:data res-body))
-                :status :logged-in}
-         _ (login->local-store login)]
-     (-> db
-         (assoc :login login)))))
-
-(reg-event-fx
- :login-failed
- (fn [{:keys [db]} [_ res-body]]
-   {:db (-> db (assoc-in [:login] nil))
-    :fx [[:dispatch [:push-toast {:type :error 
-                                  :message "登录失败"}]]]}))
+(def remove-user-interceptor [(after remove->ocal-store)])
 
 (reg-event-fx
  :login!
  (fn [{:keys [db]} [_ user-data]]
-   (http/http-post db (http/api-uri "/login") user-data [:login-ok])))
+   (http/http-post (assoc-in db [:loaading :login] true) 
+                   (http/api-uri "login") 
+                   user-data 
+                   [:login-ok]
+                   [:api-request-error {:request-type :login}])))
+
+(reg-event-fx
+ :login-ok
+ set-user-interceptor
+ (fn [{db :db} [res-body]]
+   (let [_ (util/clog "res body: " res-body)]
+     {:db (-> db 
+              (merge (:user (:data res-body)))
+              (assoc-in [:loading :login] false))})))
 
 (reg-event-fx
  :logout!
- (fn [{:keys [db]} [_]]
+ remove-user-interceptor
+ (fn [{:keys [db]} _]
    {:db (-> db
-            (assoc-in [:login] nil)
-            (assoc-in [:current-route] nil))
-    :fx [[:dispatch [:navigate ::views/login]]]}))
+            (assoc-in [:login-user] nil)
+            (assoc-in [:current-route] :login))}))

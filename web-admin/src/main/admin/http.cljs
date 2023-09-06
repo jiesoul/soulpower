@@ -1,19 +1,38 @@
 (ns admin.http 
  (:require [ajax.core :as ajax]
            [day8.re-frame.http-fx]
-           [admin.util :as util]))
+           [admin.util :as util]
+           [clojure.string :as str]
+           [cljs.reader :as rdr]))
 
 (def ^:private api-base "http://localhost:8080")
 
-(defn api-uri [route & s]
-  (apply str api-base route s))
+(defn api-uri [& params]
+  (str/join "/" (cons api-base params)))
+
+(defn api-uri-admin [& params]
+  (str/join "/" (cons (str api-base "/admin") params)))
 
 (defn get-headers [db]
-  (let [token (get-in db [:login :user :token])
+  (let [token (get-in db [:login-user :token])
         header (cond-> {:Accept "application/json" :Content-Type "application/json"}
                  token (assoc :authorization (str "Token " token)))
         _ (util/clog "get-headers, header" header)]
     header))
+
+(defn add-epoch
+  "Add :epoch timestamp based on :createdAt field."
+  [item]
+  (assoc item :epoch (-> item :createdAt rdr/parse-timestamp .getTime)))
+
+(defn index-by
+  "Index collection by function f (usually a keyword) as a map"
+  [f coll]
+  (into {}
+        (map (fn [item]
+               (let [item (add-epoch item)]
+                 [(f item) item])))
+        coll))
 
 (defn http [method db uri data on-success & on-failure]
   (let [xhrio (cond-> {:debug true

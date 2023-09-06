@@ -22,9 +22,9 @@
     (fn []
       (let [_ (util/clog "Enter login")
             title "Login"
-            status @(re-frame/subscribe [:login-status])
-            _ (util/clog "login statue" status)
-            _ (when status (re-frame/dispatch [:navigate ::views/dashboard]))] 
+            login-user @(re-frame/subscribe [:login-user])
+            _ (util/clog "login statue" login-user)
+            _ (when login-user (re-frame/dispatch [:navigate ::views/dashboard]))] 
         [:div {:class "flex justify-center items-center h-screen bg-gray-200 px-6"}
          [:div {:class "p-6 max-w-sm w-full bg-white shadow-md rounded-md"}
           [:div {:class "flex justify-center items-center"}

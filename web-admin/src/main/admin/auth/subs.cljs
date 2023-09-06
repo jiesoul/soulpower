@@ -4,7 +4,7 @@
 (reg-sub
  :login-user
  (fn [db]
-   (get-in db [:login :user])))
+   (get-in db [:login-user])))
 
 (reg-sub
  :login-status

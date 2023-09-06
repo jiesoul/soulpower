@@ -20,8 +20,8 @@
                 :modules {:main {:init-fn admin.main/init!}}
             ;;     :build-hooks [(shadow.cljs.build-report/hook)]
                 :devtools {:watch-dir "public"
-                           :preloads [day8.re-frame-10x.preload
-                                      devtools.preload]
+                           :preloads [devtools.preload
+                                      day8.re-frame-10x.preload]
                            :ignore-warning true}
                 :dev {:compiler-options
                       {:closure-defines
