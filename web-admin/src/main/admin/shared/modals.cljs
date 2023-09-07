@@ -71,25 +71,18 @@
                           p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white")
 
 (defn- close-modal []
-  (re-frame/dispatch [:modal {:show? false :child nil}]))
+  (re-frame/dispatch [:set-current-route-modal nil]))
 
-(defn modal-panel [{:keys [title child size show? on-close]}]
+(defn modal-panel [{:keys [title child size]}]
   [:div {:class modal-wrapper}
-   [:div {:class modal-backdrop
-          :on-click (fn [event]
-                      (do 
-                        (re-frame/dispatch [:modal {:show? (not show?)
-                                           :child nil
-                                           :size :default}])
-                        (.preventDefault event)
-                        (.stopPropagation event)))}]
+   [:div {:class modal-backdrop}]
    [:div {:class modal-child
           :style {:width (case size 
                            :extra-small "15%"
                            :small "30%"
                            :large "70%"
                            :extra-large "85%"
-                           "50%")}
+                           "100%")}
           :role "dialog"}
     [:div {:class modal-content}
           ;; Modal content
@@ -102,10 +95,10 @@
                  :on-click #(close-modal)}
         (svg/close)]]
           ;; Modal body
-      child]]]])
+      [child]]]]])
 
-(defn modals []
-  (let [modal (re-frame/subscribe [:modal])]
+(defn common-modal []
+  (let [modal (re-frame/subscribe [:current-route-modal])]
     (fn []
       [:div 
        (if (:show? @modal)

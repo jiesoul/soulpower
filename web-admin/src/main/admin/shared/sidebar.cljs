@@ -1,10 +1,8 @@
 (ns admin.shared.sidebar 
   (:require [reagent.core :as r]
             [re-frame.core :as re-frame]
-            [admin.subs]
-            [admin.views :as views]
-            [admin.shared.svg :as svg]
-            [admin.util :as f-util]))
+            [admin.subs :as views]
+            [admin.shared.svg :as svg]))
 
 (def articles-nav-show? (r/atom true))
 
@@ -18,48 +16,56 @@
 (defn sidebar-dash []
   (let [current-route @(re-frame/subscribe [:current-route])
         path (:path current-route)] 
-    [:aside {:id "sidebar-dash"
-             :class "fixed inset-y-0 left-0 w-64 overflow-y-auto transition duration-300
+    (fn []
+      [:aside {:id "sidebar-dash"
+               :class "fixed inset-y-0 left-0 w-64 overflow-y-auto transition duration-300
                       transform bg-gray-900 lg:translate-x-0 lg:static lg:inset-0"
-             :aria-label "Sidebar"}
-     [:div {:class "flex items-center justify-center mt-8"}
-      [:div {:class "flex items-center"}
-       [:span {:class "mx-2 text-2xl font-semibold text-white"} "Admin"]]] 
-     
-     [:ul {:class "mt-10"} 
-      [:li>a {:class css-sidebar-li-a-top
-              :href (f-util/href ::views/dashboard)}
-       [:span {:class "mx-2"} "Dashboard"]] 
-      
-      [:li>a {:class css-sidebar-li-a-top
-              :href (f-util/href ::views/categories)}
-       [:span {:class "mx-2"} "Category"]]
-      
-      [:li>a {:class css-sidebar-li-a-top
-              :href (f-util/href ::views/tags)}
-       [:span {:class "mx-2"} "Tag"]]
+               :aria-label "Sidebar"}
+       [:div {:class "flex items-center justify-center mt-8"}
+        [:div {:class "flex items-center"}
+         [:span {:class "mx-2 text-2xl font-semibold text-white"} "Admin"]]]
 
-      [:li 
-       [:button {:type "button"
-                 :class "flex items-center w-full px-6 py-2 mt-4 text-gray-100 bg-gray-700 bg-opacity-25"
-                 :on-click #(swap! articles-nav-show? not)}
-        [:span {:class "mx-3"
-                :sidebartoggleitem "true"} "Article"]
-        (svg/chevron-up)]
-       [:ul {:class "py-2 space-y-2"
-             :hidden @articles-nav-show?}
-        
-        [:li>a {:href (f-util/href ::views/articles)
-                :class css-sidebar-li-a-second}
-         "Articles"] 
-        [:li>a {:href (f-util/href ::views/articles-comments)
-                :class css-sidebar-li-a-second}
-         "Comments"]]]
-      
-      [:li>a {:class css-sidebar-li-a-top
-              :href (f-util/href ::views/users)}
-       [:span {:class "mx-3"} "User"]]
-      
-      [:li>a {:class css-sidebar-li-a-top
-              :href (f-util/href ::views/user-tokens)}
-       [:span {:class "mx-3"} "User Token"]]]]))
+       [:ul {:class "mt-10"}
+        [:li>a {:class css-sidebar-li-a-top
+                :href "#"
+                :on-click #(re-frame/dispatch [:navigate ::views/dashboard])}
+         [:span {:class "mx-2"} "Dashboard"]]
+
+        [:li>a {:class css-sidebar-li-a-top
+                :href "#"
+                :on-click #(re-frame/dispatch [:navigate ::views/categories])}
+         [:span {:class "mx-2"} "Category"]]
+
+        [:li>a {:class css-sidebar-li-a-top
+                :href "#"
+                :on-click #(re-frame/dispatch [:navigate ::views/tags])}
+         [:span {:class "mx-2"} "Tag"]]
+
+        [:li
+         [:button {:type "button"
+                   :class "flex items-center w-full px-6 py-2 mt-4 text-gray-100 bg-gray-700 bg-opacity-25"
+                   :on-click #(swap! articles-nav-show? not)}
+          [:span {:class "mx-3"
+                  :sidebartoggleitem "true"} "Article"]
+          (svg/chevron-up)]
+         [:ul {:class "py-2 space-y-2"
+               :hidden @articles-nav-show?}
+
+          [:li>a {:href "#"
+                  :on-click #(re-frame/dispatch [:navigate ::views/articles])
+                  :class css-sidebar-li-a-second}
+           "Articles"]
+          [:li>a {:href "#"
+                  :on-click #(re-frame/dispatch [:navigate ::views/articles-comments])
+                  :class css-sidebar-li-a-second}
+           "Comments"]]]
+
+        [:li>a {:class css-sidebar-li-a-top
+                :href "#"
+                :on-click #(re-frame/dispatch [:navigate ::views/users])}
+         [:span {:class "mx-3"} "User"]]
+
+        [:li>a {:class css-sidebar-li-a-top
+                :href "#"
+                :on-click #(re-frame/dispatch [:logout!])}
+         [:span {:class "mx-3"} "Log out"]]]])))

@@ -1,6 +1,7 @@
 (ns admin.main
-  (:require [admin.events]
-            [admin.views :as views]
+  (:require [day8.re-frame.http-fx]
+            [admin.events]
+            [admin.subs :as views]
             [admin.article.views :as article]
             [admin.article-comment.views :as article-comment]
             [admin.category.views :as category]
@@ -18,7 +19,7 @@
 (def routes
   ["/"
    
-   ["" {:name ::views/login
+   ["" {:name ::login
         :view auth/login
         :link-text "Login"
         :controllers [{:start (fn [& params] (js/console.log (str "Entering login, params: " params)))

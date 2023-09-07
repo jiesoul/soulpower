@@ -1,11 +1,10 @@
 (ns admin.http 
  (:require [ajax.core :as ajax]
-           [day8.re-frame.http-fx]
            [admin.util :as util]
            [clojure.string :as str]
            [cljs.reader :as rdr]))
 
-(def ^:private api-base "http://localhost:8080")
+(def ^:private api-base "http://localhost:8088")
 
 (defn api-uri [& params]
   (str/join "/" (cons api-base params)))

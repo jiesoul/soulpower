@@ -1,6 +1,6 @@
 (ns admin.auth.events
   (:require [re-frame.core :refer [reg-event-fx after path trim-v]]
-            [admin.db :refer [login->local-store remove->ocal-store]]
+            [admin.db :refer [login->local-store remove->ocal-store default-db]]
             [admin.http :as http]
             [admin.util :as util]))
 
@@ -16,8 +16,7 @@
    (http/http-post (assoc-in db [:loaading :login] true) 
                    (http/api-uri "login") 
                    user-data 
-                   [:login-ok]
-                   [:api-request-error {:request-type :login}])))
+                   [:login-ok])))
 
 (reg-event-fx
  :login-ok
@@ -31,7 +30,5 @@
 (reg-event-fx
  :logout!
  remove-user-interceptor
- (fn [{:keys [db]} _]
-   {:db (-> db
-            (assoc-in [:login-user] nil)
-            (assoc-in [:current-route] :login))}))
+ (fn [_ _]
+   {:db default-db}))

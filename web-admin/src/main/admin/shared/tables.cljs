@@ -1,5 +1,6 @@
 (ns admin.shared.tables 
-  (:require [admin.shared.page :refer [page-dash]] ))
+  (:require [admin.shared.page :refer [page-dash]] 
+            [re-frame.core :as re-frame]))
 
 (def css-list "relative shadow-md sm:rounded-lg w-full whitespace-nowrap overflow-x-auto")
 (def css-list-table "w-full p-2 overflow-x-auto border-collapse border border-gray-100 text-sm text-center text-gray-500 dark:text-gray-400")
@@ -12,26 +13,25 @@
 (def css-list-table-tbody-tr-td "px-2 py-2 border whitespace-no-wrap border-gray-200")
 
 (defn table-admin [{:keys [columns datasources pagination]}]
-  [:div {:class css-list}
-   [:table {:class css-list-table}
-    [:thead {:class css-list-table-thead} 
-     [:tr
-      (for [{:keys [data-index title key] :as column} columns]
-        [:th (merge {:class css-list-table-thead-tr-th
-                     :data-index data-index
-                     :key key} 
-                    (select-keys [:key :class] column)) title])]]
-    [:tbody {:class css-list-table-tbody}
-     (for [ds datasources]
-       [:tr {:class css-list-table-tbody-tr
-             :key (str "tr-" (random-uuid))}
-        (for [{:keys [key render format]} columns]
-          [:td {:class css-list-table-tbody-tr-td
-                :key (str key ":" (key ds))}
-           (let [v (key ds)
-                 v (if format (format v) v)]
-             (if-not render
-               v
-               (render ds)))])])]] 
-   [page-dash pagination]])
-
+        [:div {:class css-list}
+         [:table {:class css-list-table}
+          [:thead {:class css-list-table-thead}
+           [:tr
+            (for [{:keys [data-index title key] :as column} columns]
+              [:th (merge {:class css-list-table-thead-tr-th
+                           :data-index data-index
+                           :key key}
+                          (select-keys [:key :class] column)) title])]]
+          [:tbody {:class css-list-table-tbody}
+           (for [ds datasources]
+             [:tr {:class css-list-table-tbody-tr
+                   :key (str "tr-" (random-uuid))}
+              (for [{:keys [key render format]} columns]
+                [:td {:class css-list-table-tbody-tr-td
+                      :key (str key ":" (key ds))}
+                 (let [v (key ds)
+                       v (if format (format v) v)]
+                   (if-not render
+                     v
+                     (render ds)))])])]]
+         [page-dash pagination]])

@@ -8,10 +8,9 @@
 (s/def ::done boolean?)
 
 (def MAX-TOASTS 5)
-(def MAX-TIMEOUT 5000)
-(def TIMEOUT 3)
+(def MAX-TIMEOUT 20000)
 
-(def default-db {:toasts (vec [])
+(def default-db {:toasts {}
                  :login-user nil
                  :current-route nil})
 
@@ -32,4 +31,12 @@
           (-> (.getItem js/localStorage login-user-key)
               (cljs.reader/read-string)))))
 
+(reg-cofx 
+ :now 
+ (fn [cofx _]
+   (assoc cofx :now (js/Date.))))
 
+(reg-cofx
+ :uuid 
+ (fn [cofx _]
+   (assoc cofx :uuid (keyword (str (random-uuid))))))

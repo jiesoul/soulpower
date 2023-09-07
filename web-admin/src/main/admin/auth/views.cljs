@@ -1,6 +1,8 @@
 (ns admin.auth.views
   (:require [re-frame.core :as re-frame]
-            [admin.views :as views]
+            [admin.events]
+            [admin.subs :as views]
+            [admin.shared.toasts :refer [toasts]]
             [admin.util :as util]
             [reagent.core :as r]))
 
@@ -18,14 +20,14 @@
             :on-change on-change}]])
 
 (defn login []
-  (let [login-data (r/atom (empty-creds))]
+  (let [login-data (r/atom (empty-creds))
+        login-user (re-frame/subscribe [:login-user])]
     (fn []
       (let [_ (util/clog "Enter login")
-            title "Login"
-            login-user @(re-frame/subscribe [:login-user])
-            _ (util/clog "login statue" login-user)
-            _ (when login-user (re-frame/dispatch [:navigate ::views/dashboard]))] 
+            _ (when @login-user (re-frame/dispatch [:navigate ::views/dashboard]))
+            title "Login"] 
         [:div {:class "flex justify-center items-center h-screen bg-gray-200 px-6"}
+         [toasts]
          [:div {:class "p-6 max-w-sm w-full bg-white shadow-md rounded-md"}
           [:div {:class "flex justify-center items-center"}
            [:span {:class "text-gray-700 font-semibold text-2xl"} title]] 

@@ -18,38 +18,39 @@
                     [:query-categories-ok])))
 
 (re-frame/reg-event-fx
- ::add-category-ok
+ :add-category-ok
  (fn [{:keys [db]} [_ resp]]
    (let [_ (f-util/clog "add category ok: " resp)]
      {:db db
-      :fx [[:dispatch [:push-toast {:content "添加成功" :type :info}]]]})))
+      :dispatch-n [[:push-toast {:content "添加成功" :type :info}]
+                   [:query-categories]]})))
 
 (re-frame/reg-event-fx
- ::add-category
+ :add-category
  (fn [{:keys [db]} [_ category]]
    (f-util/clog "add category: " category)
    (f-http/http-post db
                      (f-http/api-uri "admin" "categories")
                      {:category category}
-                     [::add-category-ok])))
+                     [:add-category-ok])))
 
 (re-frame/reg-event-fx
- ::get-category-ok
+ :get-category-ok
  (fn [{:keys [db]} [_ resp]]
    {:db db
     :fx [[:dispatch [:init-current-route-edit (:data resp)]]]}))
 
 (re-frame/reg-event-fx
- ::get-category
+ :get-category
  (fn [{:keys [db]} [_ id]]
    (f-util/clog "Get a Category: " id)
    (f-http/http-get db
                     (f-http/api-uri "/admin/categories/" id)
                     {}
-                    [::get-category-ok])))
+                    [:get-category-ok])))
 
 (re-frame/reg-event-fx
- ::update-category-ok
+ :update-category-ok
  (fn [{:keys [db]} [_ category]]
    (let [_ (f-util/clog "update category: " category)]
      {:db db
@@ -58,15 +59,15 @@
                                       :type :success}]]]})))
 
 (re-frame/reg-event-fx
- ::update-category
+ :update-category
  (fn [{:keys [db]} [_ category]]
    (f-http/http-patch db
                       (f-http/api-uri "/admin/categories/" (:id category))
                       {:category category}
-                      [::update-category-ok category])))
+                      [:update-category-ok category])))
 
 (re-frame/reg-event-fx
- ::delete-category-ok
+ :delete-category-ok
  (fn [{:keys [db]} _]
    (let [{:keys [id name]} (-> db :current-route :edit)
          categories (remove #(= id (:id %)) (-> db :current-route :result :list))
@@ -77,10 +78,10 @@
            [:dispatch [:close-modal :delete-modal?]]]})))
 
 (re-frame/reg-event-fx
- ::delete-category
+ :delete-category
  (fn [{:keys [db]} [_ id]]
    (f-util/clog "Delete Category")
    (f-http/http-delete db
                        (f-http/api-uri "/admin/categories/" id)
                        {}
-                       [::delete-category-ok])))
+                       [:delete-category-ok])))

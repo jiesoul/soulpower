@@ -1,6 +1,6 @@
 (ns admin.events
-  (:require [admin.db :refer [default-db MAX-TOASTS MAX-TIMEOUT]]
-            [re-frame.core :refer [reg-event-db reg-event-fx inject-cofx reg-fx dispatch]]
+  (:require [admin.db :refer [default-db MAX-TIMEOUT]]
+            [re-frame.core :refer [reg-event-db reg-event-fx inject-cofx reg-fx dispatch subscribe]]
             [admin.auth.events]
             [admin.category.events]
             [admin.article.events]
@@ -14,9 +14,17 @@
 ;; Triggering navigation from events.
 
 (reg-fx
- ::navigate!
+ :navigate!
  (fn [route]
    (apply rfe/push-state route)))
+
+(reg-fx 
+ :timeout 
+ (fn [{:keys [event time]}]
+   (js/setTimeout 
+    (fn []
+      (dispatch event))
+    time)))
 
 ;;;;; events
 
@@ -30,7 +38,7 @@
 (reg-event-fx
  :navigate
  (fn [_ [_ & route]]
-   {::navigate! route}))
+   {:navigate! route}))
 
 (reg-event-db
  :navigated
@@ -43,60 +51,45 @@
        (= "/" new-match) (-> (assoc :login nil)
                              (assoc :user nil))))))
 
+;; toasts
 
-(reg-event-db
- :pop-toast
- (fn [db _]
-   (update-in db [:toasts] #(-> % rest vec))))
-
-(defonce do-timer (js/setInterval (dispatch [:pop-toast]) 3000))
-
-(reg-event-db
+(reg-event-fx
  :push-toast
- (fn [db [_ t]]
-   (let [toasts (:toasts db)
-         toasts (if (>= (count toasts) MAX-TOASTS)
-                  (vec (rest toasts))
-                  toasts)]
-     (assoc db :toasts (conj toasts (assoc t
-                                           :id (str (random-uuid))
-                                           :timeout MAX-TIMEOUT))))))
-
-(defn push-toast 
-  [toasts t]
-  (let [toasts (if (>= (count toasts) MAX-TOASTS)
-                 (vec (rest toasts))
-                 toasts)]
-    (conj toasts (assoc t 
-                        :id (str (random-uuid))
-                        :timeout MAX-TIMEOUT))))
+ [(inject-cofx :uuid)]
+ (fn [{:keys [db uuid]} [_ t]]
+   {:db (assoc-in db [:toasts uuid] t)
+    :timeout {:event [:remove-toast uuid]
+              :time MAX-TIMEOUT}}))
 
 (reg-event-db
  :remove-toast
  (fn [db [_ id]]
-   (let [toasts (:toasts db)]
-     (assoc db :toasts (->> toasts
-                            (remove #(= (:id %) id))
-                            vec)))))
+   (update-in db [:toasts] dissoc id)))
+
+;; server error handler
 
 (reg-event-fx
  :req-failed-message
  (fn [{:keys [db]} [_ {:keys [response]}]]
    (util/clog "resp failed: " response)
-   {:db db
+   {:db (assoc-in db [:loading] false)
     :fx [[:dispatch [:push-toast {:content (:message response)
                                   :type :error}]]]}))
 
-(reg-event-db                                         
- :api-request-error                                   
- (fn [db [_ {:keys [request-type loading]} response]]
-   (let [toasts (:toasts db)
-         t {:content (:message response)
-            :type :error}]
-     (-> db
-         (assoc :toasts (push-toast toasts t))
-         (assoc-in [:errors request-type] (get-in response [:response :errors]))
-         (assoc-in [:loading (or loading request-type)] false)))))
+(reg-event-db
+ :set-current-route-modal
+ (fn [db [_ data]]
+   (assoc-in db [:current-route :modal] data)))
+
+(reg-event-db
+ :set-current-route-query
+ (fn [db [_ data]]
+   (assoc-in db [:current :query] data)))
+
+(reg-event-db 
+ :set-current-route-datasources
+ (fn [db [_ data]]
+   (assoc-in db [:current-route :datasources] data)))
 
 ;; current edit
 
@@ -135,7 +128,4 @@
     :fx [[:dispatch [:set-modal-backdrop-show? false]]
          [:dispatch [:clean-current-route-edit]]]}))
 
-(reg-event-db
- :modal 
- (fn [db [_ data]]
-   (assoc-in db [:modal] data)))
+

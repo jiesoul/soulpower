@@ -18,7 +18,7 @@
                                   (dissoc :password)
                                   (assoc :token token))}))
 
-      (resp-util/not-found "用户名或密码错误"))))
+      (resp-util/bad-request "用户名或密码错误"))))
 
 (defn logout [_ user]
     (let [_ (log/info "User: " user " is logout")]

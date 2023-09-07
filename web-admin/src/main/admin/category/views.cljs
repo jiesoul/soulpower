@@ -6,8 +6,7 @@
                                              red-button]]
             [admin.shared.css :as css]
             [admin.shared.form-input :refer [text-input-backend]]
-            [admin.shared.layout :refer [layout-admin]]
-            [admin.shared.modals :as  modals]
+            [admin.shared.layout :refer [layout]]
             [admin.shared.tables :refer [table-admin]]
             [admin.util :as f-util]
             [re-frame.core :as re-frame]
@@ -23,30 +22,23 @@
 
 (defn new-form []
   (let [edit (r/atom {:name ""
-                      :description ""})
-        name (r/cursor edit [:name])
-        description (r/cursor edit [:description])]
-    [:form 
-     [:div {:class "grid gap-4 mb-6 sm:grid-cols-2"} 
-      [:div 
-       (text-input-backend {:label "Name："
-                            :name "name"
-                            :required true 
-                            :default-value ""
-                            :on-blur #(check-name (f-util/get-value %))
-                            :on-change #(reset! name (f-util/get-value %))})
-       (when @name-error
-         [:p {:class "mt-2 text-sm text-red-600 dark:text-red-500"}
-          [:span {:class "font-medium"}]
-          @name-error])]
-      [:div 
-       (text-input-backend {:label "Description"
-                            :name "descrtiption" 
-                            :default-value ""
-                            :on-change #(reset! description (f-util/get-value %))})]] 
-     [:div {:class "flex justify-center items-center space-x-4 mt-4"} 
-      [new-button {:on-click #(re-frame/dispatch [:add-category @edit])}
-       "Save"]]]))
+                      :description ""})]
+    (fn []
+      [:form
+       [:div {:class "grid gap-4 mb-6 sm:grid-cols-2"}
+        [:div
+         (text-input-backend {:label "Name："
+                              :name "name"
+                              :required true
+                              :on-blur #(check-name (f-util/get-value %))
+                              :on-change #(swap! edit assoc :name (f-util/get-value %))})]
+        [:div
+         (text-input-backend {:label "Description"
+                              :name "descrtiption"
+                              :on-change #(swap! edit assoc :description (f-util/get-value %))})]]
+       [:div {:class "flex justify-center items-center space-x-4 mt-4"}
+        [new-button {:on-click #(re-frame/dispatch [:add-category @edit])}
+         "Save"]]])))
 
 (defn edit-form []
   (let [current (re-frame/subscribe [:current-route-edit]) 
@@ -81,12 +73,18 @@
         [red-button {:on-click #(re-frame/dispatch [:delete-category (:id @current)])}
          "Delete"]]])))
 
+(defn action-fn [d]
+  [edit-del-modal-btns [::get-category (:id d)]])
+
+(def columns [{:key :name :title "Name"}
+              {:key :description :title "Description"}
+              {:key :operation :title "Actions" :render action-fn}])
+
 (defn query-form []
   ;; page query form
   (let [q-data (r/atom {:page-size 10 :page 1 :filter "" :sort ""})
         filter (r/cursor q-data [:filter])]
     [:<> 
-     [:form
       [:div {:class "flex-1 flex-col my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"}
        [:div {:class "grid grid-cols-4 gap-3"}
         [:div {:class "max-w-10 flex"}
@@ -98,24 +96,22 @@
        [:div {:class "felx inline-flex justify-center items-center w-full"}
         [btn {:on-click #(re-frame/dispatch [:query-categories @q-data])
               :class css/buton-purple} "Query"]
-        [btn {:on-click #(re-frame/dispatch [:show-modal :new-modal?])
-              :class css/button-green} "New"]]]]
+        [btn {:on-click #(re-frame/dispatch [:set-current-route-modal {:show? true?
+                                                                       :title "Category Add"
+                                                                       :child new-form}])
+              :class css/button-green} "New"]]]
+      
      [:div {:class "h-px my-4 bg-blue-500 border-0 dark:bg-blue-700"}]]))
 
-(defn action-fn [d]
-  [edit-del-modal-btns [::get-category (:id d)]])
-
-(def columns [{:key :name :title "Name"}
-              {:key :description :title "Description"}
-              {:key :operation :title "Actions" :render action-fn}])
+(defn data-table []
+  (let [datasources (re-frame/subscribe [:datasources])]
+    (fn []
+      [table-admin {:columns columns
+                    :datasources (:list @datasources)
+                    :pagination (:pagination @datasources)}])))
 
 (defn index [] 
-  (let [{:keys [list total opts]} @(re-frame/subscribe [:current-route-result]) 
-        pagination (assoc opts :total total :query-params opts :url :query-categories) 
-        data-sources list]
-    [layout-admin 
-     [modals/modals-crud "Category" new-form edit-form delete-form]
-     [query-form]
-     [table-admin {:columns columns
-                   :datasources data-sources
-                   :pagination pagination}]]))
+    [layout
+     [:<>
+      [query-form]
+      [data-table]]])
