@@ -2,7 +2,7 @@
     (:require ["moment" :as moment]
               [clojure.string :as str]
               [admin.shared.buttons :refer [default-button edit-del-modal-btns
-                                               edit-button new-button red-button]]
+                                               btn-edit btn-new red-button]]
               [admin.shared.form-input :refer [checkbox-input select-input
                                                   text-input
                                                   text-input-backend textarea]]
@@ -55,7 +55,7 @@
                  :default-value ""
                  :on-change #(reset! content-md (f-util/get-trim-value %))}]
       [:div {:class "flex justify-center items-center space-x-4 mt-4"}
-       [new-button {:on-click #(re-frame/dispatch [::add-article @article])}
+       [btn-new {:on-click #(re-frame/dispatch [::add-article @article])}
         "Save"]]]]))
 
 (defn edit-form [] 
@@ -93,7 +93,7 @@
                  :default-value (:content-md detail)
                  :on-change #(reset! content-edit (f-util/get-trim-value %))}]
       [:div {:class "flex justify-center items-center space-x-4 mt-4"}
-       [new-button {:on-click #(re-frame/dispatch [::update-article @article])}
+       [btn-new {:on-click #(re-frame/dispatch [::update-article @article])}
         "Save"]]]]))
 
 (defn push-form [] 
@@ -132,7 +132,7 @@
                    :key (:id c)} (:name c)])]
       
       [:div {:class "flex justify-center items-center space-x-4 mt-4"}
-       [new-button {:on-click #(re-frame/dispatch [::push-article @article])}
+       [btn-new {:on-click #(re-frame/dispatch [::push-article @article])}
         "Psuh"]]]
      [:p "Content: " (:content-md detail)]]))
 
@@ -165,7 +165,7 @@
       [:div {:class "flex inline-flex justify-center items-center w-full"}
        [default-button {:on-click #(re-frame/dispatch [::query-articles @q-data])}
         "Query"]
-       [new-button {:on-click #(re-frame/dispatch [:show-modal :new-modal?])}
+       [btn-new {:on-click #(re-frame/dispatch [:show-modal :new-modal?])}
         "New"]]]]))
 
 (defn actions [d] 
@@ -175,11 +175,10 @@
      (when (zero? push-flag)
        [:<> 
         [:span " | "]
-        [edit-button {:on-click #(do
+        [btn-edit {:on-click #(do
                                    (re-frame/dispatch [::get-article (:id d)])
                                    (re-frame/dispatch [:show-modal :push-modal?]))}
-         "Push"] 
-        ])]))
+         "Push"] ])]))
 
 (def columns [{:key :id :title "ID"}
               {:key :title :title "Title"}
@@ -202,7 +201,6 @@
         push-modal-show? @(re-frame/subscribe [:current-push-modal?])]
     [layout-admin
      [:<>
-      [modals/modals-crud "Article" new-form edit-form delete-form]
       [modals/modal  {:id "Delete-article"
                       :title "Delete article"
                       :show? push-modal-show?

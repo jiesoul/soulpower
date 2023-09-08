@@ -20,6 +20,9 @@
   (let [v (str/trim (get-value d))]
     (if (or (nil? v) (str/blank? v)) nil v)))
 
+(defn gen-filter-like [n e]
+  (str n " lk " (get-trim-value e)))
+
 (defn blank? [v]
   (or (nil? v) (str/blank? v)))
 

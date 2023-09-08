@@ -1,4 +1,4 @@
-(ns admin.shared.buttons 
+(ns admin.shared.buttons
   (:require [re-frame.core :as re-frame]
             [admin.shared.modals :as modals]))
 
@@ -27,6 +27,28 @@
                     dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 
                     dark:focus:ring-red-900")
 
+(def btn-base "focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium px-2 py-1 text-medium 
+               text-center mr-2 mb-2 border hover:text-white dark:hover:text-white")
+
+;; Button
+(def button-default (str btn-base " text-blue-700 border-blue-700 hover:bg-blue-800 
+                      dark:border-blue-500 dark:text-blue-500 dark:hover:bg-blue-500 dark:focus:ring-blue-800"))
+
+(def button-dark  (str btn-base " text-gray-900 hover:text-white border-gray-800 hover:bg-gray-900 
+                   dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-600 dark:focus:ring-gray-800"))
+
+(def button-green (str btn-base " text-green-700 hover:text-white border border-green-700 hover:bg-green-800 
+                   dark:border-green-500 dark:text-green-500 dark:hover:bg-green-600 dark:focus:ring-green-800"))
+
+(def button-red (str btn-base " text-red-700 border-red-700 hover:bg-red-800  
+                               dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:focus:ring-red-900"))
+
+(def button-yellow (str btn-base "text-yellow-400 border-yellow-400 hover:bg-yellow-500 dark:border-yellow-300 
+                                  dark:text-yellow-300 dark:hover:bg-yellow-400 dark:focus:ring-yellow-900"))
+
+(def buton-purple (str btn-base " text-purple-700 border-purple-700 hover:bg-purple-800 dark:border-purple-400 
+                                 dark:text-purple-400 dark:hover:bg-purple-500 dark:focus:ring-purple-900"))
+
 (def css-edit "font-medium text-blue-600 dark:text-blue-500 hover:underline")
 (def css-delete "font-medium text-red-600 dark:text-red-500 hover:underline")
 
@@ -34,26 +56,6 @@
   (into
    [:button (merge {:type "button"
                     :class css-default} props)] children))
-
-(defn loading-button [{:keys [loading class]} & children]
-  (let [class (str class " flex items-center focus:outline-none"
-                   (when loading " pointer-events-none bg-opacity-75 select-none"))]
-    [:button {:class class
-              :disabled loading}
-     (when loading [:div.mr-2.btn-spinner])
-     children]))
-
-(defn yellow-button [{:keys [on-click]} & children] 
-  [:button {:type "button"
-            :class css-yellow
-            :on-click on-click}
-   children])
-
-(defn new-button [{:keys [on-click]} & children]
-  [:button {:type "button"
-            :class css-green
-            :on-click on-click}
-   children])
 
 (defn red-button [props & children]
   (into
@@ -70,14 +72,27 @@
     ;; (svg/search)
     children]))
 
-(defn edit-button [props & children]
-  (into 
+(defn btn-new [{:keys [on-click]} & children]
+  [:button {:type "button"
+            :class button-green
+            :on-click on-click}
+   children])
+
+(defn btn-query [props & child]
+  (into
+   [:button (merge {:type "button"
+                    :class buton-purple}
+                   props)
+    child]))
+
+(defn btn-edit [props & children]
+  (into
    [:button (merge {:type "button"
                     :class css-edit}
                    props)
     children]))
 
-(defn delete-button [props & children]
+(defn btn-del [props & children]
   (into
    [:button (merge {:type "button"
                     :class css-delete}
@@ -91,13 +106,12 @@
 
 (defn edit-del-modal-btns [edit-fn]
   [:div
-   [edit-button {:on-click #(do
-                              (re-frame/dispatch edit-fn)
-                              (re-frame/dispatch [::modals/show-modal :edit-modal?]))}
+   [btn-edit {:on-click #(do
+                           (re-frame/dispatch edit-fn)
+                           (re-frame/dispatch [::modals/show-modal :edit-modal?]))}
     "Edit"]
    [:span " | "]
-   [delete-button {:on-click #(do
-                                (re-frame/dispatch edit-fn)
-                                (re-frame/dispatch [::modals/show-modal :delete-modal?]))}
+   [btn-del {:on-click #(do
+                          (re-frame/dispatch edit-fn)
+                          (re-frame/dispatch [::modals/show-modal :delete-modal?]))}
     "Del"]])
-

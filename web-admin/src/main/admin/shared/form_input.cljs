@@ -1,7 +1,7 @@
 (ns admin.shared.form-input)
 
-(def css-form-label-backend "block mb-2 text-base font-medium text-gray-900 dark:text-white")
-(def css-form-input-backend "block w-full mb-2 p-2 text-gray-900 border border-gray-300 rounded-lg 
+(def css-form-label-backend "block mb-2 text-base font-medium font-bold text-gray-900 dark:text-white")
+(def css-form-input-backend "block w-full mb-1 p-1 text-gray-900 border border-gray-300 rounded-lg 
                              bg-gray-50 text-base font-medium focus:ring-blue-500 focus:border-blue-500 
                              dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
                              dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500")
@@ -112,3 +112,14 @@
                    :type "text"}
                   props)]
    (when errors [:div {:class css-form-errors}])])
+
+(defn query-input-text [{:keys [name label] :as props}]
+  [:div {:class "flex items-center"}
+   (when label
+     [:label {:class css-form-label-backend
+              :for "name"} (str label "：")])
+   [:input (merge {:id name
+                   :name name
+                   :class css-form-input-backend
+                   :type "text"}
+                  props)]])

@@ -2,10 +2,10 @@
   (:require [clojure.string :as str]
             [admin.events]
             [admin.subs]
-            [admin.shared.buttons :refer [btn edit-del-modal-btns new-button
+            [admin.shared.buttons :refer [btn-new btn-query btn-edit btn-del
                                              red-button]]
             [admin.shared.css :as css]
-            [admin.shared.form-input :refer [text-input-backend]]
+            [admin.shared.form-input :refer [text-input-backend query-input-text]]
             [admin.shared.layout :refer [layout]]
             [admin.shared.tables :refer [table-admin]]
             [admin.util :as f-util]
@@ -37,44 +37,55 @@
                               :name "descrtiption"
                               :on-change #(swap! edit assoc :description (f-util/get-value %))})]]
        [:div {:class "flex justify-center items-center space-x-4 mt-4"}
-        [new-button {:on-click #(re-frame/dispatch [:add-category @edit])}
+        [btn-new {:on-click #(re-frame/dispatch [:add-category @edit])}
          "Save"]]])))
 
 (defn edit-form []
-  (let [current (re-frame/subscribe [:current-route-edit]) 
-        edit (r/atom @current)
-        name (r/cursor edit [:name])
-        description (r/cursor edit [:description])]
-    (when @current
-      [:form
-       [:div {:class "grid gap-4 mb-4 sm:grid-cols-2"}
-        (text-input-backend {:label "Name"
-                             :name "name"
-                             :default-value (:name @current)
-                             :on-change #(reset! name (f-util/get-value %))})
-        (text-input-backend {:label "Description"
-                             :name "descrtiption"
-                             :default-value (:description @current)
-                             :on-change #(reset! description (f-util/get-value %))})]
-       [:div {:class "flex justify-center items-center space-x-4"}
-        [new-button {:on-click #(re-frame/dispatch [:update-category @current])}
-         "Save"]]])))
+  (let [category (re-frame/subscribe [:category/edit])]
+    (fn []
+      (when-let [edit (r/atom @category)]
+        [:form
+         [:div {:class "grid gap-4 mb-4 sm:grid-cols-2"}
+          (text-input-backend {:label "Name"
+                               :name "name"
+                               :default-value (:name @category)
+                               :on-change #(swap! edit assoc-in [:name] (f-util/get-value %))})
+          (text-input-backend {:label "Description"
+                               :name "descrtiption"
+                               :default-value (:description @category)
+                               :on-change #(swap! edit assoc-in [:description] (f-util/get-value %))})]
+         [:div {:class "flex justify-center items-center space-x-4"}
+          [btn-new {:on-click #(re-frame/dispatch [:update-category @edit])}
+           "Save"]]]))))
 
 (defn delete-form []
-  (let [current (re-frame/subscribe [:current-route-edit]) 
-        name (r/cursor current [:name])]
-    (when @current
-      [:form
-       [:div {:class "p-4 mb-4 text-blue-800 border border-red-300 rounded-lg 
+  (let [current (re-frame/subscribe [:category/edit])]
+    (fn []
+      (when @current
+        [:form
+         [:div {:class "p-4 mb-4 text-blue-800 border border-red-300 rounded-lg 
                     bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800"}
-        [:div {:class "flex items-center"}
-         (str "You confirm delete the " @name "? ")]]
-       [:div {:class "flex justify-center items-center space-x-4"}
-        [red-button {:on-click #(re-frame/dispatch [:delete-category (:id @current)])}
-         "Delete"]]])))
+          [:div {:class "flex items-center"}
+           (str "You confirm delete the " (:name @current) "? ")]]
+         [:div {:class "flex justify-center items-center space-x-4"}
+          [red-button {:on-click #(re-frame/dispatch [:delete-category (:id @current)])}
+           "Delete"]]]))))
 
-(defn action-fn [d]
-  [edit-del-modal-btns [::get-category (:id d)]])
+(defn action-fn [e]
+  [:div
+   [btn-edit {:on-click #(re-frame/dispatch [:get-category
+                                             (:id e)
+                                             [[:dispatch [:set-modal {:show? true
+                                                                      :title "Category Edit"
+                                                                      :child edit-form}]]]])} 
+    "Edit"]
+   [:span {:class css/divi} "|"]
+   [btn-del {:on-click #(re-frame/dispatch [:get-category
+                                            (:id e)
+                                            [[:dispatch [:set-modal {:show? true
+                                                                    :title "Category Delete"
+                                                                    :child delete-form}]]]])} 
+    "Del"]])
 
 (def columns [{:key :name :title "Name"}
               {:key :description :title "Description"}
@@ -82,33 +93,28 @@
 
 (defn query-form []
   ;; page query form
-  (let [q-data (r/atom {:page-size 10 :page 1 :filter "" :sort ""})
-        filter (r/cursor q-data [:filter])]
-    [:<> 
-      [:div {:class "flex-1 flex-col my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"}
+  (let [q-data (r/atom {})]
+    (fn []
+      [:form
        [:div {:class "grid grid-cols-4 gap-3"}
         [:div {:class "max-w-10 flex"}
-         (text-input-backend {:label "name"
-                              :type "text"
-                              :id "name"
-                              :on-blur #(when-let [v (f-util/get-trim-value %)]
-                                          (swap! filter str " name lk " v))})]]
+         [query-input-text {:label "name"
+                            :name "name"
+                            :on-change #(swap! q-data [:filter] assoc :name (f-util/get-trim-value %))}]]]
        [:div {:class "felx inline-flex justify-center items-center w-full"}
-        [btn {:on-click #(re-frame/dispatch [:query-categories @q-data])
-              :class css/buton-purple} "Query"]
-        [btn {:on-click #(re-frame/dispatch [:set-current-route-modal {:show? true?
-                                                                       :title "Category Add"
-                                                                       :child new-form}])
-              :class css/button-green} "New"]]]
-      
-     [:div {:class "h-px my-4 bg-blue-500 border-0 dark:bg-blue-700"}]]))
+        [btn-query {:on-click #(re-frame/dispatch [:query-categories @q-data])} "Query"]
+        [btn-new {:on-click #(re-frame/dispatch [:set-modal {:show? true
+                                                         :title "Category Add"
+                                                         :child new-form}])
+              :class css/button-green} "New"]]])))
 
 (defn data-table []
-  (let [datasources (re-frame/subscribe [:datasources])]
+  (let [datasources (re-frame/subscribe [:category/list])
+        pagination (re-frame/subscribe [:category/query])]
     (fn []
       [table-admin {:columns columns
-                    :datasources (:list @datasources)
-                    :pagination (:pagination @datasources)}])))
+                    :datasources @datasources
+                    :pagination  @pagination}])))
 
 (defn index [] 
     [layout

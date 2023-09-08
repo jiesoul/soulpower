@@ -67,7 +67,6 @@
    (update-in db [:toasts] dissoc id)))
 
 ;; server error handler
-
 (reg-event-fx
  :req-failed-message
  (fn [{:keys [db]} [_ {:keys [response]}]]
@@ -77,20 +76,9 @@
                                   :type :error}]]]}))
 
 (reg-event-db
- :set-current-route-modal
+ :set-modal
  (fn [db [_ data]]
-   (assoc-in db [:current-route :modal] data)))
-
-(reg-event-db
- :set-current-route-query
- (fn [db [_ data]]
-   (assoc-in db [:current :query] data)))
-
-(reg-event-db 
- :set-current-route-datasources
- (fn [db [_ data]]
-   (assoc-in db [:current-route :datasources] data)))
-
+   (assoc-in db [:modal] data)))
 ;; current edit
 
 (reg-event-db

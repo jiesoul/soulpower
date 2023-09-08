@@ -2,7 +2,7 @@
   (:require [admin.subs]
             [admin.shared.css :as css]
             [admin.shared.header :refer [header-dash]]
-            [admin.shared.modals :as modals :refer [modal-back common-modal]] 
+            [admin.shared.modals :refer [modal]] 
             [admin.shared.sidebar :refer [sidebar-dash]] 
             [admin.shared.toasts :refer [toasts]]
             [admin.auth.views :refer [login]]
@@ -19,8 +19,7 @@
           [header-dash]
           [toasts]
           [:<> modals]
-          [common-modal]
-          [modal-back]
+          [modal]
           [:main {:class "flex-1 bg-gray-100"}
            [:div {:class css/main-container}
             query-form
@@ -37,7 +36,7 @@
          [:div {:class "flex flex-1 flex-col w-5/6"}
           [header-dash]
           [toasts]
-          [common-modal]
+          [modal]
           [:main {:class "flex-1 bg-gray-100"}
            [:div {:class css/main-container}
             child]]]]

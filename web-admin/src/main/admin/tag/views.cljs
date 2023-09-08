@@ -1,6 +1,6 @@
 (ns admin.tag.views
   (:require [clojure.string :as str]
-            [admin.shared.buttons :refer [btn edit-del-modal-btns new-button red-button]]
+            [admin.shared.buttons :refer [btn edit-del-modal-btns btn-new red-button]]
             [admin.shared.css :as css]
             [admin.shared.form-input :refer [text-input-backend]]
             [admin.shared.layout :refer [layout-admin]]
@@ -46,7 +46,7 @@
                             :default-value ""
                             :on-change #(reset! description (f-util/get-value %))})]]
      [:div {:class "flex justify-center items-center space-x-4 mt-4"}
-      [new-button {:on-click #(re-frame/dispatch [::new-tag @edit])}
+      [btn-new {:on-click #(re-frame/dispatch [::new-tag @edit])}
        "Add"]]]))
 
 (defn edit-form []
@@ -65,7 +65,7 @@
                            :default-value (:description current)
                            :on-change #(reset! description (f-util/get-value %))})]
      [:div {:class "flex justify-center items-center space-x-4"}
-      [new-button {:on-click #(re-frame/dispatch [::update-tag @edit])}
+      [btn-new {:on-click #(re-frame/dispatch [::update-tag @edit])}
        "Update"]]]))
 
 (defn delete-form []
@@ -95,7 +95,6 @@
         q-data (r/atom {:page-size 10 :page 1 :filter "" :sort ""})
         filter (r/cursor q-data [:filter])]
     [layout-admin 
-     [modals/modals-crud "Tag" new-form edit-form delete-form]
       ;; page query form
      [:form
       [:div {:class "flex-1 flex-col my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"}

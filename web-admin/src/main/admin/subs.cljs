@@ -1,6 +1,7 @@
 (ns admin.subs 
   (:require [re-frame.core :as re-frame]
-            [admin.auth.subs]))
+            [admin.auth.subs]
+            [admin.category.subs]))
 
 (re-frame/reg-sub
  :debug
@@ -17,15 +18,20 @@
  (fn [db]
    (get-in db [:toasts])))
 
+(re-frame/reg-sub
+ :modal
+ (fn [db _]
+   (get-in db [:modal])))
+
 (re-frame/reg-sub 
  :current-route 
  (fn [db]
    (:current-route db)))
 
 (re-frame/reg-sub
- :current-route-modal
+ :default-query
  (fn [db _]
-   (get-in db [:current-route :modal])))
+   (get-in db [:default-query])))
 
 (re-frame/reg-sub
  :current-route-edit

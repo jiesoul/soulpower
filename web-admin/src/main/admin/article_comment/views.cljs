@@ -1,8 +1,8 @@
 (ns admin.article-comment.views
     (:require [clojure.string :as str]
               [admin.http :as f-http]
-              [admin.shared.buttons :refer [default-button delete-button
-                                               edit-button red-button]]
+              [admin.shared.buttons :refer [default-button btn-del
+                                               btn-edit red-button]]
               [admin.shared.form-input :refer [text-input-backend]]
               [admin.shared.layout :refer [layout-admin]]
               [admin.shared.modals :as modals]
@@ -38,12 +38,12 @@
 
 (defn actions [d] 
   [:div
-   [edit-button {:on-click #(do
+   [btn-edit {:on-click #(do
                               (re-frame/dispatch [::get-article (:id d)])
                               (re-frame/dispatch [:show-modal :edit-modal?]))}
     "Edit"] 
    [:span " | "]
-   [delete-button {:on-click #(do
+   [btn-del {:on-click #(do
                                 (re-frame/dispatch [::get-article (:id d)])
                                 (re-frame/dispatch [:show-modal :delete-modal?]))}
     "Del"]])
