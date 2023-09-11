@@ -1,29 +1,34 @@
 (ns admin.category.events
   (:require [re-frame.core :as re-frame]
             [admin.util :as f-util]
-            [admin.http :as f-http]))
+            [admin.http :as f-http]
+            [clojure.string :as str]))
+
+(re-frame/reg-event-db
+ :init-category
+ (fn [db _]
+   (dissoc db :category)))
 
 (re-frame/reg-event-db
  :query-categories-ok
  (fn [db [_ resp]]
-   (assoc-in db [:category] (:data resp))))
+   (assoc-in db [:category :data] (:data resp))))
 
 (re-frame/reg-event-fx
  :query-categories
  (fn [{:keys [db]} [_ data]]
-   (let [default-query (get-in db [:default-query])
-         query (merge default-query data)]
-   (f-http/http-get (assoc-in db [:category :query] query)
+   (f-http/http-get (assoc-in db [:category :query] data)
                     (f-http/api-uri-admin "categories")
-                    query
-                    [:query-categories-ok]))))
+                    data
+                    [:query-categories-ok])))
 
 (re-frame/reg-event-fx
  :add-category-ok
  (fn [{:keys [db]} [_ resp]]
    (let [_ (f-util/clog "add category ok: " resp)]
      {:db db
-      :fx [[:dispatch [:push-toast {:content "添加成功" :type :info}]]]})))
+      :fx [[:dispatch [:push-toast {:content "添加成功" :type :info}]]
+           [:dispatch [:set-modal nil]]]})))
 
 (re-frame/reg-event-fx
  :add-category

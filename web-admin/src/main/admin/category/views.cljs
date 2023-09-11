@@ -93,28 +93,27 @@
 
 (defn query-form []
   ;; page query form
-  (let [q-data (r/atom {})]
+  (let [default-pagination (re-frame/subscribe [:default-pagination])]
     (fn []
-      [:form
-       [:div {:class "grid grid-cols-4 gap-3"}
-        [:div {:class "max-w-10 flex"}
-         [query-input-text {:label "name"
-                            :name "name"
-                            :on-change #(swap! q-data [:filter] assoc :name (f-util/get-trim-value %))}]]]
-       [:div {:class "felx inline-flex justify-center items-center w-full"}
-        [btn-query {:on-click #(re-frame/dispatch [:query-categories @q-data])} "Query"]
-        [btn-new {:on-click #(re-frame/dispatch [:set-modal {:show? true
-                                                         :title "Category Add"
-                                                         :child new-form}])
-              :class css/button-green} "New"]]])))
+      (let [q-data (r/atom (assoc @default-pagination 
+                                  :event :query-categories))]
+        [:form
+         [:div {:class "grid grid-cols-4 gap-3"}
+          [:div {:class "max-w-10 flex"}
+           [query-input-text {:label "name"
+                              :name "name"
+                              :on-change #(swap! q-data assoc-in [:filter :name] (f-util/get-filter-like "name" %))}]]]
+         [:div {:class "felx inline-flex justify-center items-center w-full"}
+          [btn-query {:on-click #(re-frame/dispatch [:query-categories @q-data])} "Query"]
+          [btn-new {:on-click #(re-frame/dispatch [:set-modal {:show? true
+                                                               :title "Category Add"
+                                                               :child new-form}])
+                    :class css/button-green} "New"]]]))))
 
 (defn data-table []
-  (let [datasources (re-frame/subscribe [:category/list])
-        pagination (re-frame/subscribe [:category/query])]
+  (let [datasources (re-frame/subscribe [:category/datasources])]
     (fn []
-      [table-admin {:columns columns
-                    :datasources @datasources
-                    :pagination  @pagination}])))
+      [table-admin (assoc @datasources :columns columns)])))
 
 (defn index [] 
     [layout

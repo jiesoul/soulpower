@@ -13,7 +13,7 @@
 (def default-db {:toasts {}
                  :login-user nil
                  :current-route nil
-                 :default-query {:page-size 10 :page 1 :filter "" :sort ""}})
+                 :default-pagination {:page-size 10 :page 1}})
 
 (def login-user-key "login-user")
 

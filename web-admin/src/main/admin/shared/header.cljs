@@ -39,7 +39,7 @@
 (defn header-dash [] 
   (let [login-user @(re-frame/subscribe [:login-user])
         current-route @(re-frame/subscribe [:current-route])]
-    [:header {:class "flex items-center justify-between px-6 py-4 bg-white border-b border-indigo-600"}
+    [:header {:class "flex items-center justify-between px-2 py-4 bg-white border-b border-indigo-600"}
      [:div {:class "flex items-center"}
       [:div {:class "relative mx-4 lg:mx-0"}
        [:h5 {:class css/page-title} (get-in current-route [:data :link-text])]

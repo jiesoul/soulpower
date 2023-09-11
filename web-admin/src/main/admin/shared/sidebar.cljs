@@ -33,12 +33,12 @@
 
         [:li>a {:class css-sidebar-li-a-top
                 :href "#"
-                :on-click #(re-frame/dispatch [:navigate ::views/categories])}
+                :on-click #(re-frame/dispatch [:navigate ::views/category])}
          [:span {:class "mx-2"} "Category"]]
 
         [:li>a {:class css-sidebar-li-a-top
                 :href "#"
-                :on-click #(re-frame/dispatch [:navigate ::views/tags])}
+                :on-click #(re-frame/dispatch [:navigate ::views/tag])}
          [:span {:class "mx-2"} "Tag"]]
 
         [:li
@@ -52,17 +52,17 @@
                :hidden @articles-nav-show?}
 
           [:li>a {:href "#"
-                  :on-click #(re-frame/dispatch [:navigate ::views/articles])
+                  :on-click #(re-frame/dispatch [:navigate ::views/article])
                   :class css-sidebar-li-a-second}
            "Articles"]
           [:li>a {:href "#"
-                  :on-click #(re-frame/dispatch [:navigate ::views/articles-comments])
+                  :on-click #(re-frame/dispatch [:navigate ::views/article-comment])
                   :class css-sidebar-li-a-second}
            "Comments"]]]
 
         [:li>a {:class css-sidebar-li-a-top
                 :href "#"
-                :on-click #(re-frame/dispatch [:navigate ::views/users])}
+                :on-click #(re-frame/dispatch [:navigate ::views/user])}
          [:span {:class "mx-3"} "User"]]
 
         [:li>a {:class css-sidebar-li-a-top

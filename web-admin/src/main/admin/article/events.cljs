@@ -5,13 +5,13 @@
             [admin.subs]))
 
 (re-frame/reg-event-db
- ::get-view-article-ok
+ :get-view-article-ok
  (fn [db [_ resp]]
    (util/clog "get view article ok: " resp)
    (assoc-in db [:current-route :result] (:data resp))))
 
 (re-frame/reg-event-fx
- ::get-view-article
+ :get-view-article
  (fn [{:keys [db]} [_ id]]
    (util/clog "Get view article: " id)
    (http/http-get db

@@ -22,53 +22,61 @@
    ["" {:name ::login
         :view auth/login
         :link-text "Login"
-        :controllers [{:start (fn [& params] (js/console.log (str "Entering login, params: " params)))
-                       :stop (fn [& params] (js/console.log (str "Leaving login, params: " params)))}]}]
+        :controllers [{:start (fn [& params] 
+                                (js/console.log (str "Entering login, params: " params)))
+                       :stop (fn [& params] 
+                               (js/console.log (str "Leaving login, params: " params)))}]}]
 
    ["dashboard" {:name ::views/dashboard
                  :view dashboard/index
                  :link-text "Dashboard"
                  :controllers [{:start (fn [& params] 
                                          (js/console.log (str "Entering dashboard, params: " params)))
-                                :stop (fn [& params] (js/console.log (str "Leaving login, params: " params)))}]}]
+                                :stop (fn [& params] 
+                                        (js/console.log (str "Leaving login, params: " params)))}]}]
 
-   ["categories" {:name ::views/categories
+   ["categorie" {:name ::views/category
                   :view category/index
-                  :link-text "Categories"
-                  :controllers [{:start (fn [& params] 
-                                        
+                  :link-text "Category"
+                  :controllers [{:start (fn [& params]
+                                          (re-frame/dispatch [:init-category])
                                           (js/console.log (str "Entering categories, params: " params)))
                                  :stop (fn [& params] 
                                          
                                          (js/console.log (str "Leaving categories, params: " params)))}]}]
 
-   ["tags" {:name ::views/tags
+   ["tag" {:name ::views/tag
             :view tag/index
-            :link-text "Tags"
+            :link-text "Tag"
             :controllers [{:start (fn [& params] 
+                                    (re-frame/dispatch [:init-tag])
                                     (js/console.log (str "Entering tags, params: " params)))
                            :stop (fn [& params] 
                                    (js/console.log (str "Leaving tags, params: " params)))}]}] 
    
-   ["articles" {:name ::views/articles
+   ["article" {:name ::views/article
                 :view article/index
-                :link-text "Articles"
+                :link-text "Article"
                 :controllers [{:start (fn [& params] 
-                                        (re-frame/dispatch [:get-all-categories])
+                                        (re-frame/dispatch [:init-article])
                                         (js/console.log (str "Entering articles, params: " params)))
                                :stop (fn [& params] (js/console.log (str "Leaving articles, params: " params)))}]}]
    
-   ["articles-comments" {:name ::views/articles-comments
+   ["article-comment" {:name ::views/article-comment
                          :view article-comment/index
                          :link-text "Articles-Comments"
-                         :controllers [{:start (fn [& params] (js/console.log (str "Entering dashboard, params: " params)))
+                         :controllers [{:start (fn [& params]
+                                                 (re-frame/dispatch [:init-article-comment])
+                                                 (js/console.log (str "Entering dashboard, params: " params)))
                                         :stop (fn [& params] (js/console.log (str "Leaving login, params: " params)))}]}]
    
    
-   ["users" {:name ::views/users
+   ["user" {:name ::views/user
              :view user/index
-             :link-text "Users"
-             :controllers [{:start (fn [& params] (js/console.log (str "Entering dashboard, params: " params)))
+             :link-text "User"
+             :controllers [{:start (fn [& params]
+                                     (re-frame/dispatch [:init-user])
+                                     (js/console.log (str "Entering dashboard, params: " params)))
                             :stop (fn [& params] (js/console.log (str "Leaving login, params: " params)))}]}]])
 
 (def router

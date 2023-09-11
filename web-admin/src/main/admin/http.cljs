@@ -24,6 +24,15 @@
   [item]
   (assoc item :epoch (-> item :createdAt rdr/parse-timestamp .getTime)))
 
+;; (defn gen-get-uri [data]
+;;   (let [{:keys [page page-size filter sort]}]
+;;     ))
+
+(defn gen-fitler-sort [{:keys [filter sort] :as data}]
+  (let [data (if filter (assoc data :filter (str/join " and " (vals filter))) data)
+        data (if sort (assoc data :sort (str/join "," (vals sort))) data)]
+    data))
+
 (defn http [method db uri data on-success & on-failure]
   (let [xhrio (cond-> {:debug true
                        :method method
@@ -34,10 +43,10 @@
                        :on-success on-success
                        :on-failure (if on-failure
                                      on-failure
-                                     #(re-frame/dispatch [:req-failed-message (:req-loading db)]))}
-                      data (assoc :params data))
+                                     #(re-frame/dispatch [:req-failed-message]))}
+                      data (assoc :params (if (= method :get) (gen-fitler-sort data) data)))
         _ (util/clog "http" uri)
-        _ (util/clog "data: " data)]
+        _ (util/clog "data" data)]
     {:http-xhrio xhrio
      :db db}))
 

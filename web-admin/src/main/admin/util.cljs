@@ -20,8 +20,8 @@
   (let [v (str/trim (get-value d))]
     (if (or (nil? v) (str/blank? v)) nil v)))
 
-(defn gen-filter-like [n e]
-  (str n " lk " (get-trim-value e)))
+(defn get-filter-like [n e]
+  (str n " lk '" (get-trim-value e) "'"))
 
 (defn blank? [v]
   (or (nil? v) (str/blank? v)))
@@ -71,3 +71,24 @@
   (if-not time
     ""
     (.format (moment time) "YYYY-MM-DD HH:mm:ss")))
+
+(def page-show-count 4)
+
+(defn gen-pagination [{:keys [total query] :as pagination}]
+  (let [page-size (:page-size query)
+        page (:page query)
+        total-pages (quot (dec (+ total page-size)) page-size)
+        start (inc (* (dec page) page-size))
+        end (dec (+ start page-size))
+        prev-page (if (<= page 1) 1 (dec page))
+        next-page (if (< page total-pages) (inc page) total-pages)
+        page-no page-show-count
+        show-pages (range (max 1 (- page page-no)) (inc (min (+ page-no page) total-pages)))]
+    (merge pagination {:page-size page-size 
+                       :page page
+                       :total-pages total-pages
+                       :start start
+                       :end end
+                       :prev-page prev-page
+                       :next-page next-page
+                       :show-pages show-pages})))

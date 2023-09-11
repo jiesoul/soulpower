@@ -1,7 +1,11 @@
 (ns admin.subs 
   (:require [re-frame.core :as re-frame]
             [admin.auth.subs]
-            [admin.category.subs]))
+            [admin.category.subs]
+            [admin.tag.subs]
+            [admin.user.subs]
+            [admin.article.subs]
+            [admin.article-comment.subs]))
 
 (re-frame/reg-sub
  :debug
@@ -29,9 +33,9 @@
    (:current-route db)))
 
 (re-frame/reg-sub
- :default-query
+ :default-pagination
  (fn [db _]
-   (get-in db [:default-query])))
+   (get-in db [:default-pagination])))
 
 (re-frame/reg-sub
  :current-route-edit

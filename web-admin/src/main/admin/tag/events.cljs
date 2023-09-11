@@ -1,80 +1,98 @@
 (ns admin.tag.events
-  (:require [re-frame.core :as re-frame]
+  (:require [admin.http :as f-http]
             [admin.util :as f-util]
-            [admin.http :as f-http]))
+            [clojure.string :as str]
+            [re-frame.core :as re-frame]))
+
+(re-frame/reg-event-db
+ :init-tag
+ (fn [db _]
+   (dissoc db :tag)))
+
+(defn gen-query-str [{:keys [filter page page-size sort]}]
+  (let [qs (str "?page=" page "&page-size=" page-size)
+        qs (if filter (str "&filter=" (str/join " and " (vals filter))) qs)
+        qs (if sort (str "&filter=" (str/join "," (vals sort))) qs)]
+    qs))
+
+(re-frame/reg-event-db
+ :query-tags-ok
+ (fn [db [_ resp]]
+   (assoc-in db [:tag :data] (:data resp))))
 
 (re-frame/reg-event-fx
- ::query-tags-ok
- (fn [{:keys [db]} [_ resp]]
-   {:db db
-    :fx [[:dispatch [:init-current-route-result (:data resp)]]]}))
-
-(re-frame/reg-event-fx
- ::query-tags
+ :query-tags
  (fn [{:keys [db]} [_ data]]
-   (f-util/clog "query tags: " data)
-   (f-http/http-get db
-                    (f-http/api-uri "/admin/tags")
-                    data
-                    [::query-tags-ok])))
+   (let [query-str (gen-query-str data)]
+     (f-http/http-get (assoc-in db [:tag :query] data)
+                      (f-http/api-uri-admin "tags")
+                      data
+                      [:query-tags-ok]))))
 
 (re-frame/reg-event-fx
- ::new-tag-ok
- (fn [{:keys [db]} [_ tag]]
-   {:db db
-    :fx [[:dispatch [:push-toast {:content (str  "Tag " (:name tag) " 添加成功") :type :info}]]]}))
+ :add-tag-ok
+ (fn [{:keys [db]} [_ resp]]
+   (let [_ (f-util/clog "add tag ok: " resp)]
+     {:db db
+      :fx [[:dispatch [:push-toast {:content "添加成功" :type :info}]]
+           [:dispatch [:set-modal nil]]]})))
 
 (re-frame/reg-event-fx
- ::new-tag
+ :add-tag
  (fn [{:keys [db]} [_ tag]]
    (f-http/http-post db
-                     (f-http/api-uri "/admin/tags")
+                     (f-http/api-uri "admin" "tags")
                      {:tag tag}
-                     [::new-tag-ok tag])))
+                     [:add-tag-ok])))
+
+(re-frame/reg-event-db
+ :set-tag-edit
+ (fn [db [_ tag]]
+   (assoc-in db [:tag :edit] tag)))
 
 (re-frame/reg-event-fx
- ::get-tag-ok
- (fn [{:keys [db]} [_ resp]]
+ :get-tag-ok
+ (fn [{:keys [db]} [_ fx resp]]
    {:db db
-    :fx [[:dispatch [:init-current-route-edit (:data resp)]]]}))
+    :fx (concat [[:dispatch [:set-tag-edit (:data resp)]]] fx)}))
 
 (re-frame/reg-event-fx
- ::get-tag
- (fn [{:keys [db]} [_ id]]
-   (f-util/clog "Get a tag")
+ :get-tag
+ (fn [{:keys [db]} [_ id fx]]
    (f-http/http-get db
-                    (f-http/api-uri "/admin/tags/" id)
+                    (f-http/api-uri-admin "tags" id)
                     {}
-                    [::get-tag-ok])))
+                    [:get-tag-ok fx])))
 
 (re-frame/reg-event-fx
- ::update-tag-ok
- (fn [{:keys [db]} [_ tag]]
+ :update-tag-ok
+ (fn [{:keys [db]} _]
    {:db db
-    :fx [[:dispatch [:push-toast {:content (str "Tag:" (:name tag)  " 更新成功")
-                                    :type :success}]]]}))
+    :fx [[:dispatch [:push-toast {:content "tag update success"
+                                  :type :success}]]
+         [:dispatch [:query-tags]]]}))
 
 (re-frame/reg-event-fx
- ::update-tag
+ :update-tag
  (fn [{:keys [db]} [_ tag]]
    (f-http/http-put db
-                    (f-http/api-uri "/admin/tags/" (:id tag))
-                    {:tag tag}
-                    [::update-tag-ok tag])))
+                      (f-http/api-uri-admin "tags" (:id tag))
+                      {:tag tag}
+                      [:update-tag-ok])))
 
 (re-frame/reg-event-fx
- ::delete-tag-ok
- (fn [{:keys [db]} [_ {:keys [id name]}]]
-   (let [tags (remove #(= id (:id %)) (-> db :current-route :result :list))]
-     {:db (assoc-in db [:current-route :result :list] tags)
-      :fx [[:dispatch [:push-toast {:type :success :content (str "Tag: " name " Delete success")}]]
-           [:dispatch [:clean-current-route-edit]]
-           [:dispatch [:close-modal :delete-modal?]]]})))
+ :delete-tag-ok
+ (fn [{:keys [db]} _]
+   {:db db
+    :fx [[:dispatch [:push-toast {:type :success :content (str "Delete tag success")}]]
+         [:dispatch [:set-modal nil]]
+         [:dispathc [:set-tag-edit nil]]
+         [:dispatch [:query-tags]]]}))
 
 (re-frame/reg-event-fx
- ::delete-tag
- (fn [{:keys [db]} [_ {:keys [id] :as t}]]
+ :delete-tag
+ (fn [{:keys [db]} [_ id]]
    (f-http/http-delete db
-                       (f-http/api-uri "/admin/tags/" id)
+                       (f-http/api-uri-admin "tags" id)
                        {}
-                       [::delete-tag-ok t])))
+                       [:delete-tag-ok])))

@@ -1,9 +1,12 @@
 (ns admin.events
   (:require [admin.db :refer [default-db MAX-TIMEOUT]]
-            [re-frame.core :refer [reg-event-db reg-event-fx inject-cofx reg-fx dispatch subscribe]]
+            [re-frame.core :refer [reg-event-db reg-event-fx inject-cofx reg-fx dispatch]]
             [admin.auth.events]
+            [admin.user.events]
             [admin.category.events]
+            [admin.tag.events]
             [admin.article.events]
+            [admin.article-comment.events]
             [admin.util :as util]
             [cljs.reader]
             [reitit.frontend.controllers :as rfc]
@@ -71,7 +74,7 @@
  :req-failed-message
  (fn [{:keys [db]} [_ {:keys [response]}]]
    (util/clog "resp failed: " response)
-   {:db (assoc-in db [:loading] false)
+   {:db (dissoc db :loading)
     :fx [[:dispatch [:push-toast {:content (:message response)
                                   :type :error}]]]}))
 
@@ -85,11 +88,6 @@
  :init-current-route-result
  (fn [db [_ data]]
    (assoc-in db [:current-route :result] data)))
-
-(reg-event-db
- :init-current-route-edit
- (fn [db [_ current]]
-   (assoc-in db [:current-route :edit] current)))
 
 (reg-event-db
  :clean-current-route-edit

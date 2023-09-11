@@ -1,17 +1,16 @@
 (ns admin.article.views
-    (:require ["moment" :as moment]
-              [clojure.string :as str]
-              [admin.shared.buttons :refer [default-button edit-del-modal-btns
-                                               btn-edit btn-new red-button]]
-              [admin.shared.form-input :refer [checkbox-input select-input
-                                                  text-input
-                                                  text-input-backend textarea]]
-              [admin.shared.layout :refer [layout-admin]]
-              [admin.shared.modals :as modals]
+    (:require [admin.events]
+              [admin.shared.buttons :refer [btn-del btn-edit btn-new btn-query
+                                            red-button]]
+              [admin.shared.css :as css]
+              [admin.shared.form-input :refer [checkbox-input query-input-text
+                                               select-input text-input
+                                               textarea]]
+              [admin.shared.layout :as layout]
               [admin.shared.tables :refer [table-admin]]
               [admin.subs]
-              [admin.events]
               [admin.util :as f-util]
+              [clojure.string :as str]
               [re-frame.core :as re-frame]
               [reagent.core :as r]))
 
@@ -55,11 +54,11 @@
                  :default-value ""
                  :on-change #(reset! content-md (f-util/get-trim-value %))}]
       [:div {:class "flex justify-center items-center space-x-4 mt-4"}
-       [btn-new {:on-click #(re-frame/dispatch [::add-article @article])}
+       [btn-new {:on-click #(re-frame/dispatch [:add-article @article])}
         "Save"]]]]))
 
 (defn edit-form [] 
-  (let [{:keys [id title summary detail]} @(re-frame/subscribe [:current-route-edit])
+  (let [{:keys [id title summary detail]} @(re-frame/subscribe [:article/edit])
         article (r/atom {:id id 
                          :title title 
                          :summary summary
@@ -98,7 +97,7 @@
 
 (defn push-form [] 
   (let [categories @(re-frame/subscribe [:current-route-categories])
-        {:keys [id title summary detail tags]} @(re-frame/subscribe [:current-route-edit]) 
+        {:keys [id title summary detail tags]} @(re-frame/subscribe [:article/edit]) 
         article (r/atom {:id id
                          :top_flag 0  
                          :category_id 0
@@ -149,36 +148,29 @@
                                 (re-frame/dispatch [::delete-article (:id @current)]))}
        "Delete"]]]))
 
-(defn query-form []
-  (let [q-data (r/atom {:page-size 10 :page 1 :filter "" :sort "create_time DESC"})
-        filter (r/cursor q-data [:filter])
-        _ (f-util/clog "moment: " (moment "2023-05-08T06:22:51.792024300Z"))]
-    [:form
-     [:div {:class "flex-1 flex-col my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"}
-      [:div {:class "grid grid-cols-4 gap-3"}
-       [:div {:class "max-w-10 flex"}
-        (text-input-backend {:label "Title"
-                             :type "text"
-                             :id "title"
-                             :on-blur #(when-let [v (f-util/get-trim-value %)]
-                                         (swap! filter str " name lk " v))})]]
-      [:div {:class "flex inline-flex justify-center items-center w-full"}
-       [default-button {:on-click #(re-frame/dispatch [::query-articles @q-data])}
-        "Query"]
-       [btn-new {:on-click #(re-frame/dispatch [:show-modal :new-modal?])}
-        "New"]]]]))
-
-(defn actions [d] 
-  (let [push-flag (:push-flag d)]
-    [:div 
-     [edit-del-modal-btns [::get-article (:id d)]]
-     (when (zero? push-flag)
-       [:<> 
-        [:span " | "]
-        [btn-edit {:on-click #(do
-                                   (re-frame/dispatch [::get-article (:id d)])
-                                   (re-frame/dispatch [:show-modal :push-modal?]))}
-         "Push"] ])]))
+(defn action-fn [e]
+  [:div
+   [btn-edit {:on-click #(re-frame/dispatch [:get-category
+                                             (:id e)
+                                             [[:dispatch [:set-modal {:show? true
+                                                                      :title "Category Edit"
+                                                                      :child edit-form}]]]])}
+    "Edit"]
+   [:span {:class css/divi} "|"]
+   (when (zero? (:push-flag e))
+     [btn-edit {:on-click #(re-frame/dispatch [:get-category
+                                               (:id e)
+                                               [[:dispatch [:set-modal {:show? true
+                                                                        :title "Category Edit"
+                                                                        :child push-form}]]]])}
+      "Edit"]
+     [:span {:class css/divi} "|"])
+   [btn-del {:on-click #(re-frame/dispatch [:get-category
+                                            (:id e)
+                                            [[:dispatch [:set-modal {:show? true
+                                                                     :title "Category Delete"
+                                                                     :child delete-form}]]]])}
+    "Del"]])
 
 (def columns [{:key :id :title "ID"}
               {:key :title :title "Title"}
@@ -190,26 +182,39 @@
               {:key :top-flag :title "Top"}
               {:key :push-flag :title "Push"}
               {:key :push-time :title "Push Time" :format f-util/format-time}
-              {:key :operation :title "Actioin" :render actions}
+              {:key :operation :title "Actioin" :render action-fn}
               {:key :tags :title "Tags"}
               {:key :summary :title "Summary"}])
 
+(defn query-form []
+  ;; page query form
+  (let [default-pagination (re-frame/subscribe [:default-pagination])]
+    (fn []
+      (let [q-data (r/atom (assoc @default-pagination
+                                  :event :query-categories))]
+        [:form
+         [:div {:class "grid grid-cols-4 gap-3"}
+          [:div {:class "max-w-10 flex"}
+           [query-input-text {:label "name"
+                              :name "name"
+                              :on-change #(swap! q-data assoc-in [:filter :name] (f-util/get-filter-like "name" %))}]]]
+         [:div {:class "felx inline-flex justify-center items-center w-full"}
+          [btn-query {:on-click #(re-frame/dispatch [:query-categories @q-data])} "Query"]
+          [btn-new {:on-click #(re-frame/dispatch [:set-modal {:show? true
+                                                               :title "Category Add"
+                                                               :child new-form}])
+                    :class css/button-green} "New"]]]))))
+
+(defn data-table []
+  (let [datasources (re-frame/subscribe [:category/datasources])]
+    (fn []
+      [table-admin (assoc @datasources :columns columns)])))
+
 (defn index []
-  (let [{:keys [list total opts]} @(re-frame/subscribe [:current-route-result])
-        pagination (assoc opts :total total :query-params opts :url ::query-categories)
-        data-sources list
-        push-modal-show? @(re-frame/subscribe [:current-push-modal?])]
-    [layout-admin
-     [:<>
-      [modals/modal  {:id "Delete-article"
-                      :title "Delete article"
-                      :show? push-modal-show?
-                      :on-close #(re-frame/dispatch [:close-modal :delete-modal?])}
-       [push-form]]]
-     [query-form]
-     [table-admin {:columns columns
-                   :datasources data-sources
-                   :pagination pagination}]]))
+  [layout/layout
+   [:<>
+    [query-form]
+    [data-table]]])
 
 
 
