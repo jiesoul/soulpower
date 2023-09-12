@@ -36,15 +36,17 @@
 (s/def ::age pos-int?)
 (s/def ::avatar string?)
 (s/def ::phone string?)
-(s/def ::UserUpdate
-  (s/keys :req-un [::id ::nickname ::birthday]
-          :opt-un [::age ::avatar ::phone]))
+(s/def ::login-user
+  (s/keys :req-un [::username ::password]))
+
+(s/def ::UserProfile
+  (s/keys :opt-un [::nickname ::birthday ::age ::avatar ::phone]))
 
 (s/def ::old-password ::password-type)
 (s/def ::new-password ::password-type)
 (s/def ::confirm-password ::password-type)
-(s/def ::UserPassword
-  (s/keys :req-un [::id ::old-password ::new-password ::confirm-password]))
+(s/def ::UpdatePassword
+  (s/keys :req-un [::old-password ::new-password ::confirm-password]))
 
 (s/def ::CategoryAdd
   (s/keys :req-un [::name]
@@ -67,12 +69,9 @@
     [["/login" {:no-doc no-doc
                 :swagger {:tags ["Login"]}
                 :post {:summary "login to the web site"
-                       :parameters {:body {:username ::username
-                                           :password ::password}}
+                       :parameters {:body {:login-user ::login-user}}
                        :handler (fn [req]
-                                  (let [body (get-in req [:parameters :body])
-                                        {:keys [username password]} body]
-                                    (login-handler/login-auth env username password)))}}]
+                                  (login-handler/login-auth env req))}}]
 
      ["/admin" {:no-doc no-doc
                 :middleware [(create-token-auth-middleware options)
@@ -90,36 +89,24 @@
        ["" {:get {:summary "Query users"
                   :parameters {:query ::query}
                   :handler (fn [req]
-                             (let [query (req-util/parse-query req)]
-                               (user-handler/query-users env query)))}}]
+                             (user-handler/query-users env req))}}]
 
        ["/:id" {:get {:summary "Get a user"
                       :parameters {:path {:id pos-int?}}
                       :handler (fn [req]
-                                 (let [id (req-util/parse-path req :id)]
-                                   (user-handler/get-user env id)))}
+                                 (user-handler/get-user env req))}
+                
+                :patch {:summary "Update user profile"
+                        :parameters {:path {:id pos-int?}
+                                     :body {:user-profile ::UserProfile}}
+                        :handler (fn [req]
+                                   (user-handler/update-user-profile! env req))}}]
 
-                :put {:summary "Update a user"
-                      :parameters {:path {:id pos-int?}
-                                   :body {:user ::UserUpdate}}
-                      :handler (fn [req]
-                                 (let [user (req-util/parse-body req :user)]
-                                   (user-handler/update-user! env user)))}
-
-                ;; :delete {:summary "Delete a user"
-                ;;          :parameters {
-                ;;                       :path [:map [:id pos-int?]]}
-                ;;          :handler (fn [req]
-                ;;                     (let [id (req-util/parse-path req :id)]
-                ;;                       (user-handler/delete-user! env id)))}
-                }]
-
-       ["/:id/password" {:put {:summary "Update a user passwrod"
-                               :parameters {:path {:id pos-int?}
-                                            :body {:update-password ::UserPassword}}
-                               :handler (fn [req]
-                                          (let [update-password (req-util/parse-body req :update-password)]
-                                            (user-handler/update-user-password! env update-password)))}}]]
+       ["/:id/password" {:patch {:summary "Update a user passwrod"
+                                 :parameters {:path {:id pos-int?}
+                                              :body {:update-password ::UpdatePassword}}
+                                 :handler (fn [req]
+                                              (user-handler/update-user-password! env req))}}]]
 
       ["/categories" {:swagger {:tags ["Categories"]}}
 

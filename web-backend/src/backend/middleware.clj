@@ -1,7 +1,8 @@
 (ns backend.middleware
   (:require [clojure.tools.logging :as log]
             [reitit.ring.middleware.exception :as exception]
-            [ring.middleware.cors :refer [wrap-cors]]))
+            [ring.middleware.cors :refer [wrap-cors]]
+            ))
 
 (defn wrap-cors-middleware 
   [handler]
@@ -9,6 +10,13 @@
              :access-control-allow-origin [#".*"]
             ;;  :access-control-allow-headers [:content-type :authorization]
              :access-control-allow-methods [:get :put :post :patch :delete :options]))
+
+;; (defn coercion-error-handler [status]
+;;   (let [printer (expound/custom-printer {:theme :figwheel-theme, :print-specs? false})
+;;         handler (exception/create-coercion-handler status)]
+;;     (fn [exception request]
+;;       (printer (-> exception ex-data :problems))
+;;       (handler exception request))))
 
 (derive ::error ::exception)
 (derive ::failure ::exception)
@@ -20,7 +28,6 @@
   {:status 500 
    :body  {:message message 
            :exception (.getClass exception)
-           :data (ex-data exception)
            :uri (:uri request)}})
 
 (def exception-middleware
@@ -39,5 +46,6 @@
      ;; override the default handler
      ::exception/default (partial handler "unknown error")
 
-     ::exception/wrap (fn [handler e request] 
+     ::exception/wrap (fn [handler e request]
+                        (.printStackTrace e)
                         (handler e request))})))

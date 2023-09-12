@@ -4,6 +4,7 @@
             [backend.middleware :refer [exception-middleware
                                         wrap-cors-middleware]]
             [backend.server :as server]
+            [cheshire.core :refer [generate-string]]
             [clojure.java.io :as io]
             [clojure.pprint]
             [clojure.tools.logging :as log]
@@ -24,6 +25,8 @@
   [(server/routes env)
    (api/routes env)])
 
+(def default-response-headers {"Content-Type" "application/json; charset=utf-8"})
+
 (defn handler
   "Handler."
   [routes]
@@ -38,6 +41,7 @@
                                              reitit-muuntaja/format-negotiate-middleware
                                              reitit-muuntaja/format-response-middleware
                                              reitit-muuntaja/format-request-middleware
+                                             reitit-coercion/coerce-exceptions-middleware
                                                     ;; coercing response bodys
                                              reitit-coercion/coerce-response-middleware
                                                     ;; coercing request parameters
@@ -48,7 +52,15 @@
      (reitit-ring/redirect-trailing-slash-handler)
      (reitit-ring/create-file-handler {:path "/" :root "targer/shadow/dev/resources/public"})
      (reitit-ring/create-resource-handler {:path "/"})
-     (reitit-ring/create-default-handler {:not-found (constantly {:status 404 :body "not found"})})))))
+     (reitit-ring/create-default-handler {:not-found          (constantly {:status  404
+                                                                           :body    (generate-string {:message "Route not found"})
+                                                                           :headers default-response-headers})
+                                          :method-not-allowed (constantly {:status  405
+                                                                           :body    (generate-string {:message "Method not allowed"})
+                                                                           :headers default-response-headers})
+                                          :not-acceptable     (constantly {:status  406
+                                                                           :body    (generate-string {:message "Totally and utterly unacceptable"})
+                                                                           :headers default-response-headers})})))))
 
 ;; (defn env-value [key default]
 ;;   (some-> (or (System/getenv (name key)) default)))

@@ -3,7 +3,6 @@
             [buddy.auth.backends :as backends]
             [buddy.auth.middleware :refer [wrap-authentication]]
             [buddy.sign.jwt :as jwt]
-            [clojure.tools.logging :as log]
             [clojure.string :as str]))
 
 (def default-jwt-private-key "soulpower")
@@ -30,7 +29,6 @@
 (defn admin-middleware 
   [handler]
   (fn [req]
-    (log/debug "Identity: " (-> req :identity))
     (if (-> req :identity :roles (str/split #",") set (contains? "admin"))
       (handler req)
       {:status 403 :body {:message "未授权"}})))

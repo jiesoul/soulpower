@@ -1,65 +1,45 @@
 (ns backend.handler.user-handler
   (:require [backend.db.user-db :as user-db]
-            [backend.util.resp-util :as resp-util]
-            [taoensso.timbre :as log]
-            [buddy.hashers :as buddy-hashers]))
+            [backend.util.req-uitl :as req-util]
+            [buddy.hashers :as buddy-hashers]
+            [ring.util.response :as resp]
+            [clojure.tools.logging :as log]))
 
-(defn query-users [env query]
-  (log/debug "query users request params: "  query)
-  (let [db (:db env)
+(defn query-users [{:keys [db]} req]
+  (let [query (req-util/parse-query req)
         result (user-db/query-users db query)]
-    (resp-util/ok result)))
+    (resp/response result)))
 
-(defn create-user! [env user]
-  (log/debug "Create user " user)
-  (let [db (:db env)
-        create-time (java.time.Instant/now)
-        password (:password user)
-        new-user (user-db/create-user! db (assoc user
-                                                 :create_time create-time
-                                                 :password (buddy-hashers/derive password)))]
-    (resp-util/ok {:user new-user})))
-
-(defn update-user! [env user]
-  (log/debug "update user " user)
-  (let [db (:db env)
-        db-user (user-db/get-user-by-id db (:id user))]
-    (if db-user
-      (let [_ (user-db/update-user! db (assoc user :password (:psssword db-user)))]
-        (resp-util/ok {}))
-      (resp-util/not-found "无效的用户ID"))))
-
-(defn get-user [env id]
-  (log/debug "get user id" id)
-  (let [db (:db env)
+(defn get-user [{:keys [db]} req]
+  (let [id (req-util/parse-path req :id)
         user (user-db/get-user-by-id db id)]
     (if user
-      (resp-util/ok (dissoc user :password))
-      (resp-util/not-found "无效的用户ID"))))
+      (resp/response (dissoc user :password))
+      (resp/not-found {:error "User not exist."}))))
 
-(defn delete-user! [env id]
-  (log/debug "Delete user id " id)
-  (let [db (:db env)
-        user ((user-db/get-user-by-id db id))]
-    (if user
-      (do
-        (user-db/delete-user! db id)
-        (resp-util/ok {}))
-      (resp-util/not-found "无效的用户ID"))))
+(defn update-user-profile! [{:keys [db]} req]
+  (let [_ (log/debug "update user profile req: " req)
+        id (req-util/parse-path req :id)
+        user-profile (req-util/parse-body req :user-profile)
+        db-user (user-db/get-user-by-id db id)]
+    (if db-user 
+      (resp/response (user-db/update-user-profile! db id user-profile))
+      (resp/not-found {:error "User not exist."}))))
 
-(defn update-user-password! [env {:keys [id old-password new-password confirm-password] :as update-password}]
-  (log/debug "Update user password " update-password)
-  (let [db (:db env)]
+
+(defn update-user-password! [{:keys [db]} req ]
+  (let [id (req-util/parse-path req :id)
+        {:keys [old-password new-password confirm-password]} (req-util/parse-body req :update-password)]
     (if (not= new-password confirm-password)
-      (resp-util/bad-request "新密码与确认密码不一致")
+      (resp/bad-request {:error "new password and confirm password must be same."})
       (if (= old-password new-password)
-        (resp-util/bad-request "new password and old password is same")
+        (resp/bad-request {:error "new password and old password is same"})
         (if-let [user (user-db/get-user-by-id db id)]
           (if (buddy-hashers/check old-password (:password user))
             (do
               (user-db/update-user-password! db id (buddy-hashers/derive new-password))
-              (resp-util/ok {}))
-            (resp-util/bad-request "旧密码错误"))
-          (resp-util/not-found "用户不存在"))))))
+              (resp/response {}))
+            (resp/bad-request {:error "User old password error."}))
+          (resp/not-found {:error "User not exist."}))))))
 
 

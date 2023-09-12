@@ -16,12 +16,12 @@
         _ (log/debug "Total users SQL: " t-sql)
         total (:c (first (sql/query db t-sql)))]
     {:list (map #(dissoc % :password) users) 
-     :total total
-     :opts opts}))
+     :total total}))
 
 (defn create-user! 
   [db user]
-  (sql/insert! db :users user))
+  (let [rs (sql/insert! db :users user)]
+    rs))
 
 (defn update-user! 
   [db {:keys [id] :as user}]
@@ -39,6 +39,10 @@
   [db id]
   (sql/get-by-id db :users id {:builder-fn rs/as-unqualified-maps}))
 
+(defn update-user-profile! [db id user-profile]
+  (sql/update! db :users user-profile {:id id}))
+
 (defn delete-user!
   [db id]
   (sql/delete! db :users {:id id}))
+
