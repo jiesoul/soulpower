@@ -29,6 +29,19 @@
                    after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all 
                    dark:border-gray-600 peer-checked:bg-blue-600")
 
+(def css-input "fblock w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 
+                placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6")
+
+(defn form-input [{:keys [label name type on-change]}]
+  (fn []
+    [:div
+     [:label {:class "block text-sm font-medium leading-6 text-gray-900"} label]
+     [:div {:class "mt-2"}
+      [:input {:class css-input
+               :type type
+               :name name
+               :on-change on-change}]]]))
+
 (defn checkbox-input [{:keys [label name class] :as props}] 
   [:div {:class class}
    [:label {:class "relative inline-flex items-center cursor-pointer"}

@@ -9,13 +9,6 @@
 (def css-user-dropdown-li-a "block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white")
 (def user-dropdown-show? (r/atom true))
 
-(def nav-home-link "block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent 
-                    md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 
-                    dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent")
-
-(def nav-home-link-current "block py-2 pl-3 pr-4 text-white border-b bg-blue-700 rounded md:bg-transparent 
-                            md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500")
-
 (defn user-dropdown []
   [:div {:id "user-dropdown"
          :hidden @user-dropdown-show?
@@ -47,7 +40,7 @@
      [:div {:class "flex items-center space-x-4"}
       (when login-user
         [:div {:class "font-medium dark:text-white"}
-         [:a {:class ""
-              :on-click #(swap! user-dropdown-show? not)} 
+         [:p {:class ""
+              :href "#"} 
           (when login-user (:username login-user))]
          (user-dropdown)])]]))

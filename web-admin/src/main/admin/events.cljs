@@ -51,8 +51,7 @@
          controllers (rfc/apply-controllers (:controllers old-match) new-match)]
      (js/console.log (str "new-path: " new-path))
      (cond-> (assoc db :current-route (assoc new-match :controllers controllers))
-       (= "/" new-match) (-> (assoc :login nil)
-                             (assoc :user nil))))))
+       (= "/" new-match) (-> (assoc :login-user nil))))))
 
 ;; toasts
 
@@ -94,24 +93,5 @@
  (fn [db [_ _]]
    (assoc-in db [:current-route :edit] nil)))
 
-;; modals 
-
-(reg-event-db
- :set-modal-backdrop-show?
- (fn [db [_ v]]
-   (assoc-in db [:current-route :modal :back] v)))
-
-(reg-event-fx
- :show-modal
- (fn [{:keys [db]} [_ key]]
-   {:db (-> db (assoc-in [:current-route :modal key] true))
-    :fx [[:dispatch [:set-modal-backdrop-show? true]]]}))
-
-(reg-event-fx
- :close-modal
- (fn [{:keys [db]} [_ key]]
-   {:db (assoc-in db [:current-route :modal key] false)
-    :fx [[:dispatch [:set-modal-backdrop-show? false]]
-         [:dispatch [:clean-current-route-edit]]]}))
 
 

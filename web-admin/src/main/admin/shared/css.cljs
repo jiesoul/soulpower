@@ -3,6 +3,20 @@
 (def main-container "flex-1 border flex-col p-2 bg-white h-auto w-full")
 (def page-title "text-gray-700 text-2xl font-medium border-b")
 
+(def form-b-c "flex min-h-full flex-col justify-center px-6 py-12 lg:px-8")
+
+(def form-b-t "sm:mx-auto sm:w-full sm:max-w-sm")
+
+(def form-b-t-h-2 "mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900")
+
+(def form-b-m "mt-10 sm:mx-auto sm:w-full sm:max-w-sm")
+
+
+(def btn-b-c "flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm 
+              font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 
+              focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 
+              focus-visible:outline-indigo-600")
+
 (def btn-base "focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg px-3 py-2 text-xs 
                text-center mr-2 mb-2 border hover:text-white dark:hover:text-white")
 

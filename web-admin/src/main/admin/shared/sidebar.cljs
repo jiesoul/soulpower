@@ -1,10 +1,11 @@
 (ns admin.shared.sidebar 
-  (:require [reagent.core :as r]
-            [re-frame.core :as re-frame]
+  (:require [admin.shared.svg :as svg]
             [admin.subs :as views]
-            [admin.shared.svg :as svg]))
+            [re-frame.core :as re-frame]
+            [reagent.core :as r]))
 
-(def articles-nav-show? (r/atom true))
+(defonce articles-nav-show? (r/atom true))
+(defonce user-nav-show? (r/atom true))
 
 (def css-sidebar-li-a-top "flex items-center px-6 py-2 mt-4 text-gray-100 bg-gray-700 bg-opacity-25")
 (def css-sidebar-li-a-second "flex items-center w-full p-2 text-gray-100 transition duration-75 
@@ -14,8 +15,8 @@
   (if (= path uri) true false))
 
 (defn sidebar-dash []
-  (let [current-route @(re-frame/subscribe [:current-route])
-        path (:path current-route)] 
+  (let [current-route (re-frame/subscribe [:current-route])
+        login-user (re-frame/subscribe [:login-user])] 
     (fn []
       [:aside {:id "sidebar-dash"
                :class "fixed inset-y-0 left-0 w-64 overflow-y-auto transition duration-300
@@ -59,13 +60,31 @@
                   :on-click #(re-frame/dispatch [:navigate ::views/article-comment])
                   :class css-sidebar-li-a-second}
            "Comments"]]]
+        
+        [:li
+         [:button {:type "button"
+                   :class "flex items-center w-full px-6 py-2 mt-4 text-gray-100 bg-gray-700 bg-opacity-25"
+                   :on-click #(swap! user-nav-show? not)}
+          [:span {:class "mx-3"
+                  :sidebartoggleitem "true"} "User"]
+          (svg/chevron-up)]
+         [:ul {:class "py-2 space-y-2"
+               :hidden @user-nav-show?}
+          [:li>a {:class css-sidebar-li-a-second
+                  :href "#"
+                  :on-click #(re-frame/dispatch [:navigate ::views/user])}
+           [:span {:class "mx-3"} "User"]]
 
-        [:li>a {:class css-sidebar-li-a-top
-                :href "#"
-                :on-click #(re-frame/dispatch [:navigate ::views/user])}
-         [:span {:class "mx-3"} "User"]]
+          [:li>a {:class css-sidebar-li-a-second
+                  :href "#"
+                  :on-click #(re-frame/dispatch [:navigate ::views/user-profile])}
+           [:span {:class "mx-3"} "profile"]]
+          [:li>a {:class css-sidebar-li-a-second
+                  :href "#"
+                  :on-click #(re-frame/dispatch [:navigate ::views/user-change-password])}
+           [:span {:class "mx-3"} "Password"]]]]
 
-        [:li>a {:class css-sidebar-li-a-top
-                :href "#"
-                :on-click #(re-frame/dispatch [:logout!])}
-         [:span {:class "mx-3"} "Log out"]]]])))
+         [:li>a {:class css-sidebar-li-a-top
+                 :href "#"
+                 :on-click #(re-frame/dispatch [:logout!])}
+          [:span {:class "mx-3"} "Log out"]]]])))

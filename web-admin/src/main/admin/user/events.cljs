@@ -81,7 +81,7 @@
                       [:update-user-ok])))
 
 (re-frame/reg-event-fx
- :delete-user-ok
+ :update-user-password-ok
  (fn [{:keys [db]} _]
    {:db db
     :fx [[:dispatch [:push-toast {:type :success :content (str "Delete user success")}]]
@@ -90,9 +90,9 @@
          [:dispatch [:query-users]]]}))
 
 (re-frame/reg-event-fx
- :delete-user
- (fn [{:keys [db]} [_ id]]
-   (f-http/http-delete db
-                       (f-http/api-uri-admin "users" id)
-                       {}
-                       [:delete-user-ok])))
+ :update-user-password!
+ (fn [{:keys [db]} [_ data]]
+   (f-http/http-patch db
+                       (f-http/api-uri-admin "users" (:id data) "password")
+                       data
+                       [:update-user-password-ok])))

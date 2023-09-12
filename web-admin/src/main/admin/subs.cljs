@@ -41,21 +41,3 @@
  :current-route-edit
  (fn [db]
    (get-in db [:current-route :edit])))
-
-(re-frame/reg-sub 
- :current-route-query
- (fn [db]
-   (get-in db [:current-route :query])))
-
-(re-frame/reg-sub 
- :current-route-datasources
- (fn [db]
-   (get-in db [:current-route :datasources])))
-
-(re-frame/reg-sub
- :current-route-result
- (fn [db]
-   (get-in db [:current-route :result])))
-
-
-

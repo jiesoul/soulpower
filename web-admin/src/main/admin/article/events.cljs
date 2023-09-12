@@ -20,13 +20,13 @@
                     [::get-view-article-ok])))
 
 (re-frame/reg-event-fx
- ::query-articles-ok
+ :query-articles-ok
  (fn [{:keys [db]} [_ resp]]
    {:db db
     :fx [[:dispatch [:init-current-route-result (:data resp)]]]}))
 
 (re-frame/reg-event-fx
- ::query-articles
+ :query-articles
  (fn [{:keys [db]} [_ data]]
    (util/clog "query articles: " data)
    (http/http-get db
@@ -35,14 +35,14 @@
                     [::query-articles-ok])))
 
 (re-frame/reg-event-fx
- ::add-article-ok
+ :add-article-ok
  (fn [{:keys [db]} [_ resp]]
    (util/clog "add article ok: " resp)
    {:db db
     :fx [[:dispatch [:push-toast {:content "保存成功" :type :info}]]]}))
 
 (re-frame/reg-event-fx
- ::add-article
+ :add-article
  (fn [{:keys [db]} [_ article]]
    (util/clog "add article: " article)
    (http/http-post db
@@ -51,13 +51,13 @@
                      [::add-article-ok])))
 
 (re-frame/reg-event-db
- ::get-article-ok
+ :get-article-ok
  (fn [db [_ resp]]
    (util/clog "get article ok: " resp)
    (assoc-in db [:current-route :edit] (:data resp))))
 
 (re-frame/reg-event-fx
- ::get-article
+ :get-article
  (fn [{:keys [db]} [_ id]]
    (util/clog "Get a article: " id)
    (http/http-get db
@@ -66,14 +66,14 @@
                     [::get-article-ok])))
 
 (re-frame/reg-event-fx
- ::update-article-ok
+ :update-article-ok
  (fn [{:keys [db]} [_ resp]]
    (util/clog "update article ok: " resp)
    {:db db
     :fx [[:dispatch [:push-toast {:content "保存成功" :type :success}]]]}))
 
 (re-frame/reg-event-fx
- ::update-article
+ :update-article
  (fn [{:keys [db]} [_ article]]
    (util/clog "update article: " article)
    (http/http-patch db
@@ -83,14 +83,14 @@
 
 
 (re-frame/reg-event-fx
- ::push-article-ok
+ :push-article-ok
  (fn [{:keys [db]} [_ resp]]
    (util/clog "push article ok: " resp)
    {:db db
     :fx [[:dispatch [:push-toast {:content "Push Success!!!" :type :success}]]]}))
 
 (re-frame/reg-event-fx
- ::push-article
+ :push-article
  (fn [{:keys [db]} [_ article]]
    (util/clog "push article: " article)
    (http/http-patch db

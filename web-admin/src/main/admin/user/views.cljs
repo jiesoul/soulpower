@@ -1,14 +1,14 @@
 (ns admin.user.views
-  (:require [clojure.string :as str]
-            [admin.events]
-            [admin.subs]
-            [admin.shared.buttons :refer [btn-new btn-query btn-edit btn-del
-                                          red-button]]
+  (:require [admin.events]
+            [admin.shared.buttons :refer [btn-edit btn-query]]
             [admin.shared.css :as css]
-            [admin.shared.form-input :refer [text-input-backend query-input-text]]
+            [admin.shared.form-input :refer [form-input query-input-text
+                                             text-input-backend]]
             [admin.shared.layout :refer [layout]]
             [admin.shared.tables :refer [table-admin]]
+            [admin.subs]
             [admin.util :as f-util]
+            [clojure.string :as str]
             [re-frame.core :as re-frame]
             [reagent.core :as r]))
 
@@ -19,26 +19,6 @@
   (if (or (nil? v) (str/blank? v))
     (reset! name-error "名称不能为空")
     (reset! name-error nil)))
-
-(defn new-form []
-  (let [edit (r/atom {:name ""
-                      :description ""})]
-    (fn []
-      [:form
-       [:div {:class "grid gap-4 mb-6 sm:grid-cols-2"}
-        [:div
-         (text-input-backend {:label "Name："
-                              :name "name"
-                              :required true
-                              :on-blur #(check-name (f-util/get-value %))
-                              :on-change #(swap! edit assoc :name (f-util/get-value %))})]
-        [:div
-         (text-input-backend {:label "Description"
-                              :name "descrtiption"
-                              :on-change #(swap! edit assoc :description (f-util/get-value %))})]]
-       [:div {:class "flex justify-center items-center space-x-4 mt-4"}
-        [btn-new {:on-click #(re-frame/dispatch [:add-user @edit])}
-         "Save"]]])))
 
 (defn edit-form []
   (let [user (re-frame/subscribe [:user/edit])]
@@ -55,21 +35,8 @@
                                :default-value (:description @user)
                                :on-change #(swap! edit assoc-in [:description] (f-util/get-value %))})]
          [:div {:class "flex justify-center items-center space-x-4"}
-          [btn-new {:on-click #(re-frame/dispatch [:update-user @edit])}
+          [btn-edit {:on-click #(re-frame/dispatch [:update-user @edit])}
            "Save"]]]))))
-
-(defn delete-form []
-  (let [current (re-frame/subscribe [:user/edit])]
-    (fn []
-      (when @current
-        [:form
-         [:div {:class "p-4 mb-4 text-blue-800 border border-red-300 rounded-lg 
-                    bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800"}
-          [:div {:class "flex items-center"}
-           (str "You confirm delete the " (:name @current) "? ")]]
-         [:div {:class "flex justify-center items-center space-x-4"}
-          [red-button {:on-click #(re-frame/dispatch [:delete-user (:id @current)])}
-           "Delete"]]]))))
 
 (defn action-fn [e]
   [:div
@@ -78,18 +45,10 @@
                                              [[:dispatch [:set-modal {:show? true
                                                                       :title "user Edit"
                                                                       :child edit-form}]]]])}
-    "Edit"]
-  ;;  [:span {:class css/divi} "|"]
-  ;;  [btn-del {:on-click #(re-frame/dispatch [:get-user
-  ;;                                           (:id e)
-  ;;                                           [[:dispatch [:set-modal {:show? true
-  ;;                                                                    :title "user Delete"
-  ;;                                                                    :child delete-form}]]]])}
-  ;;   "Del"]
-   ])
+    "Edit"]])
 
-(def columns [{:key :name :title "Name"}
-              {:key :description :title "Description"}
+(def columns [{:key :email :title "Email"}
+              {:key :username :title "Name"}
               {:key :operation :title "Actions" :render action-fn}])
 
 (defn query-form []
@@ -105,11 +64,7 @@
                               :name "name"
                               :on-change #(swap! q-data assoc-in [:filter :name] (f-util/get-filter-like "name" %))}]]]
          [:div {:class "felx inline-flex justify-center items-center w-full"}
-          [btn-query {:on-click #(re-frame/dispatch [:query-users @q-data])} "Query"]
-          [btn-new {:on-click #(re-frame/dispatch [:set-modal {:show? true
-                                                               :title "user Add"
-                                                               :child new-form}])
-                    :class css/button-green} "New"]]]))))
+          [btn-query {:on-click #(re-frame/dispatch [:query-users @q-data])} "Query"]]]))))
 
 (defn data-table []
   (let [datasources (re-frame/subscribe [:user/datasources])]
@@ -121,3 +76,66 @@
    [:<>
     [query-form]
     [data-table]]])
+
+(defn profile []
+  (let [login-user (re-frame/subscribe [:login-user])]
+    (fn []
+      (let [user-data (r/atom @login-user)]
+        [:div {:class css/form-b-c}
+          [:div {:class css/form-b-m}
+           [:div {:class "space-y-4"}
+            [form-input {:label "Username"
+                         :type "text"
+                         :name "username"
+                         :value (:username @login-user)
+                         :readonly true}]
+            [form-input {:label "Password"
+                         :type "password"
+                         :name "password"
+                         :on-change #(swap! user-data assoc :old-pass (.. % -target -value))}]
+            [:div
+             [:button {:class css/btn-b-c
+                       :on-click #(re-frame/dispatch [:update-user! @user-data])}
+              "Save"]]]]]))))
+
+(defn profile-page []
+  [layout 
+   [:<> 
+    [profile]]])
+
+(defn change-password []
+  (let [login-user (re-frame/subscribe [:login-user])]
+    (fn []
+      (let [password-data (r/atom {:id (:id @login-user)
+                                   :old-pass ""
+                                   :new-pass ""
+                                   :confirm-pass ""})]
+        [:div {:class css/form-b-c}
+         [:div {:class css/form-b-t} 
+          [:h2 {:class css/form-b-t-h-2} (:username @login-user)]]
+         [:div {:class css/form-b-m}
+          [:div {:class "space-y-4"}
+           [form-input {:label "Old Password"
+                        :type "password"
+                        :name "old-pass"
+                        :required true
+                        :on-change #(swap! password-data assoc :old-pass (.. % -target -value))}]
+           [form-input {:label "New Password"
+                        :type "password"
+                        :name "new-pass"
+                        :required true
+                        :on-change #(swap! password-data assoc :new-pass (.. % -target -value))}]
+           [form-input {:label "Confirm New Password"
+                        :type "password"
+                        :name "confirm-pass"
+                        :required true
+                        :on-change #(swap! password-data assoc :confirm-pass (.. % -target -value))}]
+           [:div
+            [:button {:class css/btn-b-c
+                      :on-click #(re-frame/dispatch [:update-user-password! @password-data])}
+             "Save"]]]]]))))
+
+(defn password-page []
+  [layout 
+   [:<>
+    [change-password]]])
