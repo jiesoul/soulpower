@@ -4,8 +4,8 @@
             [backend.handler.login-handler :as login-handler]
             [backend.handler.tag-handler :as tag-handler]
             [backend.handler.user-handler :as user-handler]
-            [backend.middleware.auth-middleware :as auth-mw :refer [admin-middleware
-                                                                    auth-middleware create-token-auth-middleware]]
+            [backend.middleware :refer [admin-middleware
+                                        auth-middleware create-token-auth-middleware]]
             [backend.util.req-uitl :as req-util]
             [clojure.spec.alpha :as s]
             [clojure.tools.logging :as log]))
@@ -27,7 +27,7 @@
 (s/def ::query
   (s/keys :opt-un [::page ::page-size ::sort ::filter ::q]))
 
-(s/def ::birth-date (s/valid? inst? (java.time.LocalDate/now)))
+(s/def ::birth-date inst?)
 
 (s/def ::username string?)
 (s/def ::nickname string?)

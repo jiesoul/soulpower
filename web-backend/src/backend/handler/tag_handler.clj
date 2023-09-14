@@ -6,7 +6,7 @@
 (defn query-tags [{:keys [db]} opts]
   (log/debug "Query tags " opts)
   (let [data (tag-db/query db opts)]
-    (resp-util/ok data)))
+    (resp-util/response data)))
 
 (defn create-tag! [{:keys [db]} {:keys [name] :as tag}]
   (log/debug "Creatge tag " tag)
@@ -14,22 +14,22 @@
     (resp-util/bad-request (str "Tag: <" name "> has been created"))
     (let [rs (tag-db/create! db tag)
           _ (log/debug "result: " rs)]
-      (resp-util/ok {}))))
+      (resp-util/response {}))))
 
 (defn get-tag [{:keys [db]} id]
   (log/debug "Get tag " id)
   (let [tag (tag-db/get-by-id db id)]
-    (resp-util/ok tag)))
+    (resp-util/response tag)))
 
 (defn update-tag! [{:keys [db]} tag]
   (log/debug "Update tag " tag)
   (let [_ (tag-db/update! db tag)]
-    (resp-util/ok {})))
+    (resp-util/response {})))
 
 (defn delete-tag! [{:keys [db]} id]
   (log/debug "Delete tag " id)
   (let [_ (tag-db/delete! db id)]
-    (resp-util/ok {})))
+    (resp-util/response {})))
 
 (defn get-all-tags [{:keys [db]}]
   (let [rs (tag-db/get-all-tags db)]

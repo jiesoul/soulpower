@@ -20,8 +20,8 @@
                :options #ig/ref :backend/options
                :db #ig/ref :backend/db}
  
- :backend/jetty {:port #profile {:dev #long #or [#env PORT 8080]
-                                 :test #long #or [#env PORT 8080]}
+ :backend/jetty {:port #profile {:dev #long #or [#env PORT 8088]
+                                 :test #long #or [#env PORT 8088]}
                  :join? false 
                  :env #ig/ref :backend/env}
  

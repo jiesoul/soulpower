@@ -7,4 +7,4 @@
   (log/debug "query users request params: "  query)
   (let [db (:db env)
         result (user-token-db/query-users-tokens db query)]
-    (resp-util/ok result)))
+    (resp-util/response result)))

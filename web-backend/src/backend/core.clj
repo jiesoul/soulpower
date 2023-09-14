@@ -4,6 +4,7 @@
             [backend.middleware :refer [exception-middleware
                                         wrap-cors-middleware]]
             [backend.server :as server]
+            [backend.util.resp-util :refer [default-response-headers not-found]]
             [cheshire.core :refer [generate-string]]
             [clojure.java.io :as io]
             [clojure.pprint]
@@ -13,10 +14,12 @@
             [muuntaja.core :as mu-core]
             [nrepl.server :as nrepl]
             [reitit.coercion.spec]
+            [reitit.dev.pretty :as pretty]
             [reitit.ring :as reitit-ring]
             [reitit.ring.coercion :as reitit-coercion]
             [reitit.ring.middleware.muuntaja :as reitit-muuntaja]
             [reitit.ring.middleware.parameters :as reitit-parameters]
+            [reitit.spec :as rs]
             [reitit.swagger :as reitit-swagger]
             [ring.adapter.jetty :as jetty])
   (:gen-class))
@@ -24,8 +27,6 @@
 (defn routes [env]
   [(server/routes env)
    (api/routes env)])
-
-(def default-response-headers {"Content-Type" "application/json; charset=utf-8"})
 
 (defn handler
   "Handler."
@@ -38,23 +39,20 @@
                                 :middleware [wrap-cors-middleware
                                              reitit-swagger/swagger-feature
                                              reitit-parameters/parameters-middleware
-                                             reitit-muuntaja/format-negotiate-middleware
-                                             reitit-muuntaja/format-response-middleware
-                                             reitit-muuntaja/format-request-middleware
-                                             reitit-coercion/coerce-exceptions-middleware
+                                             reitit-muuntaja/format-middleware
+                                             exception-middleware
                                                     ;; coercing response bodys
                                              reitit-coercion/coerce-response-middleware
                                                     ;; coercing request parameters
-                                             reitit-coercion/coerce-request-middleware
-                                             exception-middleware]}})
+                                             reitit-coercion/coerce-request-middleware]}
+                         :validate rs/validate
+                         :exception pretty/exception})
 
     (reitit-ring/routes
      (reitit-ring/redirect-trailing-slash-handler)
      (reitit-ring/create-file-handler {:path "/" :root "targer/shadow/dev/resources/public"})
      (reitit-ring/create-resource-handler {:path "/"})
-     (reitit-ring/create-default-handler {:not-found          (constantly {:status  404
-                                                                           :body    (generate-string {:message "Route not found"})
-                                                                           :headers default-response-headers})
+     (reitit-ring/create-default-handler {:not-found          not-found
                                           :method-not-allowed (constantly {:status  405
                                                                            :body    (generate-string {:message "Method not allowed"})
                                                                            :headers default-response-headers})

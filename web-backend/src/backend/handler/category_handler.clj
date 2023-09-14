@@ -9,7 +9,7 @@
   (log/info "Query categories " opts)
   (let [data (category-db/query-categories db opts)
         _ (log/debug "query categories data: " data)]
-    (resp-util/ok data)))
+    (resp-util/response data)))
 
 (defn create-category! 
   "Create Category"
@@ -20,31 +20,37 @@
       (resp-util/bad-request (str "category name " name " is used!!"))
       (do 
         (category-db/create! db category)
-        (resp-util/ok {} "添加成功")))))
+        (resp-util/created {})))))
 
 (defn get-category 
   "Get a Category by id"
   [{:keys [db]} id]
   (log/info "Get category " id)
   (let [category (category-db/get-by-id db id)]
-    (resp-util/ok category)))
+    (if category
+      (resp-util/response category)
+      (resp-util/bad-request {:message "无效的ID号"}))))
 
 (defn update-category! 
   "Update Category "
   [{:keys [db]} category]
   (log/info "Update category " category)
-  (let [_ (category-db/update! db category)]
-    (resp-util/ok {})))
+  (let [rs (category-db/update! db category)]
+    (if (zero? (val rs))
+      (resp-util/bad-request {:message "资源未找到"})
+      (resp-util/created {}))))
 
 (defn delete-category! 
   "Delete Category by id"
   [{:keys [db]} id]
   (log/info "Delete category " id)
-  (let [_ (category-db/delete! db id)]
-    (resp-util/ok {})))
+  (let [rs (category-db/delete! db id)]
+    (if (zero? (val rs))
+      (resp-util/no-content {:message "资源未找到"})
+      (resp-util/response {}))))
 
 (defn get-all-categories 
   "Get All Categories"
   [{:keys [db]}]
   (let [result (category-db/get-all-category db)]
-    (resp-util/ok result)))
+    (resp-util/response result)))

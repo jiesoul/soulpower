@@ -1,5 +1,6 @@
 (ns backend.util.req-uitl 
-  (:require [clojure.tools.logging :as log]))
+  (:require [buddy.sign.jwt :as jwt]
+            [clojure.tools.logging :as log]))
 
 (def DEFAULT-PAGE 1)
 (def DEFAULT-PAGE-SIZE 10)
@@ -26,3 +27,14 @@
         page-size (or (get query :page-size) DEFAULT-PAGE-SIZE)
         _ (log/debug "parameters query " query)]
     (assoc query :page page :page-size page-size)))
+
+(def default-jwt-private-key "soulpower")
+(def default-jwt-exp 3600)
+(def default-jwt-options {:alg :hs512})
+
+(defn create-token
+  [user & {:keys [exp private-key]}]
+  (let [payload (-> user
+                    (assoc :exp (.plusSeconds
+                                 (java.time.Instant/now) (or exp default-jwt-exp))))]
+    (jwt/sign payload (or private-key default-jwt-private-key) default-jwt-options)))
