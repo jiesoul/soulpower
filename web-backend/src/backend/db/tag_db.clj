@@ -15,20 +15,19 @@
         _ (log/info "Count tags: " t-sql)
         total (:c (first (sql/query db t-sql)))] 
     {:list tags
-     :total total
-     :opts opts}))
+     :total total}))
 
 (defn create! [db tag]
-  (val (first (sql/insert! db :tag tag))))
+  (sql/insert! db :tag tag))
 
 (defn create-mutil! [db tags]
   (sql/insert! db :tag tags {:return-keys true}))
 
 (defn update! [db tag]
-  (sql/update! db :tag tag {:id (:id tag)}))
+  (:next.jdbc/update-count (sql/update! db :tag tag {:id (:id tag)})))
 
 (defn delete! [db id]
-  (sql/delete! db :tag {:id id}))
+  (:next.jdbc/update-count (sql/delete! db :tag {:id id})))
 
 (defn get-by-id [db id]
   (sql/get-by-id db :tag id {:builder-fn rs/as-unqualified-maps}))

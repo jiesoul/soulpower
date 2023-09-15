@@ -18,8 +18,7 @@
         t-sql (into [(str "select count(1) as c from article " ws)] wv)
         total (:c (first (sql/query db t-sql)))]
     {:list articles
-     :total total
-     :opts opts}))
+     :total total}))
 
 (defn get-pushed [db opts]
   (let [[ps pv] (du/opt-to-page opts)
@@ -29,8 +28,7 @@
         t-sql ["select count(1) as c from article where push_flag = 1"]
         total (:c (first (sql/query db t-sql)))]
     {:list articles 
-     :total total
-     :opts opts}))
+     :total total}))
 
 (defn create! [db {:keys [detail id] :as article}]
   (try 
@@ -38,11 +36,10 @@
       (let [detail (-> detail (assoc :article_id id))
             article (dissoc article :detail)]
         (jdbc/with-transaction [tx con]
-          (log/info "insert Article: " article)
           (sql/insert! tx :article article)
-          (log/info "insert Article Detail: " detail)
           (sql/insert! tx :article_detail detail))))
-    (catch java.sql.SQLException se (throw (ex-info "insert article: " se)))))
+    (catch java.sql.SQLException se 
+      (throw (ex-info "insert article: " se)))))
 
 (defn update! [db {:keys [id detail] :as article}] 
   (jdbc/with-transaction [tx db] 
@@ -50,25 +47,13 @@
     (sql/insert! tx :article_detail detail)
     (sql/update! tx :article (dissoc article :detail) {:id id})))
 
-(defn push! [db { :keys [id tags] :as article}]
+(defn push! [db { :keys [id tag-ids] :as article}]
   (log/debug "push article: " article)
   (jdbc/with-transaction [tx db]
     (sql/update! tx :article article {:id id}) 
     (article-tag-db/delete-by-article-id tx id)
-    (when-not (str/blank? tags)
-      (let [tag-names (str/split tags #" ")
-            _ (log/debug "tag-names: " tag-names)
-            tag-ids (when (seq tag-names)
-                      (loop [t tag-names
-                             tag-ids []]
-                        (if (seq t)
-                          (let [name (first t)
-                                tag (tag-db/get-by-name tx name) 
-                                id (if tag (:id tag) (tag-db/create! tx {:name name}))]
-                            (recur (rest t) (conj tag-ids id)))
-                          tag-ids)))
-            _ (log/debug "tag-ids: " tag-ids)]
-        (article-tag-db/create-multi! tx id tag-ids)))))
+    (when-not (str/blank? tag-ids)
+      (article-tag-db/create-multi! tx id tag-ids))))
 
 (defn save-comment! [db comment]
   (jdbc/with-transaction [tx db]

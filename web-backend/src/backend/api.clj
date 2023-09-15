@@ -19,19 +19,10 @@
 
 (defn routes [env]
 
-  [["/swagger.json"
-    {:no-doc true
-     :get {:swagger {:info {:title "my-api"
-                            :description "site api"}
-                     :tags [{:name "api", :description "api"}]}
-           :handler (reitit-swagger/create-swagger-handler)}}]
+  [
   
-   ["/api/v1"
-    ["/api-docs/*" 
-     {:no-doc true
-      :get {:handler (reitit-swagger-ui/create-swagger-ui-handler
-                      {:config {:validatorUrl nil}
-                       :url "/swagger.json"})}}]
+   [""
+    
     
     [""
      ["/categories"

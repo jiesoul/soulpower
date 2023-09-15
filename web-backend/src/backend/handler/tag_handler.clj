@@ -9,12 +9,11 @@
     (resp-util/response data)))
 
 (defn create-tag! [{:keys [db]} {:keys [name] :as tag}]
-  (log/debug "Creatge tag " tag)
-  (if-let [check (tag-db/get-by-name db name)]
-    (resp-util/bad-request (str "Tag: <" name "> has been created"))
+  (if-let [rs (tag-db/get-by-name db name)]
+    (resp-util/bad-request {:message (str "Tag: <" name "> has been created")})
     (let [rs (tag-db/create! db tag)
           _ (log/debug "result: " rs)]
-      (resp-util/response {}))))
+      (resp-util/created))))
 
 (defn get-tag [{:keys [db]} id]
   (log/debug "Get tag " id)

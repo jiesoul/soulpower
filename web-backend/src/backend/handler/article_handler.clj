@@ -10,7 +10,6 @@
     (. dtf format now)))
 
 (defn query-articles [{:keys [db]} opts]
-  (log/debug "Query articles " opts)
   (let [data (article-db/query db opts)]
     (resp-util/response data)))
 
@@ -33,7 +32,7 @@
         _ (article-db/create! db (-> article
                                      (assoc :create_time create-time
                                             :id id)))]
-    (resp-util/response {})))
+    (resp-util/created)))
 
 (defn get-article [{:keys [db]} id]
   (log/debug "Get article " id)
@@ -43,12 +42,11 @@
 (defn update-article! [{:keys [db]} article]
   (log/debug "Update article " article)
   (let [_ (article-db/update! db article)]
-    (resp-util/response {})))
+    (resp-util/created)))
 
 (defn delete-article! [{:keys [db]} id]
-  (log/debug "Delete article " id)
   (let [_ (article-db/delete! db id)]
-    (resp-util/response {})))
+    (resp-util/no-content)))
 
 (defn get-comments-by-article-id [{:keys [db]} article-id]
   (log/debug "Get comments by article id " article-id)
@@ -73,7 +71,7 @@
 (defn delete-articles-comments-by-ids [{:keys [db]} id-set]
   (log/debug "Delete article comment " id-set)
   (let [_ (article-comment-db/delete-by-id-set! db id-set)]
-    (resp-util/response {})))
+    (resp-util/no-content)))
 
 (defn push! [{:keys [db]} article]
   (let [old-article (article-db/get-by-id db (:id article))]
@@ -83,8 +81,8 @@
             _ (article-db/push! db (assoc article 
                                                :push_time push-time
                                                :push_flag 1))]
-        (resp-util/response {})))))
+        (resp-util/created)))))
 
 (defn save-comment! [{:keys [db]} comment]
   (let [_ (article-db/save-comment! db comment)]
-    (resp-util/response {})))
+    (resp-util/created)))

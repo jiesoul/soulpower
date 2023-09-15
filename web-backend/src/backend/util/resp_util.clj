@@ -3,8 +3,6 @@
             [reitit.coercion :as coercion]
             [ring.util.response :as resp]))
 
-(def default-response-headers {"Content-Type" "application/json; charset=utf-8"})
-
 (defn create-coercion-handler
   "Creates a coercion exception handler."
   [status]
@@ -14,6 +12,7 @@
       {:status status
        :body {:error {:message message
                       :uri (:uri request)
+                      :exception "coercion-exception"
                       :details (coercion/encode-error (ex-data e))}}})))
 
 (defn coercion-error-handler [status]
@@ -36,15 +35,17 @@
 
 (defn created
   "Returns a Ring response for a HTTP 201 created response."
-  [& body]
+  ([] (created nil))
+  ([body]
    {:status  201
-    :body    body})
+    :body    body}))
 
 (defn no-content
   "Returns a Ring response for a HTTP 201 created response."
-  [& error]
-  {:status  204
-   :body    {:error error}})
+  ([] (no-content nil))
+  ([body]
+   {:status  204
+    :body    body}))
 
 
 (defn redirect [url & data]
@@ -53,7 +54,7 @@
                   :data data}))
 
 (defn bad-request [error]
-  (let [error (merge {:exception "bad request"} 
+  (let [error (merge {:exception "bad-request"} 
                      error)
         _ (log/error "ERROR: " error)]
     {:status  400

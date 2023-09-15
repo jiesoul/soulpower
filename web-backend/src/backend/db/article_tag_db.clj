@@ -8,4 +8,5 @@
     (sql/insert-multi! db :article_tag [:article_id :tag_id] data)))
 
 (defn delete-by-article-id [db article-id]
-  (sql/delete! db :article_tag {:article_id article-id}))
+  (:next.jdbc/update-count 
+   (sql/delete! db :article_tag {:article_id article-id})))

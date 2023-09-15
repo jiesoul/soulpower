@@ -1,7 +1,9 @@
 (ns backend.util.db-util 
   (:require [clojure.string :as str]
-            [next.jdbc.result-set :as rs]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log]
+            [next.jdbc.prepare :as p]
+            [next.jdbc.result-set :as rs]) 
+  (:import [java.sql PreparedStatement]))
 
 (extend-protocol rs/ReadableColumn
   java.sql.Date
@@ -14,6 +16,17 @@
     (.toInstant v))
   (read-column-by-index [^java.sql.Timestamp v _2 _3]
     (.toInstant v)))
+
+(extend-protocol p/SettableParameter
+  java.time.Instant
+  (set-parameter [^java.time.Instant v ^PreparedStatement ps ^long i]
+    (.setTimestamp ps i (java.sql.Timestamp/from v)))
+  java.time.LocalDate
+  (set-parameter [^java.time.LocalDate v ^PreparedStatement ps ^long i]
+    (.setTimestamp ps i (java.sql.Timestamp/valueOf (.atStartOfDay v))))
+  java.time.LocalDateTime
+  (set-parameter [^java.time.LocalDateTime v ^PreparedStatement ps ^long i]
+    (.setTimestamp ps i (java.sql.Timestamp/valueOf v))))
 
 (defn populate 
   [_ db-type]

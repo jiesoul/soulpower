@@ -13,8 +13,7 @@
               first
               :c)]
     {:list article-comments
-     :total total
-     :opts opts}))
+     :total total}))
 
 (defn create! [db article_comment]
   (sql/insert! db :article_comment article_comment))

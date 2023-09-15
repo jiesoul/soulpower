@@ -3,7 +3,7 @@
             [clojure.tools.logging :as log]))
 
 (def DEFAULT-PAGE 1)
-(def DEFAULT-PAGE-SIZE 10)
+(def DEFAULT-PAGE-SIZE 100)
 
 (defn parse-header
   [request token-name]

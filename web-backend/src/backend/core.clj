@@ -4,7 +4,6 @@
             [backend.middleware :refer [exception-middleware
                                         wrap-cors-middleware]]
             [backend.server :as server]
-            [backend.util.resp-util :refer [default-response-headers not-found]]
             [cheshire.core :refer [generate-string]]
             [clojure.java.io :as io]
             [clojure.pprint]
@@ -21,12 +20,35 @@
             [reitit.ring.middleware.parameters :as reitit-parameters]
             [reitit.spec :as rs]
             [reitit.swagger :as reitit-swagger]
+            [reitit.swagger-ui :as reitit-swagger-ui]
             [ring.adapter.jetty :as jetty])
   (:gen-class))
 
 (defn routes [env]
-  [(server/routes env)
-   (api/routes env)])
+  [["/admin" {:swagger {:id ::admin}} (server/routes env) 
+    ["/swagger.json"
+     {:no-doc true
+      :get {:swagger {:info {:title "my-api"
+                             :description "site api"}
+                      :tags [{:name "api", :description "api"}]}
+            :handler (reitit-swagger/create-swagger-handler)}}]
+    ["/api-docs/*"
+     {:no-doc true
+      :get {:handler (reitit-swagger-ui/create-swagger-ui-handler
+                      {:config {:validatorUrl nil}
+                       :url "/admin/swagger.json"})}}]]
+   ["/api/v1" {:swagger {:id ::api}} (api/routes env)
+    ["/swagger.json"
+     {:no-doc true
+      :get {:swagger {:info {:title "my-api"
+                             :description "site api"}
+                      :tags [{:name "api", :description "api"}]}
+            :handler (reitit-swagger/create-swagger-handler)}}]
+    ["/api-docs/*"
+     {:no-doc true
+      :get {:handler (reitit-swagger-ui/create-swagger-ui-handler
+                      {:config {:validatorUrl nil}
+                       :url "/api/v1/swagger.json"})}}]]])
 
 (defn handler
   "Handler."
@@ -52,13 +74,12 @@
      (reitit-ring/redirect-trailing-slash-handler)
      (reitit-ring/create-file-handler {:path "/" :root "targer/shadow/dev/resources/public"})
      (reitit-ring/create-resource-handler {:path "/"})
-     (reitit-ring/create-default-handler {:not-found          not-found
+     (reitit-ring/create-default-handler {:not-found          (constantly {:status 404
+                                                                           :body (generate-string {:error {:meesage "not found"}})})
                                           :method-not-allowed (constantly {:status  405
-                                                                           :body    (generate-string {:message "Method not allowed"})
-                                                                           :headers default-response-headers})
+                                                                           :body    (generate-string {:error {:message "Method not allowed"}})})
                                           :not-acceptable     (constantly {:status  406
-                                                                           :body    (generate-string {:message "Totally and utterly unacceptable"})
-                                                                           :headers default-response-headers})})))))
+                                                                           :body    (generate-string {:error {:message "Totally and utterly unacceptable"}})})})))))
 
 ;; (defn env-value [key default]
 ;;   (some-> (or (System/getenv (name key)) default)))

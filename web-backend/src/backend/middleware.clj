@@ -37,7 +37,7 @@
      java.sql.SQLException (partial handler-error "sql-exception")
 
      ;; override the default handler
-     ::exception/default (partial handler-error "unknown error")
+     ::exception/default (partial handler-error "unknown-error")
 
      ::exception/wrap (fn [handler e request]
                         (handler e request))})))
@@ -59,11 +59,11 @@
   (fn [req]
     (if (-> req :identity :roles (str/split #",") set (contains? "admin"))
       (handler req)
-      (forbidden req))))
+      (forbidden (:uri req)))))
 
 (defn auth-middleware
   [handler]
   (fn [request]
     (if (authenticated? request)
       (handler request)
-      (unauthorized request))))
+      (unauthorized (:uri request)))))
