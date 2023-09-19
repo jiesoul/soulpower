@@ -1,7 +1,7 @@
 CREATE TABLE article
 -- 文章
 (
-    id VARCHAR PRIMARY KEY NOT NULL,    -- 博文ID
+    id VARCHAR(20) PRIMARY KEY NOT NULL,    -- 博文ID
     author VARCHAR(32),                 -- 发表用户
     title VARCHAR(1024),                -- 博文标题
     create_time timestamp DEFAULT now(),               -- 创建时间
@@ -12,6 +12,5 @@ CREATE TABLE article
     category_id INT DEFAULT 0,           -- 分类
     push_time timestamp,                 -- 发布时间
     push_flag INT DEFAULT 0,
-    summary VARCHAR(1024),               -- 文章摘要
-    tags VARCHAR(1024)                   -- 标签
+    summary VARCHAR(1024) 
 );

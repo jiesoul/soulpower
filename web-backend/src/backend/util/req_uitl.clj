@@ -1,13 +1,11 @@
 (ns backend.util.req-uitl 
-  (:require [buddy.sign.jwt :as jwt]
-            [clojure.tools.logging :as log]))
+  (:require [buddy.sign.jwt :as jwt]))
 
 (def DEFAULT-PAGE 1)
 (def DEFAULT-PAGE-SIZE 100)
 
 (defn parse-header
   [request token-name]
-  (log/debug "parse header request: " (:header (:parameters request)))
   (some->> (-> request :parameters :header :authorization)
            (re-find (re-pattern (str "^" token-name " (.+)$")))
            (second)))
@@ -20,12 +18,15 @@
   [req key]
   (get-in req [:parameters :path key]))
 
+(defn push-query-filter [{:keys [filter] :as query} fs]
+  (let [filter (str "( " fs " ) and (" filter ")")]
+    (assoc query :filter filter)))
+
 (defn parse-query
   [req]
   (let [query (get-in req [:parameters :query])
         page (or (get query :page) DEFAULT-PAGE)
-        page-size (or (get query :page-size) DEFAULT-PAGE-SIZE)
-        _ (log/debug "parameters query " query)]
+        page-size (or (get query :page-size) DEFAULT-PAGE-SIZE)]
     (assoc query :page page :page-size page-size)))
 
 (def default-jwt-private-key "soulpower")

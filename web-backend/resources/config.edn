@@ -1,32 +1,24 @@
-{ :backend/profile #profile {:dev :dev
-                             :test :test
-                             :prod :prod}
- 
- :backend/db #profile {:dev {:dbtype "postgresql" :dbname "soulpower" :user "jiesoul" :password "soul1982"}
-                       :test {:dbtype "postgresql" :dbname "soulpower" :user "jiesoul" :password "soul1982"}
-                       :prod {:dbtype "postgresql" :dbname "soulpower" :user "jiesoul" :password "soul1982"}} 
- 
- :backend/options {:exp #profile {:dev 36000
-                                  :test 36000
-                                  :prod 3600}
-                   :private-key #profile {:dev "soulpower"
-                                          :test "soulpower"
-                                          :prod "soulpower"}
-                   :no-doc #profile {:dev false
-                                     :test false
-                                     :prod true}}
- 
+{:backend/profile #profile {:dev :dev
+                            :test :test}
+
+ :backend/hikaricp #profile {:dev {:dbtype "postgresql" :dbname "soulpower" :username  "jiesoul" :password "soul1982"}
+                             :test {:dbtype "postgresql" :dbname "soulpower" :username  "jiesoul" :password "soul1982"}}
+
+ :backend/options {:no-doc #profile {:dev false
+                                     :test false}
+                   :token-options #profile {:dev {:exp 36000 :private-key "soulpower"}
+                                            :test {:exp 36000 :private-key "soulpower"}}}
+
  :backend/env {:profile #ig/ref :backend/profile
                :options #ig/ref :backend/options
-               :db #ig/ref :backend/db}
- 
+               :db #ig/ref :backend/hikaricp}
+
  :backend/jetty {:port #profile {:dev #long #or [#env PORT 8088]
                                  :test #long #or [#env PORT 8088]}
-                 :join? false 
+                 :join? false
                  :env #ig/ref :backend/env}
- 
- :backend/nrepl {:bind #profile {:test "0.0.0.0"
-                                 :dev "localhost"}
+
+ :backend/nrepl {:bind #profile {:dev "localhost"
+                                 :test "0.0.0.0"}
                  :port #profile {:dev #long #or [#env PORT 3010]
-                                 :tests #long #or [#env PORT 3011]}}
- }
+                                 :tests #long #or [#env PORT 3011]}}}

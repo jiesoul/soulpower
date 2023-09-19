@@ -28,6 +28,14 @@
   (set-parameter [^java.time.LocalDateTime v ^PreparedStatement ps ^long i]
     (.setTimestamp ps i (java.sql.Timestamp/valueOf v))))
 
+(defn my-sql-logger [sym sql-params]
+  (log/debug "sql-params: " sym sql-params)
+  (prn sym))
+
+(defn my-result-logger [& args]
+  (log/debug "sql-result: " args)
+  (prn args))
+
 (defn populate 
   [_ db-type]
   (let [auto-key (if (= "sqlite" db-type)
@@ -53,7 +61,9 @@
 
 (defn op-convert
   [s]
-  (loop [sql s w "" v []]
+  (loop [sql s 
+         w "" 
+         v []]
     (if (seq sql)
       (let [fst (first sql)
             snd (second sql)

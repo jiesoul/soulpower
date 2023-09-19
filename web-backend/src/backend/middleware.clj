@@ -67,3 +67,6 @@
     (if (authenticated? request)
       (handler request)
       (unauthorized (:uri request)))))
+
+(defn app-middleware []
+  )

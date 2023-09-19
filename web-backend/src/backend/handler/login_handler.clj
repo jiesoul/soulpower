@@ -7,12 +7,12 @@
 
 (defn login-auth
   "login to backend."
-  [{:keys [db] :as env} {:keys [username password]}]
+  [db token-options {:keys [username password]}]
   (let [user (user-db/get-user-by-name db username)] 
     (if (and user (buddy-hashers/check password (:password user)))
       (let [_ (log/info "login User: " user)
             token (create-token (select-keys user [:id :name :roles]) 
-                                (get-in env [:options :jwt]))]
+                                token-options)]
         (resp-util/response  {:user (-> user
                                         (dissoc :password)
                                         (assoc :token token))}))

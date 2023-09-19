@@ -32,7 +32,7 @@
 
 (defn get-user-by-name 
   [db username]
-  (sql/get-by-id db :users username :username {:builder-fn rs/as-unqualified-maps}))
+  (first (sql/find-by-keys db :users {:username username} {:builder-fn rs/as-unqualified-maps})))
 
 (defn get-user-by-id 
   [db id]

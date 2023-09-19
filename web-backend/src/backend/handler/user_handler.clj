@@ -5,17 +5,17 @@
             [clojure.instant :as instant]
             [clojure.tools.logging :as log]))
 
-(defn query-users [{:keys [db]} query]
+(defn query-users [db query]
   (let [result (user-db/query-users db query)]
     (resp-util/response result)))
 
-(defn get-user [{:keys [db]} id]
+(defn get-user [db id]
   (let [user (user-db/get-user-by-id db id)]
     (if user
       (resp-util/response {:user (dissoc user :password)})
       (resp-util/bad-request {:message "未找到用户"}))))
 
-(defn update-user-profile! [{:keys [db]} id user-profile]
+(defn update-user-profile! [db id user-profile]
   (let [user-profile (-> user-profile
                          (update-in [:birthday] instant/read-instant-timestamp))
         rs (user-db/update-user-profile! db id user-profile)
@@ -24,7 +24,7 @@
       (resp-util/bad-request {:message "User not exist."})
       (resp-util/created))))
 
-(defn update-user-password! [{:keys [db]} id {:keys [old-password new-password confirm-password]}]
+(defn update-user-password! [db id {:keys [old-password new-password confirm-password]}]
   (if (not= new-password confirm-password)
     (resp-util/bad-request {:message "new password and confirm password must be same."})
     (if (= old-password new-password)

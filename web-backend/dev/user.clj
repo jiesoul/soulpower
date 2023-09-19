@@ -1,12 +1,15 @@
 (ns user
-  (:require [integrant.repl :as ig-repl]
+  (:require [backend.core :as core]
+            [clojure.tools.logging :as log]
+            [integrant.repl :as ig-repl]
             [integrant.repl.state :as state]
-            [backend.core :as core]
+            [next.jdbc.specs :as specs]
             [ragtime.jdbc :as rt-jdbc]
-            [ragtime.repl :as rt-repl]
-            [clojure.tools.logging :as log]))
+            [ragtime.repl :as rt-repl]))
 
 (ig-repl/set-prep! core/system-config-start)
+
+(specs/instrument)
 
 (defn system [] (or state/system (throw (ex-info "System not running" {}))))
 

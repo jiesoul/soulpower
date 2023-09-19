@@ -1,5 +1,5 @@
-(ns backend.handler.api-token-handler 
-  (:require [backend.db.api-token-db :as user-token-db]
+(ns backend.handler.app-handler 
+  (:require [backend.db.app-db :as user-token-db]
             [backend.util.resp-util :as resp-util]
             [clojure.tools.logging :as log]))
 
@@ -8,3 +8,6 @@
   (let [db (:db env)
         result (user-token-db/query-users-tokens db query)]
     (resp-util/response result)))
+
+(defn create! [db app]
+  )

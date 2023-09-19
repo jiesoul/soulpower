@@ -3,9 +3,7 @@
             [backend.handler.category-handler :as category-handler]
             [backend.handler.tag-handler :as tag-handler]
             [backend.util.req-uitl :as req-util]
-            [clojure.spec.alpha :as s]
-            [reitit.swagger :as reitit-swagger]
-            [reitit.swagger-ui :as reitit-swagger-ui]))
+            [clojure.spec.alpha :as s]))
 
 (s/def ::page pos-int?)
 (s/def ::page-size pos-int?)
@@ -17,29 +15,25 @@
 
 ;; (def asset-version "1")
 
-(defn routes [env]
-
-  [
-  
-   [""
-    
-    
+(defn routes [{:keys [db]}]
     [""
      ["/categories"
       {:swagger {:tags ["Public Category"]}}
 
-      ["" {:get {:summary "get all categories"
-                 :parameters {:query ::query}
-                 :handler (fn [_]
-                            (category-handler/get-all-categories env))}}]]
+      ["/hot/:top" {:get {:summary "get hot categories"
+                        :parameters {:top pos-int?}
+                        :handler (fn [req]
+                                   (let [top (req-util/parse-path req :top)]
+                                     (category-handler/get-all-categories db)))}}]]
 
      ["/tags"
       {:swagger {:tags ["Public Tag"]}}
 
-      ["" {:get {:summary "get hot tags"
-                 :parameters {:query ::query}
-                 :handler (fn [_]
-                            (tag-handler/get-all-tags env))}}]]
+      ["/hot/:top" {:get {:summary "get hot tags"
+                          :parameters {:top pos-int?}
+                          :handler (fn [req]
+                                     (let [top (req-util/parse-path req :top)]
+                                       (tag-handler/get-all-tags db)))}}]]
 
      ["/articles"
       {:swagger {:tags ["Public Article"]}}
@@ -48,26 +42,25 @@
                  :parameters {:query ::query}
                  :handler (fn [req]
                             (let [query (req-util/parse-query req)]
-                              (article-handler/get-pushed-articles env query)))}}]
+                              (article-handler/get-pushed-articles db query)))}}
+       ["/archives"
+        {:swagger {:tags ["archive"]}}
+
+        ["/articles"
+
+         ["/:year" {:get {:summary "get pushed articles by year"
+                          :parameters {:path {:year string?}}
+                          :handler (fn [req]
+                                     (let [year (req-util/parse-path req :year)]
+                                       (article-handler/get-pushed-articles-by-year db year)))}}]]]]
 
       ["/:id" {:get {:summary "get article"
                      :parameters {:path {:id string?}}
                      :handler (fn [req]
                                 (let [id (req-util/parse-path req :id)]
-                                  (article-handler/get-article env id)))}}]]
-
-     ["/archives"
-      {:swagger {:tags ["archive"]}}
-
-      ["/articles"
-
-
-       ["" {:get {:summary "archive articles"
-                  :handler (fn [req]
-                             (article-handler/get-article-archive env req))}}]
-
-       ["/:year" {:get {:summary "get pushed articles by year"
-                        :parameters {:path {:year string?}}
+                                  (article-handler/get-article db id)))}}
+       
+       ["/like" {:post {:summary "like article"
                         :handler (fn [req]
-                                   (let [year (req-util/parse-path req :year)]
-                                     (article-handler/get-pushed-articles-by-year env year)))}}]]]]]])
+                                   (let [id (req-util/parse-path req :id)]
+                                     (article-handler/update-like-count! db id 1)))}}]]]])

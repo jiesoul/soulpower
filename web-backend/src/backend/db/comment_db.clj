@@ -1,4 +1,4 @@
-(ns backend.db.article-comment-db
+(ns backend.db.comment-db
   (:require [backend.util.db-util :as du]
             [next.jdbc.result-set :as rs]
             [next.jdbc.sql :as sql]))

@@ -4,6 +4,7 @@
             [backend.middleware :refer [exception-middleware
                                         wrap-cors-middleware]]
             [backend.server :as server]
+            [backend.util.db-util :refer [my-result-logger my-sql-logger]]
             [cheshire.core :refer [generate-string]]
             [clojure.java.io :as io]
             [clojure.pprint]
@@ -11,6 +12,8 @@
             [integrant.core :as ig]
             [integrant.repl :as ig-repl]
             [muuntaja.core :as mu-core]
+            [next.jdbc :as jdbc]
+            [next.jdbc.connection :as connection]
             [nrepl.server :as nrepl]
             [reitit.coercion.spec]
             [reitit.dev.pretty :as pretty]
@@ -22,6 +25,7 @@
             [reitit.swagger :as reitit-swagger]
             [reitit.swagger-ui :as reitit-swagger-ui]
             [ring.adapter.jetty :as jetty])
+  (:import (com.zaxxer.hikari HikariDataSource))
   (:gen-class))
 
 (defn routes [env]
@@ -86,9 +90,24 @@
 
 (defmethod aero/reader 'ig/ref [_ _ value] (ig/ref value))
 
-(defmethod ig/init-key :backend/db  [_ {:keys [] :as env}]
-  (log/debug "Enter ig/init-key :backend/db ")
-  env)
+(defmethod ig/init-key :backend/hikaricp [_ options]
+  (log/debug "Enter ig/ini-key :backend/hikaricp " options)
+  (jdbc/with-logging
+    (connection/->pool HikariDataSource options)
+    my-sql-logger
+    my-result-logger))
+
+(defmethod ig/suspend-key! :backend/hikaricp [_ this]
+  (log/debug "Enter ig/suspend-key! :backend/hikaricp" this)
+  this)
+
+(defmethod ig/resume-key :backend/hikaricp [_ _ _ old-impl]
+  (log/debug "Enter ig/resume-key :backend/hikaricp" old-impl)
+  old-impl)
+
+(defmethod ig/halt-key! :backend/hikaricp [_ ds]
+  (log/debug "Enter ig/halt-key :backend/hikaricp." ds)
+  ds)
 
 ;; env
 (defmethod ig/init-key :backend/profile [_ profile]
@@ -99,51 +118,51 @@
   env)
 
 (defmethod ig/halt-key! :backend/env [_ this]
-  (log/debug "Enter ig/halt-key! :backend/env")
+  (log/debug "Enter ig/halt-key! :backend/env" this)
   this)
 
 (defmethod ig/suspend-key! :backend/env [_ this]
-  (log/debug "Enter ig/suspend-key! :backend/env")
+  (log/debug "Enter ig/suspend-key! :backend/env" this)
   this)
 
 (defmethod ig/resume-key :backend/env [_ _ _ old-impl]
-  (log/debug "Enter ig/resume-key :backend/env")
+  (log/debug "Enter ig/resume-key :backend/env" old-impl)
   old-impl)
 
 ;; jetty web server
-(defmethod ig/init-key :backend/jetty [_ {:keys [port join? env]}]
-  (log/debug "Enter ig/init-key :backend/jetty")
+(defmethod ig/init-key :backend/jetty [_ {:keys [port join? env] :as options}]
+  (log/debug "Enter ig/init-key :backend/jetty" options)
   (-> (handler (routes env))
       (jetty/run-jetty {:port port :join? join?})))
 
 (defmethod ig/halt-key! :backend/jetty [_ server]
-  (log/debug "Enter ig/halt-key! :backend/jetty")
+  (log/debug "Enter ig/halt-key! :backend/jetty" server)
   (.stop server))
 
 ;; init options
 (defmethod ig/init-key :backend/options [_ options]
-  (log/debug"Enter ig/init-key :backend/options")
+  (log/debug"Enter ig/init-key :backend/options:" options)
   options)
 
 ;; nrepl
 (defmethod ig/init-key :backend/nrepl [_ {:keys [bind port]}]
-  (log/debug "Enter ig/init-key :backend/nrepl")
+  (log/debug "Enter ig/init-key :backend/nrepl" bind ":" port)
   (if (and bind port)
     (nrepl/start-server :bind bind :port port)
     nil))
 
 (defmethod ig/halt-key! :backend/nrepl [_ this]
-  (log/debug "Enter ig/halt-key! :backend/nrepl")
+  (log/debug "Enter ig/halt-key! :backend/nrepl" this)
   (if this 
     (nrepl/stop-server this)
     _))
 
 (defmethod ig/suspend-key! :backend/nrepl [_ this]
-  (log/debug "Enter ig/suspend-key! :backend/nrepl")
+  (log/debug "Enter ig/suspend-key! :backend/nrepl" this)
   this)
 
 (defmethod ig/resume-key :backend/nrepl [_ _ _ old-impl]
-  (log/debug "Enter ig/resume-key :backend/nrepl")
+  (log/debug "Enter ig/resume-key :backend/nrepl" old-impl)
   old-impl)
 
 ;; config
@@ -167,7 +186,7 @@
 (defn -main [& args]
   (log/info "System starting... ")
   (log/info "System args: " args)
-  (let [config (system-config-start (first args))
+  (let [config (system-config-start args)
         _ (log/info "Config:" config)]
     (ig-repl/set-prep! (constantly config))
     (ig-repl/go)))
