@@ -2,7 +2,6 @@
   (:require [backend.db.article-tag-db :as article-tag-db]
             [backend.db.comment-db :as comment-db]
             [backend.util.db-util :as du]
-            [clojure.string :as str]
             [clojure.tools.logging :as log]
             [next.jdbc :as jdbc :refer [unqualified-snake-kebab-opts]]
             [next.jdbc.result-set :as rs]
@@ -52,10 +51,9 @@
 (defn push! [db id {:keys [tag-ids] :as article}]
   (jdbc/with-transaction [tx db]
     (article-tag-db/delete-by-article-id tx id)
-    (when-not (str/blank? tag-ids)
+    (when-not (empty? tag-ids)
       (article-tag-db/create-multi! tx id tag-ids))
-    (sql/update! tx :article (select-keys article [:category-id :push-flag :push-time]) {:id id} unqualified-snake-kebab-opts)
-    ))
+    (sql/update! tx :article (dissoc article :tag-ids) {:id id} unqualified-snake-kebab-opts)))
 
 (defn get-pushed [db opts]
   (let [[ps pv] (du/opt-to-page opts)

@@ -1,26 +1,17 @@
 (ns user
   (:require [backend.core :as core]
-            [clojure.tools.logging :as log]
             [integrant.repl :as ig-repl]
-            [integrant.repl.state :as state]
-            [next.jdbc.specs :as specs]
-            [ragtime.jdbc :as rt-jdbc]
-            [ragtime.repl :as rt-repl]))
+            [ragtime.next-jdbc :as rt-jdbc]
+            [ragtime.repl :as rt-repl]
+            [clojure.tools.logging :as log]))
 
-(ig-repl/set-prep! core/system-config-start)
-
-(specs/instrument)
-
-(defn system [] (or state/system (throw (ex-info "System not running" {}))))
-
-(defn env [] (:backend/env (system)))
-
-(defn profile [] (:backend/env (system)))
+(ig-repl/set-prep! (constantly (core/system-config-start)))
 
 (defn load-db-config []
-  (log/debug "profile: " profile)
-  {:datastore  (rt-jdbc/sql-database (:db (env)))
-   :migrations (rt-jdbc/load-resources "migrations")})
+  (let [config (:backend/hikaricp (core/read-config :dev))
+        _ (log/debug "ragtime use db: " config)]
+    {:datastore  (rt-jdbc/sql-database (assoc config :user (:username config)))
+     :migrations (rt-jdbc/load-resources "migrations")}))
 
 (defn migrate []
   (rt-repl/migrate (load-db-config)))

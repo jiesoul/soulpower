@@ -94,8 +94,7 @@
   (log/debug "Enter ig/ini-key :backend/hikaricp " options)
   (jdbc/with-logging
     (connection/->pool HikariDataSource options)
-    my-sql-logger
-    my-result-logger))
+    my-sql-logger))
 
 (defmethod ig/suspend-key! :backend/hikaricp [_ this]
   (log/debug "Enter ig/suspend-key! :backend/hikaricp" this)

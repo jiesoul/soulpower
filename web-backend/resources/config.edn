@@ -1,8 +1,8 @@
 {:backend/profile #profile {:dev :dev
                             :test :test}
 
- :backend/hikaricp #profile {:dev {:dbtype "postgresql" :dbname "soulpower" :username  "jiesoul" :password "soul1982"}
-                             :test {:dbtype "postgresql" :dbname "soulpower" :username  "jiesoul" :password "soul1982"}}
+ :backend/hikaricp #profile {:dev {:dbtype "postgresql" :dbname "soulpower" :username "jiesoul" :password "soul1982"}
+                             :test {:dbtype "postgresql" :dbname "soulpower" :username "jiesoul" :password "soul1982"}}
 
  :backend/options {:no-doc #profile {:dev false
                                      :test false}

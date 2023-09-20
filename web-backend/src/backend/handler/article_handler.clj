@@ -32,8 +32,8 @@
     (resp-util/no-content)))
 
 (defn push! [db id article]
-  (let [{:keys [push-flag] :as oa} (article-db/get-article-by-id db id)
-        _ (log/debug "article status: " oa)]
+  (let [{:keys [push-flag]} (article-db/get-article-by-id db id)
+        _ (log/debug "article status: " article)]
     (if (= push-flag 1)
       (resp-util/bad-request {:message "Aritcle been pushed"})
       (let [push-time (java.time.Instant/now)

@@ -29,12 +29,10 @@
     (.setTimestamp ps i (java.sql.Timestamp/valueOf v))))
 
 (defn my-sql-logger [sym sql-params]
-  (log/debug "sql-params: " sym sql-params)
-  (prn sym))
+  (log/debug "sql-ps" sym sql-params))
 
-(defn my-result-logger [& args]
-  (log/debug "sql-result: " args)
-  (prn args))
+(defn my-result-logger [sym sql-rs]
+  (log/debug "sql-rs: " sym sql-rs))
 
 (defn populate 
   [_ db-type]

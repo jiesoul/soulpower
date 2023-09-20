@@ -70,9 +70,9 @@
   (s/keys :opt-un [::title ::summary ::author ::detail]))
 
 (s/def ::category-id pos-int?)
-(s/def ::tags-id (s/coll-of pos-int?))
+(s/def ::tag-ids (s/coll-of pos-int?))
 (s/def ::Article-Push
-  (s/keys :req-un [::category-id ::tags-id]))
+  (s/keys :req-un [::category-id ::tag-ids]))
 
 (s/def ::key string?)
 (s/def ::sceret string?)
@@ -249,7 +249,7 @@
                                                article (req-util/parse-body req :article)]
                                            (article-handler/push! db id (assoc article :id id))))}}]]
 
-      ["/comments" {:swagger {:tags ["Comments"]}}
+      ["/articles-comments" {:swagger {:tags ["Articles Comments"]}}
 
        ["" {:get {:summary "Query all comments"
                   :parameters {:query ::query}
