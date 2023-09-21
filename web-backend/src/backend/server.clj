@@ -74,11 +74,14 @@
 (s/def ::Article-Push
   (s/keys :req-un [::category-id ::tag-ids]))
 
-(s/def ::key string?)
-(s/def ::sceret string?)
-(s/def ::assoc-token string?)
+(s/def ::secret string?)
+(s/def ::app-category-id string?)
 (s/def ::App 
-  (s/keys :req-un [::key ::sceret ::assoc-token]))
+  (s/keys :req-un [::name ::secret ::app-category-id] :opt-un [::description]))
+
+(s/def ::id string?)
+(s/def ::App-Category
+  (s/keys :req-un [::id ::name] :opt-un [::description]))
 
 (defn routes [{:keys [options db]}]
   (let [{:keys [token-options no-doc]} options
@@ -96,12 +99,6 @@
                        auth-middleware
                        admin-middleware]
           :parameters {:header {:authorization ::token}}}
-
-      ["/logout"  {:swagger {:tags ["Login"]}
-                   :post {:summary "user logout"
-                          :handler (fn [req]
-                                     (let [login-user (req-util/parse-body req :login-user)]
-                                       (login-handler/logout db login-user)))}}]
 
       ["/users" {:swagger {:tags ["User"]}}
 
@@ -238,16 +235,16 @@
                          :handler (fn [req]
                                     (let [id (req-util/parse-path req :id)]
                                       (article-handler/delete-article! db id)))}}]
-        
+       
 
-        ["/:id/push" {:conflicting true
-                      :patch {:summary "Push the article"
-                              :parameters {:path {:id string?}
-                                           :body {:article ::Article-Push}}
-                              :handler (fn [req]
-                                         (let [id (req-util/parse-path req :id)
-                                               article (req-util/parse-body req :article)]
-                                           (article-handler/push! db id (assoc article :id id))))}}]]
+       ["/:id/push" {:conflicting true
+                     :patch {:summary "Push the article"
+                             :parameters {:path {:id string?}
+                                          :body {:article ::Article-Push}}
+                             :handler (fn [req]
+                                        (let [id (req-util/parse-path req :id)
+                                              article (req-util/parse-body req :article)]
+                                          (article-handler/push! db id (assoc article :id id))))}}]]
 
       ["/articles-comments" {:swagger {:tags ["Articles Comments"]}}
 
@@ -269,12 +266,37 @@
                                     (let [id (req-util/parse-path req :id)]
                                       (article-comment-handler/delete-article-comment! db id)))}}]]
       
-      ["/apps" {:swagger "App"}
+      ["/apps" {:swagger {:tags  ["App"]}}
        ["" {:post {:summary "reg a app"
                    :parameters {:body {:app ::App}}
                    :handler (fn [req]
                               (let [app (req-util/parse-body req :app)]
-                                (app-handler/create! db app)))}}]]
+                                (app-handler/create-app! db app)))}
+            
+            :get {:summary "query apps"
+                  :parameters {:query ::query}
+                  :handler (fn [req]
+                             (let [query (req-util/parse-query req)]
+                               (app-handler/query-apps db query)))}}]]
+      
+      ["/app-categories" {:swagger {:tags ["App Categories"]}}
+       ["" {:get {:summary "get app categories"
+                  :parameters {:query ::query}
+                  :handler (fn [req]
+                             (let [query (req-util/parse-query req)]
+                               (app-handler/query-app-categories db query)))}
+            :post {:summary "add a app category"
+                   :parameters {:body {:app-category ::App-Category}}
+                   :handler (fn [req]
+                              (let [app-category (req-util/parse-body req :app-category)]
+                                (app-handler/create-app-category! db app-category)))}}]]
+      
+      ["/app-access-logs" {:swagger {:tags ["App Access Log"]}}
+       ["" {:get {:summary "get app access logs"
+                  :parameters {:query ::query}
+                  :handler (fn [req]
+                             (let [query (req-util/parse-query req)]
+                               (app-handler/query-app-access-logs db query)))}}]]
 
       ["/files"
        {:swagger {:tags ["files"]}}

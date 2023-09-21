@@ -1,36 +1,60 @@
 (ns backend.db.app-db
   (:require [backend.util.db-util :as du]
             [clojure.tools.logging :as log]
+            [next.jdbc :refer [unqualified-snake-kebab-opts]]
             [next.jdbc.result-set :as rs]
             [next.jdbc.sql :as sql]))
 
-(defn query-users-tokens
-  [db opts]
+(defn query-apps [db opts]
   (let [[ws wv] (du/opt-to-sql opts)
         ss (du/opt-to-sort opts)
         [ps pv] (du/opt-to-page opts)
-        q-sql (into [(str "select * from user_token "  ws ss ps)] (into wv pv))
-        _ (log/debug "query users tokens sql: " q-sql (into wv pv))
+        q-sql (into [(str "select * from app "  ws ss ps)] (into wv pv))
         list (sql/query db q-sql {:builder-fn rs/as-unqualified-kebab-maps})
-        t-sql (into [(str "select count(1) as c from user_token " ws)] wv)
+        t-sql (into [(str "select count(1) as c from app " ws)] wv)
         total (:c (first (sql/query db t-sql)))]
     {:list list
-     :total total
-     :opts opts}))
+     :total total}))
 
-(defn save-user-token [db user-token]
-  (sql/insert! db :user_token user-token))
+(defn save-app! [db app]
+  (sql/insert! db :app app unqualified-snake-kebab-opts))
 
-(defn get-user-token-by-token 
-  [db token]
-  (sql/get-by-id db :user_token token :token {:builder-fn rs/as-unqualified-maps}))
+(defn get-app-by-id [db id]
+  (sql/get-by-id db :app id {:builder-fn rs/as-unqualified-maps}))
 
-(defn disable-user-token
-  [db token]
-  (let [now (java.time.Instant/now)]
-    (sql/update! db :user_token {:expires_time now} {:token token})))
+(defn delete-app-by-id! [db id]
+  (sql/delete! db :app {:id id}))
 
-(defn update-user-token-expires-time
-  [db id expires-time]
-  (log/debug "udpate user token " id " expires time " expires-time)
-  (sql/update! db :user_token {:expires_time expires-time} {:id id}))
+(defn query-app-categories [db opts]
+  (let [[ws wv] (du/opt-to-sql opts)
+        ss (du/opt-to-sort opts)
+        [ps pv] (du/opt-to-page opts)
+        q-sql (into [(str "select * from app_category "  ws ss ps)] (into wv pv))
+        list (sql/query db q-sql {:builder-fn rs/as-unqualified-kebab-maps})
+        t-sql (into [(str "select count(1) as c from app_category " ws)] wv)
+        total (:c (first (sql/query db t-sql)))]
+    {:list list
+     :total total}))
+
+(defn save-app-category! [db app-category]
+  (sql/insert! db :app app-category unqualified-snake-kebab-opts))
+
+(defn get-app-category-by-id [db id]
+  (sql/get-by-id db :app-category id {:builder-fn rs/as-unqualified-maps}))
+
+(defn delete-app-category-by-id! [db id]
+  (sql/delete! db :app-category {:id id}))
+
+(defn query-app-access-logs [db opts]
+  (let [[ws wv] (du/opt-to-sql opts)
+        ss (du/opt-to-sort opts)
+        [ps pv] (du/opt-to-page opts)
+        q-sql (into [(str "select * from app_access_log "  ws ss ps)] (into wv pv))
+        list (sql/query db q-sql {:builder-fn rs/as-unqualified-kebab-maps})
+        t-sql (into [(str "select count(1) as c from app_access_log " ws)] wv)
+        total (:c (first (sql/query db t-sql)))]
+    {:list list
+     :total total}))
+
+(defn save-app-access-log! [db app-access-log]
+  (sql/insert! db :app_access_log app-access-log unqualified-snake-kebab-opts))

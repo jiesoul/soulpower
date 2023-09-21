@@ -30,7 +30,7 @@
     (if (= old-password new-password)
       (resp-util/bad-request {:message "new password and old password is same"})
       (if-let [user (user-db/get-user-by-id db id)]
-        (if (buddy-hashers/check old-password (:password user))
+        (if (buddy-hashers/verify old-password (:password user))
           (do
             (user-db/update-user-password! db id (buddy-hashers/derive new-password))
             (resp-util/created))

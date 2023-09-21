@@ -75,12 +75,12 @@
   (jdbc/execute! db ["update article set read_count = read_count + ? where id = ? " c article-id]))
 
 (defn get-pushed-by-year [db year]
-  (sql/query db ["SELECT * from article a where push_flag = 1 and strftime('%Y', create_time) = ? order by id desc" year]
+  (sql/query db ["SELECT * from article a where push_flag = 1 and date_part('year', create_time) = ? order by id desc" year]
              {:builder-fn rs/as-unqualified-kebab-maps}))
 
-(defn get-archive [db] 
-  (jdbc/with-transaction [tx db]
-    (let [years-sql "SELECT DISTINCT strftime('%Y', create_time) as year from article a where push_flag = 1 order by year desc"
-          years (map #(-> % first val) (sql/query tx [years-sql]))
-          _ (log/debug "article archive years: " years)]
-      years)))
+(defn get-archive [db]
+  (let [years-sql "select year,c from (SELECT date_part('year', create_time) as year, count(1) :as c from article where push_flag = 1) t group by year desc"
+        rs (sql/query db [years-sql] {:builder-fn rs/as-unqualified-kebab-maps})
+        years (-> rs first)
+        _ (log/debug "article archive years: " years)]
+    years))

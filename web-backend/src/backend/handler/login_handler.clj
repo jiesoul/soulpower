@@ -9,7 +9,7 @@
   "login to backend."
   [db token-options {:keys [username password]}]
   (let [user (user-db/get-user-by-name db username)] 
-    (if (and user (buddy-hashers/check password (:password user)))
+    (if (and user (buddy-hashers/verify password (:password user)))
       (let [_ (log/info "login User: " user)
             token (create-token (select-keys user [:id :name :roles]) 
                                 token-options)]

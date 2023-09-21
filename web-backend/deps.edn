@@ -26,11 +26,10 @@
         dev.weavejester/ragtime {:mvn/version "0.9.3"}
         com.zaxxer/HikariCP {:mvn/version "5.0.1"}
 
-        ;; auth
-        buddy/buddy-auth {:mvn/version "3.0.1"}
-        buddy/buddy-hashers {:mvn/version "1.8.158"}
-        buddy/buddy-sign {:mvn/version "3.4.333"}
-        crypto-password/crypto-password {:mvn/version "0.3.0"}
+        buddy/buddy-core {:mvn/version "1.11.423"}
+        buddy/buddy-auth {:mvn/version "3.0.323"}
+        buddy/buddy-hashers {:mvn/version "2.0.167"}
+        buddy/buddy-sign {:mvn/version "3.5.351"}
 
         com.taoensso/timbre {:mvn/version "5.2.1"}
         clj-http/clj-http {:mvn/version "3.12.3"}

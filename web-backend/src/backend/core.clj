@@ -28,31 +28,49 @@
   (:import (com.zaxxer.hikari HikariDataSource))
   (:gen-class))
 
+(def contact {:name "jiesoul"
+              :email "jiesoul@gmail.com"})
+
+(def license {:name "Apache 2.0",
+              :url "http://www.apache.org/licenses/LICENSE-2.0.html"})
+
+(def version "1.0.0")
+
 (defn routes [env]
-  [["/admin" {:swagger {:id ::admin}} (server/routes env) 
+  [["/admin" {:swagger {:id ::admin}} 
     ["/swagger.json"
      {:no-doc true
       :get {:swagger {:info {:title "my-api"
-                             :description "site api"}
+                             :description "web backend api"
+                             :version version
+                             :contact contact
+                             :license license}}
+            :handler (reitit-swagger/create-swagger-handler)}}]
+    ["/api-docs/*"
+     {:no-doc true
+      :get {:handler (reitit-swagger-ui/create-swagger-ui-handler
+                      {:config {:validatorUrl nil}
+                       :url "/admin/swagger.json"})}}]
+    
+    (server/routes env)]
+   
+   ["/api/v1" {:swagger {:id ::api}} 
+    ["/swagger.json"
+     {:no-doc true
+      :get {:swagger {:info {:title "open-api"
+                             :description "public api, ex: web app,ios,android,wechat"
+                             :version version
+                             :contact contact
+                             :license license}
                       :tags [{:name "api", :description "api"}]}
             :handler (reitit-swagger/create-swagger-handler)}}]
     ["/api-docs/*"
      {:no-doc true
       :get {:handler (reitit-swagger-ui/create-swagger-ui-handler
                       {:config {:validatorUrl nil}
-                       :url "/admin/swagger.json"})}}]]
-   ["/api/v1" {:swagger {:id ::api}} (api/routes env)
-    ["/swagger.json"
-     {:no-doc true
-      :get {:swagger {:info {:title "my-api"
-                             :description "site api"}
-                      :tags [{:name "api", :description "api"}]}
-            :handler (reitit-swagger/create-swagger-handler)}}]
-    ["/api-docs/*"
-     {:no-doc true
-      :get {:handler (reitit-swagger-ui/create-swagger-ui-handler
-                      {:config {:validatorUrl nil}
-                       :url "/api/v1/swagger.json"})}}]]])
+                       :url "/api/v1/swagger.json"})}}]
+    
+    (api/routes env)]])
 
 (defn handler
   "Handler."

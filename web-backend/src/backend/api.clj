@@ -2,29 +2,32 @@
   (:require [backend.handler.article-handler :as article-handler]
             [backend.handler.category-handler :as category-handler]
             [backend.handler.tag-handler :as tag-handler]
+            [backend.middleware :refer [wrap-app-auth]]
             [backend.util.req-uitl :as req-util]
             [clojure.spec.alpha :as s]))
 
+(s/def ::appid string?)
 (s/def ::page pos-int?)
 (s/def ::page-size pos-int?)
 (s/def ::sort string?)
 (s/def ::filter string?)
 (s/def ::q string?)
-(s/def ::query
-  (s/keys :opt-un [::page ::page-size ::sort ::filter ::q]))
+(s/def ::query 
+  (s/keys :req-un [::appid]))
 
 ;; (def asset-version "1")
 
 (defn routes [{:keys [db]}]
-    [""
+    ["" {:middleware [[wrap-app-auth db]]}
      ["/categories"
       {:swagger {:tags ["Public Category"]}}
 
       ["/hot/:top" {:get {:summary "get hot categories"
-                        :parameters {:top pos-int?}
-                        :handler (fn [req]
-                                   (let [top (req-util/parse-path req :top)]
-                                     (category-handler/get-all-categories db)))}}]]
+                          :parameters {:top pos-int?
+                                       :query ::query}
+                          :handler (fn [req]
+                                     (let [top (req-util/parse-path req :top)]
+                                       (category-handler/get-all-categories db)))}}]]
 
      ["/tags"
       {:swagger {:tags ["Public Tag"]}}
@@ -49,7 +52,7 @@
         ["/articles"
 
          ["/:year" {:get {:summary "get pushed articles by year"
-                          :parameters {:path {:year string?}}
+                          :parameters {:path {:year integer?}}
                           :handler (fn [req]
                                      (let [year (req-util/parse-path req :year)]
                                        (article-handler/get-pushed-articles-by-year db year)))}}]]]]

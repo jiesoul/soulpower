@@ -1,8 +1,11 @@
 (ns backend.middleware
-  (:require [backend.util.req-uitl :refer [default-jwt-options
+  (:require [backend.db.app-db :as app-db]
+            [backend.util.req-uitl :refer [default-jwt-options
                                            default-jwt-private-key]]
-            [backend.util.resp-util :refer [coercion-error-handler forbidden
-                                            handler-error unauthorized]]
+            [backend.util.req-uitl :as req-util]
+            [backend.util.resp-util :refer [bad-request coercion-error-handler
+                                            forbidden handler-error
+                                            unauthorized]]
             [buddy.auth :refer [authenticated?]]
             [buddy.auth.backends :as backends]
             [buddy.auth.middleware :refer [wrap-authentication]]
@@ -68,5 +71,15 @@
       (handler request)
       (unauthorized (:uri request)))))
 
-(defn app-middleware []
-  )
+(defn wrap-app-auth [handler db]
+  (fn [request]
+    (let [app-id (get-in request [:parameters :query :appid])
+          app (app-db/get-app-by-id db app-id)] 
+      (if-not app
+        (bad-request {:message "app not auth"})
+        (let [now (java.time.Instant/now)
+              app-access-log {:app-id app-id 
+                              :access-time now 
+                              :access-url (:uri request)}
+              _ (app-db/save-app-access-log! db app-access-log)]
+          (handler request))))))

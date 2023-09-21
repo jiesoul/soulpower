@@ -1,0 +1,14 @@
+@host=http://127.0.0.1:8088/admin
+@content-type=application/json; charset=utf-8
+
+### Login
+POST {{host}}/login HTTP/1.2
+Content-Type: {{content-type}}
+
+{
+    "username": "jiesoul",
+    "password": "12345678"
+}
+
+### query users 0
+GET {{host}}/users
