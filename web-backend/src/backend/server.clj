@@ -9,10 +9,10 @@
             [backend.middleware :refer [admin-middleware auth-middleware
                                         create-token-auth-middleware]]
             [backend.util.req-uitl :as req-util]
+            [backend.spec :as bs]
             [clojure.java.io :as io]
             [clojure.spec.alpha :as s]
-            [reitit.ring.middleware.multipart :as reitit-multipart]
-            [clojure.tools.logging :as log]))
+            [reitit.ring.middleware.multipart :as reitit-multipart]))
 
 
 (s/def ::not-empty-string (s/and string? #(> (count %) 0)))
@@ -84,18 +84,19 @@
   (s/keys :req-un [::id ::name] :opt-un [::description]))
 
 (defn routes [{:keys [options db]}]
-  (let [{:keys [token-options no-doc]} options
+  (let [{:keys [jwt-opts no-doc]} options
         no-doc (or no-doc false)]
     [["/login" {:no-doc no-doc
-                :swagger {:tags ["Login"]}
-                :post {:summary "login to the web site"
-                       :parameters {:body {:login-user ::login-user}}
-                       :handler (fn [req]
-                                  (let [login-user (req-util/parse-body req :login-user)]
-                                    (login-handler/login-auth db token-options login-user)))}}]
+                :swagger {:tags ["Login"]}}
+      
+      ["" {:post {:summary "login to the web site"
+                  :parameters {:body {:login-user :bs/login-user}}
+                  :handler (fn [req]
+                             (let [login-user (req-util/parse-body req :login-user)]
+                               (login-handler/login-auth db jwt-opts login-user)))}}]]
 
      ["" {:no-doc no-doc
-          :middleware [(create-token-auth-middleware token-options)
+          :middleware [(create-token-auth-middleware jwt-opts)
                        auth-middleware
                        admin-middleware]
           :parameters {:header {:authorization ::token}}}
@@ -108,27 +109,27 @@
                              (let [query (req-util/parse-query req)]
                                (user-handler/query-users db query)))}}]
 
-       ["/:id" {:get {:summary "Get a user"
-                      :parameters {:path {:id pos-int?}}
+       ["/:id" {:parameters {:path {:id pos-int?}}}
+        ["" {:get {:summary "Get a user"
+                   :handler (fn [req]
+                              (let [id (req-util/parse-path req :id)]
+                                (user-handler/get-user db id)))}
+
+             :patch {:summary "Update user profile"
+                     :parameters {:body {:user-profile ::UserProfile}}
+                     :handler (fn [req]
+                                (let [id (req-util/parse-path req :id)
+                                      user-profile (req-util/parse-body req :user-profile)]
+                                  (user-handler/update-user-profile! db id user-profile)))}}]
+        
+        ["/password" 
+         ["" {:patch {:summary "Update a user passwrod"
+                      :parameters {
+                                   :body {:update-password ::UpdatePassword}}
                       :handler (fn [req]
-                                 (let [id (req-util/parse-path req :id)]
-                                   (user-handler/get-user db id)))}
-
-                :patch {:summary "Update user profile"
-                        :parameters {:path {:id pos-int?}
-                                     :body {:user-profile ::UserProfile}}
-                        :handler (fn [req]
-                                   (let [id (req-util/parse-path req :id)
-                                         user-profile (req-util/parse-body req :user-profile)]
-                                     (user-handler/update-user-profile! db id user-profile)))}}]
-
-       ["/:id/password" {:patch {:summary "Update a user passwrod"
-                                 :parameters {:path {:id pos-int?}
-                                              :body {:update-password ::UpdatePassword}}
-                                 :handler (fn [req]
-                                            (let [id (req-util/parse-path req :id)
-                                                  password (req-util/parse-body req :update-password)]
-                                              (user-handler/update-user-password! db id password)))}}]]
+                                 (let [id (req-util/parse-path req :id)
+                                       password (req-util/parse-body req :update-password)]
+                                   (user-handler/update-user-password! db id password)))}}]]]]
 
       ["/categories" {:swagger {:tags ["Categories"]}}
 
@@ -216,35 +217,35 @@
                                 (article-handler/create-article! db article)))}}]
 
 
-       ["/:id" {:get {:summary "Get a article"
+       ["/:id"
+        ["" {:get {:summary "Get a article"
+                   :parameters {:path {:id string?}}
+                   :handler (fn [req]
+                              (let [id (req-util/parse-path req :id)]
+                                (article-handler/get-article db id)))}
+
+             :patch {:summary "Update a article"
+                     :parameters {:path {:id string?}
+                                  :body {:article ::Article}}
+                     :handler (fn [req]
+                                (let [id (req-util/parse-path req :id)
+                                      article (req-util/parse-body req :article)]
+                                  (article-handler/update-article! db id article)))}
+
+             :delete {:summary "Delete a article"
                       :parameters {:path {:id string?}}
                       :handler (fn [req]
                                  (let [id (req-util/parse-path req :id)]
-                                   (article-handler/get-article db id)))}
+                                   (article-handler/delete-article! db id)))}}]
 
-                :patch {:summary "Update a article"
-                        :parameters {:path {:id string?}
-                                     :body {:article ::Article}}
-                        :handler (fn [req]
-                                   (let [id (req-util/parse-path req :id)
-                                         article (req-util/parse-body req :article)]
-                                     (article-handler/update-article! db id article)))}
 
-                :delete {:summary "Delete a article"
-                         :parameters {:path {:id string?}}
-                         :handler (fn [req]
-                                    (let [id (req-util/parse-path req :id)]
-                                      (article-handler/delete-article! db id)))}}]
-       
-
-       ["/:id/push" {:conflicting true
-                     :patch {:summary "Push the article"
-                             :parameters {:path {:id string?}
-                                          :body {:article ::Article-Push}}
-                             :handler (fn [req]
-                                        (let [id (req-util/parse-path req :id)
-                                              article (req-util/parse-body req :article)]
-                                          (article-handler/push! db id (assoc article :id id))))}}]]
+        ["/push" {:patch {:summary "Push the article"
+                          :parameters {:path {:id string?}
+                                       :body {:article ::Article-Push}}
+                          :handler (fn [req]
+                                     (let [id (req-util/parse-path req :id)
+                                           article (req-util/parse-body req :article)]
+                                       (article-handler/push! db id (assoc article :id id))))}}]]]
 
       ["/articles-comments" {:swagger {:tags ["Articles Comments"]}}
 
@@ -277,7 +278,11 @@
                   :parameters {:query ::query}
                   :handler (fn [req]
                              (let [query (req-util/parse-query req)]
-                               (app-handler/query-apps db query)))}}]]
+                               (app-handler/query-apps db query)))}}]
+       
+       ["/:id" {:parameters {:path int?}}
+        ["" {:get {:summary "get a App"
+                   :handler (fn [req] )}}]]]
       
       ["/app-categories" {:swagger {:tags ["App Categories"]}}
        ["" {:get {:summary "get app categories"
@@ -289,7 +294,20 @@
                    :parameters {:body {:app-category ::App-Category}}
                    :handler (fn [req]
                               (let [app-category (req-util/parse-body req :app-category)]
-                                (app-handler/create-app-category! db app-category)))}}]]
+                                (app-handler/create-app-category! db app-category)))}}]
+       
+       ["/:id" {:parameters {:path int?}} 
+        ["" {:get {:summary "Get a comment"
+                   :parameters {:path {:id pos-int?}}
+                   :handler (fn [req]
+                              (let [id (req-util/parse-path req :id)]
+                                (article-comment-handler/get-articles-comments-by-id db id)))}
+
+             :delete {:summary "Delete a comment"
+                      :parameters {:path {:id pos-int?}}
+                      :handler (fn [req]
+                                 (let [id (req-util/parse-path req :id)]
+                                   (article-comment-handler/delete-article-comment! db id)))}}]]]
       
       ["/app-access-logs" {:swagger {:tags ["App Access Log"]}}
        ["" {:get {:summary "get app access logs"

@@ -4,7 +4,7 @@
             [backend.middleware :refer [exception-middleware
                                         wrap-cors-middleware]]
             [backend.server :as server]
-            [backend.util.db-util :refer [my-result-logger my-sql-logger]]
+            [backend.util.db-util :refer [my-sql-logger]]
             [cheshire.core :refer [generate-string]]
             [clojure.java.io :as io]
             [clojure.pprint]
@@ -19,6 +19,7 @@
             [reitit.dev.pretty :as pretty]
             [reitit.ring :as reitit-ring]
             [reitit.ring.coercion :as reitit-coercion]
+            [reitit.exception :as reitit-exception]
             [reitit.ring.middleware.muuntaja :as reitit-muuntaja]
             [reitit.ring.middleware.parameters :as reitit-parameters]
             [reitit.spec :as rs]
@@ -38,39 +39,33 @@
 
 (defn routes [env]
   [["/admin" {:swagger {:id ::admin}} 
-    ["/swagger.json"
-     {:no-doc true
-      :get {:swagger {:info {:title "my-api"
-                             :description "web backend api"
-                             :version version
-                             :contact contact
-                             :license license}}
-            :handler (reitit-swagger/create-swagger-handler)}}]
-    ["/api-docs/*"
-     {:no-doc true
-      :get {:handler (reitit-swagger-ui/create-swagger-ui-handler
-                      {:config {:validatorUrl nil}
-                       :url "/admin/swagger.json"})}}]
+    ["/swagger.json" {:no-doc true
+                      :get {:swagger {:info {:title "my-api"
+                                             :description "web backend api"
+                                             :version version
+                                             :contact contact
+                                             :license license}}
+                            :handler (reitit-swagger/create-swagger-handler)}}]
+    ["/api-docs/*"   {:no-doc true
+                      :get {:handler (reitit-swagger-ui/create-swagger-ui-handler
+                                      {:config {:validatorUrl nil}
+                                       :url "/admin/swagger.json"})}}]
     
     (server/routes env)]
    
    ["/api/v1" {:swagger {:id ::api}} 
-    ["/swagger.json"
-     {:no-doc true
-      :get {:swagger {:info {:title "open-api"
-                             :description "public api, ex: web app,ios,android,wechat"
-                             :version version
-                             :contact contact
-                             :license license}
-                      :tags [{:name "api", :description "api"}]}
-            :handler (reitit-swagger/create-swagger-handler)}}]
-    ["/api-docs/*"
-     {:no-doc true
-      :get {:handler (reitit-swagger-ui/create-swagger-ui-handler
-                      {:config {:validatorUrl nil}
-                       :url "/api/v1/swagger.json"})}}]
-    
-    (api/routes env)]])
+    ["/swagger.json" {:no-doc true
+                      :get {:swagger {:info {:title "open-api"
+                                             :description "public api, ex: web app,ios,android,wechat"
+                                             :version version
+                                             :contact contact
+                                             :license license}}
+                            :handler (reitit-swagger/create-swagger-handler)}}]
+    ["/api-docs/*" {:no-doc true
+                    :get {:handler (reitit-swagger-ui/create-swagger-ui-handler
+                                    {:config {:validatorUrl nil}
+                                     :url "/api/v1/swagger.json"})}}]
+     (api/routes env)]])
 
 (defn handler
   "Handler."
@@ -89,6 +84,8 @@
                                              reitit-coercion/coerce-response-middleware
                                                     ;; coercing request parameters
                                              reitit-coercion/coerce-request-middleware]}
+                         :conflicts (fn [conflicts]
+                                      (println (reitit-exception/format-exception :path-conflicts nil conflicts)))
                          :validate rs/validate
                          :exception pretty/exception})
 

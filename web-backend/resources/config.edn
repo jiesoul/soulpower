@@ -6,8 +6,8 @@
 
  :backend/options {:no-doc #profile {:dev false
                                      :test false}
-                   :token-options #profile {:dev {:exp 36000 :private-key "soulpower"}
-                                            :test {:exp 36000 :private-key "soulpower"}}}
+                   :jwt-opts #profile {:dev {:exp 36000 :pkey "soulpower"}
+                                       :test {:exp 36000 :pkey "soulpower"}}}
 
  :backend/env {:profile #ig/ref :backend/profile
                :options #ig/ref :backend/options

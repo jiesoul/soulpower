@@ -29,13 +29,13 @@
         page-size (or (get query :page-size) DEFAULT-PAGE-SIZE)]
     (assoc query :page page :page-size page-size)))
 
-(def default-jwt-private-key "soulpower")
+(def default-jwt-pkey "soulpower")
 (def default-jwt-exp 3600)
-(def default-jwt-options {:alg :hs512})
+(def default-jwt-opts {:alg :hs512})
 
 (defn create-token
-  [user & {:keys [exp private-key]}]
-  (let [payload (-> user
+  [data & {:keys [exp pkey]}]
+  (let [payload (-> data
                     (assoc :exp (.plusSeconds
                                  (java.time.Instant/now) (or exp default-jwt-exp))))]
-    (jwt/sign payload (or private-key default-jwt-private-key) default-jwt-options)))
+    (jwt/sign payload (or pkey default-jwt-pkey) default-jwt-opts)))

@@ -1,8 +1,7 @@
 (ns backend.middleware
   (:require [backend.db.app-db :as app-db]
-            [backend.util.req-uitl :refer [default-jwt-options
-                                           default-jwt-private-key]]
-            [backend.util.req-uitl :as req-util]
+            [backend.util.req-uitl :refer [default-jwt-opts
+                                           default-jwt-pkey]]
             [backend.util.resp-util :refer [bad-request coercion-error-handler
                                             forbidden handler-error
                                             unauthorized]]
@@ -48,8 +47,8 @@
 ;; auth-middleware
 
 (defn create-token-backend [{:keys [private-key]}]
-  (let [secret (or private-key default-jwt-private-key)]
-    (backends/jws {:secret secret :options default-jwt-options})))
+  (let [secret (or private-key default-jwt-pkey)]
+    (backends/jws {:secret secret :options default-jwt-opts})))
 
 (defn create-token-auth-middleware
   [env]

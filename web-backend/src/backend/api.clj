@@ -19,51 +19,74 @@
 
 (defn routes [{:keys [db]}]
     ["" {:middleware [[wrap-app-auth db]]}
-     ["/categories"
-      {:swagger {:tags ["Public Category"]}}
+     ["/categories" {:swagger {:tags ["Category"]}}
 
-      ["/hot/:top" {:get {:summary "get hot categories"
-                          :parameters {:top pos-int?
-                                       :query ::query}
-                          :handler (fn [req]
-                                     (let [top (req-util/parse-path req :top)]
-                                       (category-handler/get-all-categories db)))}}]]
+      ["" {:get {:summary "get categories"
+                 :parameters {:top pos-int?
+                              :query ::query}
+                 :handler (fn [req]
+                            (let [top (req-util/parse-path req :top)]
+                              (category-handler/get-all-categories db)))}}]]
 
-     ["/tags"
-      {:swagger {:tags ["Public Tag"]}}
+     ["/tags" {:swagger {:tags ["Tag"]}}
 
-      ["/hot/:top" {:get {:summary "get hot tags"
-                          :parameters {:top pos-int?}
-                          :handler (fn [req]
-                                     (let [top (req-util/parse-path req :top)]
-                                       (tag-handler/get-all-tags db)))}}]]
+      ["" {:get {:summary "get tags"
+                 :parameters {:top pos-int?}
+                 :handler (fn [req]
+                            (let [top (req-util/parse-path req :top)]
+                              (tag-handler/get-all-tags db)))}}]]
 
-     ["/articles"
-      {:swagger {:tags ["Public Article"]}}
+     ["/articles" {:swagger {:tags ["Article"]}}
 
       ["" {:get {:summary "get rently pushed articles"
                  :parameters {:query ::query}
                  :handler (fn [req]
                             (let [query (req-util/parse-query req)]
-                              (article-handler/get-pushed-articles db query)))}}
-       ["/archives"
-        {:swagger {:tags ["archive"]}}
+                              (article-handler/get-pushed-articles db query)))}}]
 
-        ["/articles"
-
-         ["/:year" {:get {:summary "get pushed articles by year"
-                          :parameters {:path {:year integer?}}
-                          :handler (fn [req]
-                                     (let [year (req-util/parse-path req :year)]
-                                       (article-handler/get-pushed-articles-by-year db year)))}}]]]]
-
-      ["/:id" {:get {:summary "get article"
-                     :parameters {:path {:id string?}}
-                     :handler (fn [req]
-                                (let [id (req-util/parse-path req :id)]
-                                  (article-handler/get-article db id)))}}
+      ["/archives" {:conflicting true}
+       ["" {:get {:summary "Archives"
+                  :handler (fn [req])}}]
        
-       ["/like" {:post {:summary "like article"
-                        :handler (fn [req]
-                                   (let [id (req-util/parse-path req :id)]
-                                     (article-handler/update-like-count! db id 1)))}}]]]])
+       ["/:year" 
+        ["" {:get {:summary "Archives by year"
+                   :parameters {:path {:year integer?}}
+                   :handler (fn [req]
+                              (let [year (req-util/parse-path req :year)]
+                                (article-handler/get-pushed-articles-by-year db year)))}}]
+
+        ["/:month" 
+         ["" {:get {:summary "Archives by year"
+                    :parameters {:path {:year integer?
+                                        :month integer?}}
+                    :handler (fn [req]
+                               (let [month (req-util/parse-path req :month)]
+                                 (article-handler/get-pushed-articles-by-year db month)))}}]]]]
+
+      ["/:id" {:conflicting true}
+       ["" {:get {:summary "get article"
+                  :parameters {:path {:id string?}}
+                  :handler (fn [req]
+                             (let [id (req-util/parse-path req :id)]
+                               (article-handler/get-article db id)))}}]
+
+       ["/like"
+        ["" {:post {:summary "like a article"
+                    :parameters {:path {:id string?}}
+                    :handler (fn [req]
+                               (let [id (req-util/parse-path req :id)]
+                                 (article-handler/update-like-count! db id 1)))}}]]
+
+       ["/comments"
+        ["" {:get {:summary "get the comments of article"
+                   :handler (fn [req])}}]]]]
+     
+     ["/comments" {:swagger {:tags ["Comment"]}}
+
+      ["" {:post {:summary "create a comments of article"
+                  :handler (fn [req])}}]
+
+      ["/:id"
+       ["/like" 
+        ["" {:post {:summary "like a comments"
+                    :handler (fn [req])}}]]]]])
