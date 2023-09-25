@@ -46,8 +46,8 @@
 
 ;; auth-middleware
 
-(defn create-token-backend [{:keys [private-key]}]
-  (let [secret (or private-key default-jwt-pkey)]
+(defn create-token-backend [{:keys [pkey]}]
+  (let [secret (or pkey default-jwt-pkey)]
     (backends/jws {:secret secret :options default-jwt-opts})))
 
 (defn create-token-auth-middleware
