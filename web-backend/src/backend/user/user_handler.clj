@@ -1,5 +1,5 @@
-(ns backend.handler.user-handler
-  (:require [backend.db.user-db :as user-db]
+(ns backend.user.user-handler
+  (:require [backend.user.user-db :as user-db]
             [backend.util.resp-util :as resp-util]
             [buddy.hashers :as buddy-hashers]
             [clojure.instant :as instant]

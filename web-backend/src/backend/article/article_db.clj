@@ -1,6 +1,6 @@
-(ns backend.db.article-db
-  (:require [backend.db.article-tag-db :as article-tag-db]
-            [backend.db.comment-db :as comment-db]
+(ns backend.article.article-db
+  (:require [backend.article.article-tag-db :as article-tag-db]
+            [backend.article.comment-db :as comment-db]
             [backend.util.db-util :as du]
             [clojure.tools.logging :as log]
             [next.jdbc :as jdbc :refer [unqualified-snake-kebab-opts]]
@@ -8,9 +8,9 @@
             [next.jdbc.sql :as sql]))
 
 (defn query [db opts]
-  (let [[ws wv] (du/opt-to-sql opts)
-        ss (du/opt-to-sort opts)
-        [ps pv] (du/opt-to-page opts)
+  (let [[ws wv] (du/filter->sql opts)
+        ss (du/sort->sql opts)
+        [ps pv] (du/page->sql opts)
         q-sql (into [(str "select * from article " ws ss ps)] (into wv pv))
         articles (sql/query db q-sql {:builder-fn rs/as-unqualified-kebab-maps})
         t-sql (into [(str "select count(1) as c from article " ws)] wv)
@@ -56,7 +56,7 @@
     (sql/update! tx :article (dissoc article :tag-ids) {:id id} unqualified-snake-kebab-opts)))
 
 (defn get-pushed [db opts]
-  (let [[ps pv] (du/opt-to-page opts)
+  (let [[ps pv] (du/page->sql opts)
         q-sql (into ["select * from article where push_flag = 1 order by id desc limit ? offset ? "] pv)
         _ (log/debug "query sql: " q-sql)
         articles (sql/query db q-sql {:builder-fn rs/as-unqualified-kebab-maps})

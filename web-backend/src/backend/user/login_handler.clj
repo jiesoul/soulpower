@@ -1,5 +1,5 @@
-(ns backend.handler.login-handler
-  (:require [backend.db.user-db :as user-db]
+(ns backend.user.login-handler
+  (:require [backend.user.user-db :as user-db]
             [backend.util.req-uitl :as req-util :refer [create-token]]
             [backend.util.resp-util :as resp-util]
             [buddy.hashers :as buddy-hashers]

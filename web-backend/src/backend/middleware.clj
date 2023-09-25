@@ -1,5 +1,5 @@
 (ns backend.middleware
-  (:require [backend.db.app-db :as app-db]
+  (:require [backend.app.app-db :as app-db]
             [backend.util.req-uitl :refer [default-jwt-opts
                                            default-jwt-pkey]]
             [backend.util.resp-util :refer [bad-request coercion-error-handler

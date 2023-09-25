@@ -1,5 +1,5 @@
-(ns backend.handler.tag-handler 
-  (:require [backend.db.tag-db :as tag-db]
+(ns backend.tag.tag-handler 
+  (:require [backend.tag.tag-db :as tag-db]
             [clojure.tools.logging :as log]
             [backend.util.resp-util :as resp-util]))
 

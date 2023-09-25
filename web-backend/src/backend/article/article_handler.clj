@@ -1,5 +1,5 @@
-(ns backend.handler.article-handler
-  (:require [backend.db.article-db :as article-db]
+(ns backend.article.article-handler
+  (:require [backend.article.article-db :as article-db]
             [backend.util.resp-util :as resp-util]
             [clojure.tools.logging :as log]))
 

@@ -1,7 +1,7 @@
 (ns backend.api
-  (:require [backend.handler.article-handler :as article-handler]
-            [backend.handler.category-handler :as category-handler]
-            [backend.handler.tag-handler :as tag-handler]
+  (:require [backend.article.article-handler :as article-handler]
+            [backend.category.category-handler :as category-handler]
+            [backend.tag.tag-handler :as tag-handler]
             [backend.middleware :refer [wrap-app-auth]]
             [backend.util.req-uitl :as req-util]
             [clojure.spec.alpha :as s]))
@@ -41,7 +41,7 @@
       ["" {:get {:summary "get rently pushed articles"
                  :parameters {:query ::query}
                  :handler (fn [req]
-                            (let [query (req-util/parse-query req)]
+                            (let [query (req-util/parse-default-page req)]
                               (article-handler/get-pushed-articles db query)))}}]
 
       ["/archives" {:conflicting true}

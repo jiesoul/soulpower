@@ -1,6 +1,6 @@
 (ns backend.handler.category-handler-test 
   (:require [backend.core-test :as core]
-            [backend.handler.category-handler :refer [create-category!
+            [backend.category.category-handler :refer [create-category!
                                                       query-categories
                                                       get-category]]
             [clojure.test :refer [deftest is]]

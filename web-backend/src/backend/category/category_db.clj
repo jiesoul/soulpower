@@ -1,4 +1,4 @@
-(ns backend.db.category-db
+(ns backend.category.category-db
   (:require [next.jdbc.sql :as sql]
             [backend.util.db-util :as du]
             [clojure.tools.logging :as log]
@@ -6,9 +6,9 @@
 
 (defn query-categories [db opts]
   (try 
-    (let [[ws wv] (du/opt-to-sql opts)
-          ss (du/opt-to-sort opts)
-          [ps pv] (du/opt-to-page opts)
+    (let [[ws wv] (du/filter->sql opts)
+          ss (du/sort->sql opts)
+          [ps pv] (du/page->sql opts)
           q-sql (into [(str "select * from category "  ws ss ps)] (into wv pv))
           _ (log/info "query categories sql: " q-sql)
           categories (sql/query db q-sql {:builder-fn rs/as-unqualified-maps})

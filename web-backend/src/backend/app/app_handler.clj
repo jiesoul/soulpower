@@ -1,5 +1,5 @@
-(ns backend.handler.app-handler 
-  (:require [backend.db.app-db :as app-db]
+(ns backend.app.app-handler 
+  (:require [backend.app.app-db :as app-db]
             [backend.util.common-utils :as common-utils]
             [backend.util.resp-util :as resp-util]))
 

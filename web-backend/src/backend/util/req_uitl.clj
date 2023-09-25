@@ -11,23 +11,30 @@
            (second)))
 
 (defn parse-body
-  [req key]
-  (get-in req [:body-params key]))
+  ([req] (get-in req [:body-params]))
+  ([req key]
+   (get-in req [:body-params key])))
 
-(defn parse-path 
-  [req key]
-  (get-in req [:parameters :path key]))
+(defn parse-query 
+  ([req]  (get-in req [:parameters :query]))
+  ([req key] (get-in req [:parameters :query key])))
+
+(defn parse-path
+  ([req] (get-in req [:parameters :path]))
+  ([req key]
+   (get-in req [:parameters :path key])))
 
 (defn push-query-filter [{:keys [filter] :as query} fs]
   (let [filter (str "( " fs " ) and (" filter ")")]
     (assoc query :filter filter)))
 
-(defn parse-query
-  [req]
-  (let [query (get-in req [:parameters :query])
-        page (or (get query :page) DEFAULT-PAGE)
-        page-size (or (get query :page-size) DEFAULT-PAGE-SIZE)]
-    (assoc query :page page :page-size page-size)))
+(defn parse-default-page
+  [query]
+  (let [page (or (:page query) DEFAULT-PAGE)
+        page-size (or (:page-size query) DEFAULT-PAGE-SIZE)]
+  (-> query
+      (assoc :page page)
+      (assoc :page-size page-size))))
 
 (def default-jwt-pkey "soulpower")
 (def default-jwt-exp 3600)

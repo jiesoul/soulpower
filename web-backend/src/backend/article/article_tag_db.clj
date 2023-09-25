@@ -1,4 +1,4 @@
-(ns backend.db.article-tag-db
+(ns backend.article.article-tag-db
   (:require [next.jdbc :refer [unqualified-snake-kebab-opts]]
             [next.jdbc.sql :as sql]))
 

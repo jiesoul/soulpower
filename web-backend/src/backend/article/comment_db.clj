@@ -1,11 +1,11 @@
-(ns backend.db.comment-db
+(ns backend.article.comment-db
   (:require [backend.util.db-util :as du]
             [next.jdbc.result-set :as rs]
             [next.jdbc.sql :as sql]))
 
 (defn query [db opts]
-  (let [[w wv] (du/opt-to-sql opts)
-        [p pv] (du/opt-to-page opts)
+  (let [[w wv] (du/filter->sql opts)
+        [p pv] (du/page->sql opts)
         q-sql (into [(str "select * from article_comment " w p)] (into wv pv))
         article-comments (sql/query db q-sql {:builder-fn rs/as-unqualified-maps})
         t-sql (into [(str "select count(1) as c from article_comment" w)] wv)

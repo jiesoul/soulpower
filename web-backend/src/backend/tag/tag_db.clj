@@ -1,18 +1,14 @@
-(ns backend.db.tag-db
+(ns backend.tag.tag-db
   (:require [backend.util.db-util :as du]
             [next.jdbc.result-set :as rs]
             [next.jdbc.sql :as sql]
             [clojure.tools.logging :as log]))
 
 (defn query [db opts]
-  (let [[ws wv] (du/opt-to-sql opts)
-        ss (du/opt-to-sort opts)
-        [ps pv] (du/opt-to-page opts)
-        q-sql (into [(str "select * from tag "  ws ss ps)] (into wv pv))
-        _ (log/info "query tags: " q-sql)
+  (let [q-sql "select * from tag"
+        t-sql "select count(1) as c from tag"
+        [q-sql t-sql] (du/query->sql opts q-sql t-sql)
         tags (sql/query db q-sql {:builder-fn rs/as-unqualified-maps})
-        t-sql (into [(str "select count(1) as c from tag " ws)] wv)
-        _ (log/info "Count tags: " t-sql)
         total (:c (first (sql/query db t-sql)))] 
     {:list tags
      :total total}))

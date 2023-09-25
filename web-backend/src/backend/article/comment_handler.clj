@@ -1,5 +1,5 @@
-(ns backend.handler.comment-handler 
-  (:require [backend.db.comment-db :as comment-db]
+(ns backend.article.comment-handler 
+  (:require [backend.article.comment-db :as comment-db]
             [backend.util.resp-util :as resp-util]
             [clojure.tools.logging :as log]))
 

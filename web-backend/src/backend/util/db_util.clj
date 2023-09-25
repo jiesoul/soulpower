@@ -1,8 +1,8 @@
-(ns backend.util.db-util 
+(ns backend.util.db-util
   (:require [clojure.string :as str]
             [clojure.tools.logging :as log]
             [next.jdbc.prepare :as p]
-            [next.jdbc.result-set :as rs]) 
+            [next.jdbc.result-set :as rs])
   (:import [java.sql PreparedStatement]))
 
 (extend-protocol rs/ReadableColumn
@@ -34,7 +34,7 @@
 (defn my-result-logger [sym sql-rs]
   (log/debug "sql-rs: " sym sql-rs))
 
-(defn populate 
+(defn populate
   [_ db-type]
   (let [auto-key (if (= "sqlite" db-type)
                    "primary key autoincrement"
@@ -49,18 +49,13 @@
       (subs s 1 end))
     s))
 
-(defn not-blank [s]
+(defn not-blank? [s]
   (if (or (nil? s) (str/blank? (str/trim s))) nil (str/trim s)))
 
-(defn sort-convert
-  [opts]
-  (let [sort (get opts :sort)]
-    (not-blank sort)))
-
-(defn op-convert
+(defn- op-convert
   [s]
-  (loop [sql s 
-         w "" 
+  (loop [sql s
+         w ""
          v []]
     (if (seq sql)
       (let [fst (first sql)
@@ -77,47 +72,38 @@
         (recur ssql ww vv))
       [w v])))
 
-(defn filter-convert
-  [opts]
-  (if-let [filter (not-blank (get opts :filter))] 
-    (-> filter
-        (str/split #" +")
-        op-convert)
-    nil))
+(defn- filter->map [filter-str]
+  (-> filter-str
+      (str/split #" +")
+      op-convert))
 
-(defn page-convert
-  [opts]
-  (let [page (or (get opts :page) 1)
-        page-size (or (get opts :page-size) 10)]
-    [page-size (* page-size (dec page))]))
+(defn filter->sql [filter-str]
+  (if (str/blank? filter-str)
+    ["" []]
+    (let [[s v] (filter->map filter-str)]
+      [(str " where " s) v])))
 
-;; TODO
-(defn search-convert [query]
-  nil)
+(defn page->sql [page page-size]
+  [" limit ? offset ? " [page-size (* (dec page) page-size)]])
 
-(defn opt-convert 
-  [opts]
-  (let [cq {:sort (sort-convert opts)
-            :filter (filter-convert opts)
-            :q (search-convert opts)}]
-    cq))
+(defn sort->sql [sort]
+  (if sort
+    [(str " order by " sort) []]
+    ["" []]))
 
-(defn opt-to-sql [opts]
-  (let [{:keys [filter]} (opt-convert opts)
-        [s v] ["" []]
-        [s v] (if filter
-                [(str s " where " (first filter)) (into v (second filter))]
-                [s v])
-        _ (log/debug "opt to sql: [" s v "]")]
-    [s v]))
-
-(defn opt-to-page [opt]
-  (let [page (page-convert opt)]
-    (if page
-      [(str " limit ? offset ? ") (into [] page)]
-      ["" []])))
-
-(defn opt-to-sort [opt]
-  (if-let [sort (not-blank (:sort opt))]
-    (str " order by " sort) 
-    ""))
+(defn query->sql 
+  ([query qsql] (query->sql query qsql nil))
+  ([{:keys [page page-size sort filter] :as query} qsql tsql]
+   (let [_ (log/debug "Query: " query)
+         _ (log/debug "query sql: " qsql)
+         _ (log/debug "Total sql: " tsql)
+         [ps pv] (page->sql page page-size)
+         _ (log/debug "pagination: " ps pv)
+         [ss _] (sort->sql sort)
+         _ (log/debug "sort: " ss)
+         [fs fv] (filter->sql filter)
+         _ (log/debug "Where: " fs fv)
+         rs [(into [(str/join " " [qsql fs ss ps])] (into fv pv))
+             (if tsql (into [(str/join " " [tsql fs])] fv) tsql)]
+         _ (log/debug "Result: " rs)]
+     rs)))

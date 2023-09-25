@@ -1,5 +1,5 @@
-(ns backend.handler.category-handler
-  (:require [backend.db.category-db :as category-db]
+(ns backend.category.category-handler
+  (:require [backend.category.category-db :as category-db]
             [backend.util.req-uitl :as req-util]
             [backend.util.resp-util :as resp-util]
             [clojure.tools.logging :as log]))
