@@ -5,13 +5,11 @@
             [next.jdbc.sql :as sql]))
 
 (defn query-apps [db opts]
-  (let [[ws wv] (du/filter->sql opts)
-        ss (du/sort->sql opts)
-        [ps pv] (du/page->sql opts)
-        q-sql (into [(str "select * from app "  ws ss ps)] (into wv pv))
-        list (sql/query db q-sql {:builder-fn rs/as-unqualified-kebab-maps})
-        t-sql (into [(str "select count(1) as c from app " ws)] wv)
-        total (:c (first (sql/query db t-sql)))]
+  (let [qsql " select * from app "
+        tsql " select count(1) :as c from app "
+        [q t] (du/query->sql opts qsql tsql)
+        list (sql/query db q {:builder-fn rs/as-unqualified-kebab-maps})
+        total (:c (first (sql/query db t)))]
     {:list list
      :total total}))
 
@@ -25,13 +23,11 @@
   (sql/delete! db :app {:id id}))
 
 (defn query-app-categories [db opts]
-  (let [[ws wv] (du/filter->sql opts)
-        ss (du/sort->sql opts)
-        [ps pv] (du/page->sql opts)
-        q-sql (into [(str "select * from app_category "  ws ss ps)] (into wv pv))
-        list (sql/query db q-sql {:builder-fn rs/as-unqualified-kebab-maps})
-        t-sql (into [(str "select count(1) as c from app_category " ws)] wv)
-        total (:c (first (sql/query db t-sql)))]
+  (let [q-sql "select * from app_category"
+        t-sql "select count(1) as c from app_category "
+        [q t] (du/query->sql opts q-sql t-sql)
+        list (sql/query db q {:builder-fn rs/as-unqualified-kebab-maps})
+        total (:c (first (sql/query db t)))]
     {:list list
      :total total}))
 
@@ -45,13 +41,11 @@
   (sql/delete! db :app-category {:id id}))
 
 (defn query-app-access-logs [db opts]
-  (let [[ws wv] (du/filter->sql opts)
-        ss (du/sort->sql opts)
-        [ps pv] (du/page->sql opts)
-        q-sql (into [(str "select * from app_access_log "  ws ss ps)] (into wv pv))
-        list (sql/query db q-sql {:builder-fn rs/as-unqualified-kebab-maps})
-        t-sql (into [(str "select count(1) as c from app_access_log " ws)] wv)
-        total (:c (first (sql/query db t-sql)))]
+  (let [q-sql "select * from app_access_log "
+        t-sql "select count(1) as c from app_access_log "
+        [q t] (du/query->sql opts q-sql t-sql)
+        list (sql/query db q {:builder-fn rs/as-unqualified-kebab-maps})
+        total (:c (first (sql/query db t)))]
     {:list list
      :total total}))
 

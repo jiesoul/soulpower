@@ -8,13 +8,11 @@
             [next.jdbc.sql :as sql]))
 
 (defn query [db opts]
-  (let [[ws wv] (du/filter->sql opts)
-        ss (du/sort->sql opts)
-        [ps pv] (du/page->sql opts)
-        q-sql (into [(str "select * from article " ws ss ps)] (into wv pv))
-        articles (sql/query db q-sql {:builder-fn rs/as-unqualified-kebab-maps})
-        t-sql (into [(str "select count(1) as c from article " ws)] wv)
-        total (:c (first (sql/query db t-sql)))]
+  (let [q-sql "select * from article "
+        t-sql "select count(1) as c from article "
+        [q t] (du/query->sql opts q-sql t-sql)
+        articles (sql/query db q {:builder-fn rs/as-unqualified-kebab-maps})
+        total (:c (first (sql/query db t)))]
     {:list articles
      :total total}))
 
@@ -37,7 +35,7 @@
           detail (get-detail-by-article-id tx id)]
       (assoc article :detail detail))))
 
-(defn update! [db id {:keys [detail] :as article}] 
+(defn update! [db id {:keys [detail] :as article}]
   (jdbc/with-transaction [tx db]
     (sql/update! tx :article_detail detail {:article_id id} unqualified-snake-kebab-opts)
     (sql/update! tx :article (dissoc article :detail) {:id id} unqualified-snake-kebab-opts)))
@@ -56,16 +54,15 @@
     (sql/update! tx :article (dissoc article :tag-ids) {:id id} unqualified-snake-kebab-opts)))
 
 (defn get-pushed [db opts]
-  (let [[ps pv] (du/page->sql opts)
-        q-sql (into ["select * from article where push_flag = 1 order by id desc limit ? offset ? "] pv)
-        _ (log/debug "query sql: " q-sql)
-        articles (sql/query db q-sql {:builder-fn rs/as-unqualified-kebab-maps})
-        t-sql ["select count(1) as c from article where push_flag = 1"]
-        total (:c (first (sql/query db t-sql)))]
-    {:list articles 
+  (let [q-sql "select * from article where push_flag = 1 order by id desc limit ? offset ? "
+        t-sql "select count(1) as c from article where push_flag = 1"
+        [q t] (du/query->sql opts q-sql t-sql)
+        articles (sql/query db q {:builder-fn rs/as-unqualified-kebab-maps})
+        total (:c (first (sql/query db t)))]
+    {:list articles
      :total total}))
 
-(defn update-article-comment-count! [db article-id c] 
+(defn update-article-comment-count! [db article-id c]
   (jdbc/execute-one! db ["update article set comment_count = comment_count + ? where id = ?" c article-id]))
 
 (defn update-article-like-count! [db article-id c]
