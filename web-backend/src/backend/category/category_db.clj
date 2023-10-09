@@ -5,25 +5,21 @@
             [next.jdbc.result-set :as rs]))
 
 (defn query-categories [db opts]
-  (try 
-    (let [[ws wv] (du/filter->sql opts)
-          ss (du/sort->sql opts)
-          [ps pv] (du/page->sql opts)
-          q-sql (into [(str "select * from category "  ws ss ps)] (into wv pv))
-          _ (log/info "query categories sql: " q-sql)
-          categories (sql/query db q-sql {:builder-fn rs/as-unqualified-maps})
-          t-sql (into [(str "select count(1) as c from category " ws)] wv)
-          _ (log/info "total categories sql: " t-sql)
-          total (:c (first (sql/query db t-sql)))] 
-      {:list categories 
+  (try
+    (let [q-sql "select * from category "
+          t-sql "select count(1) as c from category "
+          [q t] (du/page->sql opts q-sql t-sql)
+          categories (sql/query db q {:builder-fn rs/as-unqualified-maps})
+          total (:c (first (sql/query db t)))]
+      {:list categories
        :total total})
-    (catch java.sql.SQLException se 
+    (catch java.sql.SQLException se
       (throw (ex-info "query error" se)))))
 
 (defn create! [db category]
-  (try 
+  (try
     (sql/insert! db :category category {:return-keys true})
-    (catch java.sql.SQLException se 
+    (catch java.sql.SQLException se
       (throw (ex-info "create category error" se)))))
 
 (defn update! [db category]
