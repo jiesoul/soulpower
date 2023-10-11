@@ -22,7 +22,7 @@
       ["" {:post {:summary "login to the web site"
                   :parameters {:body :bs/login-user}
                   :handler (fn [req]
-                             (let [login-user (:body-params req :login-user)]
+                             (let [login-user (:body-params req)]
                                (login-handler/login-auth db jwt-opts login-user)))}}]]
 
      ["" {:no-doc no-doc
@@ -48,18 +48,18 @@
                                 (user-handler/get-user db id)))}
 
              :patch {:summary "Update user profile"
-                     :parameters {:body {:user-profile :bs/UserProfile}}
+                     :parameters {:body :bs/UserProfile}
                      :handler (fn [req]
                                 (let [id (req-util/parse-path req :id)
-                                      user-profile (req-util/parse-body req :user-profile)]
+                                      user-profile (req-util/parse-body req)]
                                   (user-handler/update-user-profile! db id user-profile)))}}]
 
         ["/password"
          ["" {:patch {:summary "Update a user passwrod"
-                      :parameters {:body {:update-password :bs/UpdatePassword}}
+                      :parameters {:body :bs/UpdatePassword}
                       :handler (fn [req]
                                  (let [id (req-util/parse-path req :id)
-                                       password (req-util/parse-body req :update-password)]
+                                       password (req-util/parse-body req)]
                                    (user-handler/update-user-password! db id password)))}}]]]]
 
       ["/categories" {:swagger {:tags ["Categories"]}}
@@ -67,13 +67,13 @@
        ["" {:get {:summary "Query categories"
                   :parameters {:query :bs/query}
                   :handler (fn [req]
-                             (let [query (req-util/parse-default-page req)]
+                             (let [query (-> req req-util/parse-query req-util/parse-default-page)]
                                (category-handler/query-categories db query)))}
 
             :post {:summary "New a category"
-                   :parameters {:body {:category :bs/Category}}
+                   :parameters {:body :bs/Category}
                    :handler (fn [req]
-                              (let [category (req-util/parse-body req :category)]
+                              (let [category (req-util/parse-body req)]
                                 (category-handler/create-category! db category)))}}]
 
        ["/:id" {:get {:summary "Get a category"
@@ -84,11 +84,11 @@
 
                 :patch {:summary "Update a category"
                         :parameters {:path {:id pos-int?}
-                                     :body {:category :bs/Category}}
+                                     :body :bs/Category}
 
                         :handler (fn [req]
                                    (let [id (req-util/parse-path req :id)
-                                         category (req-util/parse-body req :category)]
+                                         category (req-util/parse-body req)]
                                      (category-handler/update-category! db (assoc category :id id))))}
 
                 :delete {:summary "Delete a category"
@@ -106,9 +106,9 @@
                                (tag-handler/query-tags db opt)))}
 
             :post {:summary "New a tag"
-                   :parameters {:body {:tag :bs/Tag}}
+                   :parameters {:body :bs/Tag}
                    :handler (fn [req]
-                              (let [tag (req-util/parse-body req :tag)]
+                              (let [tag (req-util/parse-body req)]
                                 (tag-handler/create-tag! db tag)))}}]
 
        ["/:id" {:get {:summary "Get a tag"
@@ -119,9 +119,9 @@
 
                 :put {:summary "Update a tag"
                       :parameters {:path {:id pos-int?}
-                                   :body {:tag :bs/Tag}}
+                                   :body :bs/Tag}
                       :handler (fn [req]
-                                 (let [tag (req-util/parse-body req :tag)]
+                                 (let [tag (req-util/parse-body req)]
                                    (tag-handler/update-tag! db tag)))}
 
                 :delete {:summary "Delete a tag"
@@ -139,9 +139,9 @@
                                (article-handler/query-articles db opt)))}
 
             :post {:summary "New a article"
-                   :parameters {:body {:article :bs/Article}}
+                   :parameters {:body :bs/Article}
                    :handler (fn [req]
-                              (let [article (req-util/parse-body req :article)]
+                              (let [article (req-util/parse-body req)]
                                 (article-handler/create-article! db article)))}}]
 
        ["/:id"
@@ -153,10 +153,10 @@
 
              :patch {:summary "Update a article"
                      :parameters {:path {:id string?}
-                                  :body {:article :bs/Article}}
+                                  :body :bs/Article}
                      :handler (fn [req]
                                 (let [id (req-util/parse-path req :id)
-                                      article (req-util/parse-body req :article)]
+                                      article (req-util/parse-body req)]
                                   (article-handler/update-article! db id article)))}
 
              :delete {:summary "Delete a article"
@@ -167,10 +167,10 @@
 
         ["/push" {:patch {:summary "Push the article"
                           :parameters {:path {:id string?}
-                                       :body {:article :bs/Article-Push}}
+                                       :body :bs/Article-Push}
                           :handler (fn [req]
                                      (let [id (req-util/parse-path req :id)
-                                           article (req-util/parse-body req :article)]
+                                           article (req-util/parse-body req)]
                                        (article-handler/push! db id (assoc article :id id))))}}]]]
 
       ["/articles-comments" {:swagger {:tags ["Articles Comments"]}}
@@ -200,9 +200,9 @@
                              (let [query (req-util/parse-default-page req)]
                                (app-handler/query-app-categories db query)))}
             :post {:summary "add a app category"
-                   :parameters {:body {:app-category :bs/App-Category}}
+                   :parameters {:body :bs/App-Category}
                    :handler (fn [req]
-                              (let [app-category (req-util/parse-body req :app-category)]
+                              (let [app-category (req-util/parse-body req)]
                                 (app-handler/create-app-category! db app-category)))}}]
 
        ["/:id" {:parameters {:path int?}}
@@ -220,15 +220,15 @@
 
       ["/apps" {:swagger {:tags  ["App"]}}
        ["" {:post {:summary "reg a app"
-                   :parameters {:body {:app :bs/App}}
+                   :parameters {:body :bs/App}
                    :handler (fn [req]
-                              (let [app (req-util/parse-body req :app)]
+                              (let [app (req-util/parse-body req)]
                                 (app-handler/create-app! db app)))}
 
             :get {:summary "query apps"
                   :parameters {:query :bs/query}
                   :handler (fn [req]
-                             (let [query (req-util/parse-default-page req)]
+                             (let [query (req-util/parse-opts req)]
                                (app-handler/query-apps db query)))}}]
 
        ["/:id" {:parameters {:path int?}}
@@ -239,7 +239,7 @@
        ["" {:get {:summary "get app access logs"
                   :parameters {:query :bs/query}
                   :handler (fn [req]
-                             (let [query (req-util/parse-default-page req)]
+                             (let [query (-> req req-util/parse-opts)]
                                (app-handler/query-app-access-logs db query)))}}]]
 
       ["/files"

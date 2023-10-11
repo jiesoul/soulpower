@@ -1,4 +1,4 @@
-(ns backend.spec 
+(ns backend.spec
   (:require [clojure.spec.alpha :as s]))
 
 (s/def :bs/not-empty-string (s/and string? #(> (count %) 0)))
@@ -18,7 +18,7 @@
   (s/keys :opt-un [:bs/page :bs/page-size :bs/sort :bs/filter :bs/q]))
 
 (s/def :bs/username :bs/name)
-(s/def :bs/login-user 
+(s/def :bs/login-user
   (s/keys :req-un [:bs/username :bs/password]))
 
 (s/def :bs/nickname string?)

@@ -9,7 +9,7 @@
         t-sql "select count(1) as c from tag"
         [q-sql t-sql] (du/query->sql opts q-sql t-sql)
         tags (sql/query db q-sql {:builder-fn rs/as-unqualified-maps})
-        total (:c (first (sql/query db t-sql)))] 
+        total (:c (first (sql/query db t-sql)))]
     {:list tags
      :total total}))
 
@@ -20,10 +20,10 @@
   (sql/insert! db :tag tags {:return-keys true}))
 
 (defn update! [db tag]
-  (:next.jdbc/update-count (sql/update! db :tag tag {:id (:id tag)})))
+  (sql/update! db :tag tag {:id (:id tag)}))
 
 (defn delete! [db id]
-  (:next.jdbc/update-count (sql/delete! db :tag {:id id})))
+  (sql/delete! db :tag {:id id}))
 
 (defn get-by-id [db id]
   (sql/get-by-id db :tag id {:builder-fn rs/as-unqualified-maps}))

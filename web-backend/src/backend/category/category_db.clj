@@ -7,7 +7,7 @@
   (try
     (let [q-sql "select * from category "
           t-sql "select count(1) as c from category "
-          [q t] (du/page->sql opts q-sql t-sql)
+          [q t] (du/query->sql opts q-sql t-sql)
           categories (sql/query db q {:builder-fn rs/as-unqualified-maps})
           total (:c (first (sql/query db t)))]
       {:list categories
@@ -22,10 +22,10 @@
       (throw (ex-info "create category error" se)))))
 
 (defn update! [db category]
-  (:next.jdbc/update-count (sql/update! db :category category {:id (:id category)})))
+  (sql/update! db :category category {:id (:id category)}))
 
 (defn delete! [db id]
-  (:next.jdbc/update-count (sql/delete! db :category {:id id})))
+  (sql/delete! db :category {:id id}))
 
 (defn get-by-id [db id]
   (sql/get-by-id db :category id {:builder-fn rs/as-unqualified-kebab-maps}))
