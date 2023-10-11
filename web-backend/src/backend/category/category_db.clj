@@ -1,7 +1,6 @@
 (ns backend.category.category-db
   (:require [next.jdbc.sql :as sql]
             [backend.util.db-util :as du]
-            [clojure.tools.logging :as log]
             [next.jdbc.result-set :as rs]))
 
 (defn query-categories [db opts]
