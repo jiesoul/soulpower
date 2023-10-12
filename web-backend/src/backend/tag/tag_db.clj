@@ -1,8 +1,7 @@
 (ns backend.tag.tag-db
   (:require [backend.util.db-util :as du]
             [next.jdbc.result-set :as rs]
-            [next.jdbc.sql :as sql]
-            [clojure.tools.logging :as log]))
+            [next.jdbc.sql :as sql]))
 
 (defn query [db opts]
   (let [q-sql "select * from tag"

@@ -32,13 +32,13 @@
      :total total}))
 
 (defn save-app-category! [db app-category]
-  (sql/insert! db :app app-category unqualified-snake-kebab-opts))
+  (sql/insert! db :app-category app-category unqualified-snake-kebab-opts))
 
 (defn get-app-category-by-id [db id]
-  (sql/get-by-id db :app-category id {:builder-fn rs/as-unqualified-maps}))
+  (sql/get-by-id db :app_category id {:builder-fn rs/as-unqualified-maps}))
 
 (defn delete-app-category-by-id! [db id]
-  (sql/delete! db :app-category {:id id}))
+  (sql/delete! db :app_category {:id id}))
 
 (defn query-app-access-logs [db opts]
   (let [q-sql "select * from app_access_log "

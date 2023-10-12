@@ -34,7 +34,7 @@
 
 (defn parse-opts
   [req]
-  (-> req parse-query parents))
+  (-> req (parse-query) (parse-default-page)))
 
 (defn push-query-filter [{:keys [filter] :as query} fs]
   (let [filter (str "( " fs " ) and (" filter ")")]
