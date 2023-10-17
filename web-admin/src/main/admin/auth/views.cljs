@@ -11,16 +11,15 @@
   {:username "" :password ""})
 
 (defn login []
-  (let [
-        login-user (re-frame/subscribe [:login-user])]
+  (let [login-user (re-frame/subscribe [:login-user])]
     (fn []
       (let [login-data (r/atom (empty-creds))
             _ (when @login-user (re-frame/dispatch [:navigate ::views/dashboard]))
-            title "Sign in to your account"] 
+            title "Sign in to your account"]
         [:div {:class css/form-b-c}
          [toasts]
          [:div {:class css/form-b-t}
-           [:h2 {:class css/form-b-t-h-2} title]]
+          [:h2 {:class css/form-b-t-h-2} title]]
          [:div {:class css/form-b-m}
           [:div {:class "space-y-4"}
            [form-input {:label "Username"

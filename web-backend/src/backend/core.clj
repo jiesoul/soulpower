@@ -200,7 +200,7 @@
 (defn -main [& args]
   (log/info "System starting... ")
   (log/info "System args: " args)
-  (let [config (system-config-start args)
+  (let [config (system-config-start (first args))
         _ (log/info "Config:" config)]
     (ig-repl/set-prep! (constantly config))
     (ig-repl/go)))

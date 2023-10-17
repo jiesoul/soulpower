@@ -1,9 +1,9 @@
-(ns admin.http 
- (:require [ajax.core :as ajax]
-           [admin.util :as util]
-           [clojure.string :as str]
-           [cljs.reader :as rdr]
-           [re-frame.core :as re-frame]))
+(ns admin.http
+  (:require [ajax.core :as ajax]
+            [admin.util :as util]
+            [clojure.string :as str]
+            [cljs.reader :as rdr]
+            [re-frame.core :as re-frame]))
 
 (def ^:private api-base "http://localhost:8088")
 
@@ -16,7 +16,8 @@
 (defn gen-headers [db]
   (let [token (get-in db [:login-user :token])
         header (cond-> {:Accept "application/json" :Content-Type "application/json"}
-                 token (assoc :authorization (str "Token " token)))]
+                 token (assoc :authorization (str "Token " token)))
+        _ (util/clog "header" header)]
     header))
 
 (defn add-epoch
@@ -43,8 +44,8 @@
                        :on-success on-success
                        :on-failure (if on-failure
                                      on-failure
-                                     #(re-frame/dispatch [:req-failed-message]))}
-                      data (assoc :params (if (= method :get) (gen-fitler-sort data) data)))
+                                     [:req-failed-message])}
+                data (assoc :params (if (= method :get) (gen-fitler-sort data) data)))
         _ (util/clog "http" uri)
         _ (util/clog "data" data)]
     {:http-xhrio xhrio

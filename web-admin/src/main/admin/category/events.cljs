@@ -12,7 +12,7 @@
 (re-frame/reg-event-db
  :query-categories-ok
  (fn [db [_ resp]]
-   (assoc-in db [:category :data] (:data resp))))
+   (assoc-in db [:category] resp)))
 
 (re-frame/reg-event-fx
  :query-categories
@@ -38,7 +38,7 @@
                      {:category category}
                      [:add-category-ok])))
 
-(re-frame/reg-event-db 
+(re-frame/reg-event-db
  :set-category-edit
  (fn [db [_ category]]
    (assoc-in db [:category :edit] category)))

@@ -1,9 +1,9 @@
-(ns admin.category.views 
+(ns admin.category.views
   (:require [clojure.string :as str]
             [admin.events]
             [admin.subs]
             [admin.shared.buttons :refer [btn-new btn-query btn-edit btn-del
-                                             red-button]]
+                                          red-button]]
             [admin.shared.css :as css]
             [admin.shared.form-input :refer [text-input-backend query-input-text]]
             [admin.shared.layout :refer [layout]]
@@ -16,7 +16,7 @@
 
 (defn check-name [v]
   (f-util/clog "check name")
-  (if (or (nil? v) (str/blank? v)) 
+  (if (or (nil? v) (str/blank? v))
     (reset! name-error "名称不能为空")
     (reset! name-error nil)))
 
@@ -77,14 +77,14 @@
                                              (:id e)
                                              [[:dispatch [:set-modal {:show? true
                                                                       :title "Category Edit"
-                                                                      :child edit-form}]]]])} 
+                                                                      :child edit-form}]]]])}
     "Edit"]
    [:span {:class css/divi} "|"]
    [btn-del {:on-click #(re-frame/dispatch [:get-category
                                             (:id e)
                                             [[:dispatch [:set-modal {:show? true
-                                                                    :title "Category Delete"
-                                                                    :child delete-form}]]]])} 
+                                                                     :title "Category Delete"
+                                                                     :child delete-form}]]]])}
     "Del"]])
 
 (def columns [{:key :name :title "Name"}
@@ -95,7 +95,7 @@
   ;; page query form
   (let [default-pagination (re-frame/subscribe [:default-pagination])]
     (fn []
-      (let [q-data (r/atom (assoc @default-pagination 
+      (let [q-data (r/atom (assoc @default-pagination
                                   :event :query-categories))]
         [:form
          [:div {:class "grid grid-cols-4 gap-3"}
@@ -115,8 +115,8 @@
     (fn []
       [table-admin (assoc @datasources :columns columns)])))
 
-(defn index [] 
-    [layout
-     [:<>
-      [query-form]
-      [data-table]]])
+(defn index []
+  [layout
+   [:<>
+    [query-form]
+    [data-table]]])

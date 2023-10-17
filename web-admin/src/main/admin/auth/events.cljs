@@ -13,9 +13,9 @@
 (reg-event-fx
  :login!
  (fn [{:keys [db]} [_ user-data]]
-   (http/http-post (assoc-in db [:loaading :login] true) 
-                   (http/api-uri "login") 
-                   user-data 
+   (http/http-post (assoc-in db [:loading :login] true)
+                   (http/api-uri-admin "login")
+                   user-data
                    [:login-ok])))
 
 (reg-event-fx
@@ -23,8 +23,8 @@
  set-user-interceptor
  (fn [{db :db} [res-body]]
    (let [_ (util/clog "res body: " res-body)]
-     {:db (-> db 
-              (merge (:user (:data res-body)))
+     {:db (-> db
+              (merge (:user res-body))
               (update-in [:loading] dissoc :login))})))
 
 (reg-event-fx

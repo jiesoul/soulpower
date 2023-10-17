@@ -21,10 +21,10 @@
  (fn [route]
    (apply rfe/push-state route)))
 
-(reg-fx 
- :timeout 
+(reg-fx
+ :timeout
  (fn [{:keys [event time]}]
-   (js/setTimeout 
+   (js/setTimeout
     (fn []
       (dispatch event))
     time)))
@@ -36,7 +36,7 @@
  [(inject-cofx :local-store-user)]
  (fn [{:keys [local-store-user]} _]
    (let [db (assoc default-db :login-user local-store-user)]
-   {:db db})))
+     {:db db})))
 
 (reg-event-fx
  :navigate
@@ -71,8 +71,8 @@
 ;; server error handler
 (reg-event-fx
  :req-failed-message
- (fn [{:keys [db]} [_ {:keys [response]}]]
-   (util/clog "resp failed: " response)
+ (fn [{:keys [db]} [_ response]]
+   (util/clog "resp failed " response)
    {:db (dissoc db :loading)
     :fx [[:dispatch [:push-toast {:content (:message response)
                                   :type :error}]]]}))
