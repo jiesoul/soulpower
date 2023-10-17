@@ -36,12 +36,11 @@
        ["" {:get {:summary "Query users"
                   :parameters {:query :bs/query}
                   :handler (fn [req]
-                             (let [query (-> req
-                                             req-util/parse-query
-                                             req-util/parse-default-page)]
+                             (let [query (-> req req-util/parse-opts)]
                                (user-handler/query-users db query)))}}]
 
        ["/:id" {:parameters {:path {:id pos-int?}}}
+
         ["" {:get {:summary "Get a user"
                    :handler (fn [req]
                               (let [id (req-util/parse-path req :id)]
@@ -51,7 +50,7 @@
                      :parameters {:body :bs/UserProfile}
                      :handler (fn [req]
                                 (let [id (req-util/parse-path req :id)
-                                      user-profile (req-util/parse-body req)]
+                                      user-profile (req-util/parse-body req :user-profile)]
                                   (user-handler/update-user-profile! db id user-profile)))}}]
 
         ["/password"
@@ -67,7 +66,7 @@
        ["" {:get {:summary "Query categories"
                   :parameters {:query :bs/query}
                   :handler (fn [req]
-                             (let [query (-> req req-util/parse-query req-util/parse-default-page)]
+                             (let [query (req-util/parse-opts req)]
                                (category-handler/query-categories db query)))}
 
             :post {:summary "New a category"
@@ -85,7 +84,6 @@
                 :patch {:summary "Update a category"
                         :parameters {:path {:id pos-int?}
                                      :body :bs/Category}
-
                         :handler (fn [req]
                                    (let [id (req-util/parse-path req :id)
                                          category (req-util/parse-body req)]
@@ -102,7 +100,7 @@
        ["" {:get {:summary "Query tags"
                   :parameters {:query :bs/query}
                   :handler (fn [req]
-                             (let [opt (req-util/parse-default-page req)]
+                             (let [opt (req-util/parse-opts req)]
                                (tag-handler/query-tags db opt)))}
 
             :post {:summary "New a tag"
@@ -135,16 +133,17 @@
        ["" {:get {:summary "Query articles"
                   :parameters {:query :bs/query}
                   :handler (fn [req]
-                             (let [opt (req-util/parse-default-page req)]
+                             (let [opt (req-util/parse-opts req)]
                                (article-handler/query-articles db opt)))}
 
             :post {:summary "New a article"
                    :parameters {:body :bs/Article}
                    :handler (fn [req]
-                              (let [article (req-util/parse-body req)]
+                              (let [article (req-util/parse-body req :article)]
                                 (article-handler/create-article! db article)))}}]
 
        ["/:id"
+
         ["" {:get {:summary "Get a article"
                    :parameters {:path {:id string?}}
                    :handler (fn [req]
@@ -178,33 +177,37 @@
        ["" {:get {:summary "Query all comments"
                   :parameters {:query :bs/query}
                   :handler (fn [req]
-                             (let [query (req-util/parse-default-page req)]
+                             (let [query (req-util/parse-opts req)]
                                (article-comment-handler/query-articles-comments db query)))}}]
-       ["/:id"
-        ["" {:get {:summary "Get a comment"
-                   :parameters {:path {:id pos-int?}}
-                   :handler (fn [req]
-                              (let [id (req-util/parse-path req :id)]
-                                (article-comment-handler/get-articles-comments-by-id db id)))}
 
-             :delete {:summary "Delete a comment"
+       ["/:id" {:get {:summary "Get a comment"
                       :parameters {:path {:id pos-int?}}
                       :handler (fn [req]
                                  (let [id (req-util/parse-path req :id)]
-                                   (article-comment-handler/delete-article-comment! db id)))}}]]]
+                                   (article-comment-handler/get-articles-comments-by-id db id)))}
+
+                :delete {:summary "Delete a comment"
+                         :parameters {:path {:id pos-int?}}
+                         :handler (fn [req]
+                                    (let [id (req-util/parse-path req :id)]
+                                      (article-comment-handler/delete-article-comment! db id)))}}]]
 
       ["/app-categories" {:swagger {:tags ["App Categories"]}}
-       ["" {:get {:summary "get app categories"
+
+       ["" {:get {:summary "query app categories"
                   :parameters {:query :bs/query}
                   :handler (fn [req]
-                             (let [query (req-util/parse-query req)]
+                             (let [query (req-util/parse-opts req)]
                                (app-handler/query-app-categories db query)))}
+
             :post {:summary "add a app category"
                    :parameters {:body :bs/App-Category}
                    :handler (fn [req]
                               (let [app-category (req-util/parse-body req)]
                                 (app-handler/create-app-category! db app-category)))}}]
+
        ["/:id"
+
         ["" {:get {:summary "Get a App Category"
                    :parameters {:path {:id string?}}
                    :handler (fn [req]
@@ -218,38 +221,47 @@
                                    (app-handler/delete-app-category-by-id! db id)))}}]]]
 
       ["/apps" {:swagger {:tags  ["App"]}}
-       ["" {:get {:summary "query apps"
+
+       ["" {:post {:summary "reg a app"
+                   :parameters {:body :bs/App}
+                   :handler (fn [req]
+                              (let [app (req-util/parse-body req :app)]
+                                (app-handler/create-app! db app)))}
+
+            :get {:summary "query apps"
                   :parameters {:query :bs/query}
                   :handler (fn [req]
                              (let [query (req-util/parse-opts req)]
-                               (app-handler/query-apps db query)))}
+                               (app-handler/query-apps db query)))}}]
 
-            :post {:summary "reg a app"
-                   :parameters {:body :bs/App}
-                   :handler (fn [req]
-                              (let [app (req-util/parse-body req)]
-                                (app-handler/create-app! db app)))}}]
-       ["/:id"
+       ["/:id" {:parameters {:path int?}}
+
         ["" {:get {:summary "get a App"
-                   :parameters {:path {:id string?}}
-                   :handler (fn [req]
-                              (let [id (req-util/parse-path req :id)]
-                                (app-handler/get-app-by-id db id)))}}]]]
+                   :handler (fn [req])}}]]]
 
-      ["/files" {:swagger {:tags ["files"]}}
+      ["/app-access-logs" {:swagger {:tags ["App Access Log"]}}
+
+       ["" {:get {:summary "get app access logs"
+                  :parameters {:query :bs/query}
+                  :handler (fn [req]
+                             (let [query (req-util/parse-opts req)]
+                               (app-handler/query-app-access-logs db query)))}}]]
+
+      ["/files"
+       {:swagger {:tags ["files"]}}
+
        ["/upload" {:post {:summary "upload a file"
                           :parameters {:multipart {:file reitit-multipart/temp-file-part}}
                           :handler (fn [{{{:keys [file]} :multipart} :parameters}]
                                      {:status 200
-                                      :headers {"Content-Type" "image/png"}
-                                      :body (-> "reitit.png"
-                                                (io/resource)
-                                                (io/input-stream))})}}]
+                                      :body {:file file}})}}]
 
-       ["/download" {:post {:summary "download a file"
-                            :handler (fn [_]
-                                       {:status 200
-                                        :headers {"Content-Type" "image/png"}
-                                        :body (-> "reitit.png"
-                                                  (io/resource)
-                                                  (io/input-stream))})}}]]]]))
+       ["/download" {:get {:summary "downloads a file"
+                           :swagger {:produces ["image/png"]}
+                           :parameters {}
+                           :handler (fn [_]
+                                      {:status 200
+                                       :headers {"Content-Type" "image/png"}
+                                       :body (-> "reitit.png"
+                                                 (io/resource)
+                                                 (io/input-stream))})}}]]]]))

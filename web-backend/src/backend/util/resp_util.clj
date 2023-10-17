@@ -8,7 +8,7 @@
   [status]
   (fn [e request]
     (let [message (ex-message e)
-          _ (log/error "ERROR coercion trace: " e)]
+          _ (log/error "ERROR coercion trace: " (coercion/encode-error (ex-data e)))]
       {:status status
        :body {:error {:message message
                       :uri (:uri request)
@@ -28,9 +28,9 @@
                      :details (ex-data exception)
                      :uri (:uri request)}}}))
 
-(defn response 
+(defn response
   ([] (response nil))
-  ([body] {:status 200 
+  ([body] {:status 200
            :body body}))
 
 (defn created
@@ -47,14 +47,13 @@
    {:status  204
     :body    body}))
 
-
 (defn redirect [url & data]
   (resp/redirect {:status  302
                   :headers {"Location" url}
                   :data data}))
 
 (defn bad-request [error]
-  (let [error (merge {:exception "bad-request"} 
+  (let [error (merge {:exception "bad-request"}
                      error)
         _ (log/error "ERROR: " error)]
     {:status  400
@@ -75,14 +74,15 @@
                :exception "unauthorized"
                :uri uri}
         _ (log/error "ERROR: " error)]
-  {:status 401
-   :body {:error error}}))
+    {:status 401
+     :body {:error error}}))
 
 (defn not-found
   "Returns a 404 'not found' response."
-  []
+  [uri]
   (let [error {:message "资源不存在."
-               :exception "not found"}
+               :exception "not found"
+               :uri uri}
         _ (log/error "ERROR: " error)]
     {:status  404
      :body    {:error error}}))

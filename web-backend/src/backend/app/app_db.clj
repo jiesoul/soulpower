@@ -2,25 +2,8 @@
   (:require [backend.util.db-util :as du]
             [next.jdbc :refer [unqualified-snake-kebab-opts]]
             [next.jdbc.result-set :as rs]
-            [next.jdbc.sql :as sql]))
-
-(defn query-apps [db opts]
-  (let [qsql " select * from app "
-        tsql " select count(1) :as c from app "
-        [q t] (du/query->sql opts qsql tsql)
-        list (sql/query db q {:builder-fn rs/as-unqualified-kebab-maps})
-        total (:c (first (sql/query db t)))]
-    {:list list
-     :total total}))
-
-(defn save-app! [db app]
-  (sql/insert! db :app app unqualified-snake-kebab-opts))
-
-(defn get-app-by-id [db id]
-  (sql/get-by-id db :app id {:builder-fn rs/as-unqualified-maps}))
-
-(defn delete-app-by-id! [db id]
-  (sql/delete! db :app {:id id}))
+            [next.jdbc.sql :as sql]
+            [backend.util.resp-util :as resp-util]))
 
 (defn query-app-categories [db opts]
   (let [q-sql "select * from app_category"
@@ -32,13 +15,35 @@
      :total total}))
 
 (defn save-app-category! [db app-category]
-  (sql/insert! db :app-category app-category unqualified-snake-kebab-opts))
+  (sql/insert! db :app_category app-category unqualified-snake-kebab-opts))
 
 (defn get-app-category-by-id [db id]
   (sql/get-by-id db :app_category id {:builder-fn rs/as-unqualified-maps}))
 
 (defn delete-app-category-by-id! [db id]
   (sql/delete! db :app_category {:id id}))
+
+(defn query-apps [db opts]
+  (let [qsql " select * from app "
+        tsql " select count(1) as c from app "
+        [q t] (du/query->sql opts qsql tsql)
+        list (sql/query db q {:builder-fn rs/as-unqualified-kebab-maps})
+        total (:c (first (sql/query db t)))]
+    {:list list
+     :total total}))
+
+(defn save-app! [db app]
+  (let [{:keys [app-category-id]} app
+        app-category (get-app-category-by-id db app-category-id)]
+    (if-not app-category
+      (resp-util/bad-request {:message "app category not found"})
+      (sql/insert! db :app app unqualified-snake-kebab-opts))))
+
+(defn get-app-by-id [db id]
+  (sql/get-by-id db :app id {:builder-fn rs/as-unqualified-maps}))
+
+(defn delete-app-by-id! [db id]
+  (sql/delete! db :app {:id id}))
 
 (defn query-app-access-logs [db opts]
   (let [q-sql "select * from app_access_log "

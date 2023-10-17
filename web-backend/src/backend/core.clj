@@ -38,7 +38,7 @@
 (def version "1.0.0")
 
 (defn routes [env]
-  [["/admin" {:swagger {:id ::admin}} 
+  [["/admin" {:swagger {:id ::admin}}
     ["/swagger.json" {:no-doc true
                       :get {:swagger {:info {:title "my-api"
                                              :description "web backend api"
@@ -50,10 +50,10 @@
                       :get {:handler (reitit-swagger-ui/create-swagger-ui-handler
                                       {:config {:validatorUrl nil}
                                        :url "/admin/swagger.json"})}}]
-    
+
     (server/routes env)]
-   
-   ["/api/v1" {:swagger {:id ::api}} 
+
+   ["/api/v1" {:swagger {:id ::api}}
     ["/swagger.json" {:no-doc true
                       :get {:swagger {:info {:title "open-api"
                                              :description "public api, ex: web app,ios,android,wechat"
@@ -65,7 +65,7 @@
                     :get {:handler (reitit-swagger-ui/create-swagger-ui-handler
                                     {:config {:validatorUrl nil}
                                      :url "/api/v1/swagger.json"})}}]
-     (api/routes env)]])
+    (api/routes env)]])
 
 (defn handler
   "Handler."
@@ -155,7 +155,7 @@
 
 ;; init options
 (defmethod ig/init-key :backend/options [_ options]
-  (log/debug"Enter ig/init-key :backend/options:" options)
+  (log/debug "Enter ig/init-key :backend/options:" options)
   options)
 
 ;; nrepl
@@ -167,7 +167,7 @@
 
 (defmethod ig/halt-key! :backend/nrepl [_ this]
   (log/debug "Enter ig/halt-key! :backend/nrepl" this)
-  (if this 
+  (if this
     (nrepl/stop-server this)
     _))
 
