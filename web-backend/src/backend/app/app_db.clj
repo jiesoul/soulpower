@@ -4,7 +4,6 @@
             [next.jdbc.result-set :as rs]
             [next.jdbc.sql :as sql]
             [backend.util.resp-util :as resp-util]))
-
 (defn query-app-categories [db opts]
   (let [q-sql "select * from app_category"
         t-sql "select count(1) as c from app_category "
@@ -36,7 +35,7 @@
   (let [{:keys [app-category-id]} app
         app-category (get-app-category-by-id db app-category-id)]
     (if-not app-category
-      (resp-util/bad-request {:message "app category not found"})
+      (throw (ex-info "app category not found" {:type ::failure}))
       (sql/insert! db :app app unqualified-snake-kebab-opts))))
 
 (defn get-app-by-id [db id]

@@ -225,7 +225,7 @@
        ["" {:post {:summary "reg a app"
                    :parameters {:body :bs/App}
                    :handler (fn [req]
-                              (let [app (req-util/parse-body req :app)]
+                              (let [app (req-util/parse-body req)]
                                 (app-handler/create-app! db app)))}
 
             :get {:summary "query apps"
@@ -234,10 +234,19 @@
                              (let [query (req-util/parse-opts req)]
                                (app-handler/query-apps db query)))}}]
 
-       ["/:id" {:parameters {:path int?}}
+       ["/:id"
 
         ["" {:get {:summary "get a App"
-                   :handler (fn [req])}}]]]
+                   :parameters {:path  {:id string?}}
+                   :handler (fn [req]
+                              (let [id (req-util/parse-path req :id)]
+                                (app-handler/get-app-by-id db id)))}
+
+             :delete {:summary "delete a App"
+                      :parameters {:path {:id string?}}
+                      :handler (fn [req]
+                                 (let [id (req-util/parse-path req :id)]
+                                   (app-handler/delete-app-by-id! db id)))}}]]]
 
       ["/app-access-logs" {:swagger {:tags ["App Access Log"]}}
 

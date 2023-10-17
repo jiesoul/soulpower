@@ -78,14 +78,15 @@
      :body {:error error}}))
 
 (defn not-found
-  "Returns a 404 'not found' response."
-  [uri]
-  (let [error {:message "资源不存在."
-               :exception "not found"
-               :uri uri}
-        _ (log/error "ERROR: " error)]
-    {:status  404
-     :body    {:error error}}))
+  ([] (not-found nil))
+  ([error]
+   (let [error (merge {:message "资源不存在."
+                       :exception "not found"}
+                      error)
+
+         _ (log/error "ERROR: " error)]
+     {:status  404
+      :body    {:error error}})))
 
 
 
