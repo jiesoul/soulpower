@@ -91,19 +91,19 @@
     [(str " order by " sort) []]
     ["" []]))
 
-(defn query->sql 
+(defn query->sql
   ([query qsql] (query->sql query qsql nil))
   ([{:keys [page page-size sort filter] :as query} qsql tsql]
    (let [_ (log/debug "Query: " query)
          _ (log/debug "query sql: " qsql)
          _ (log/debug "Total sql: " tsql)
          [ps pv] (page->sql page page-size)
-         _ (log/debug "pagination: " ps pv)
          [ss _] (sort->sql sort)
          _ (log/debug "sort: " ss)
          [fs fv] (filter->sql filter)
          _ (log/debug "Where: " fs fv)
          rs [(into [(str/join " " [qsql fs ss ps])] (into fv pv))
              (if tsql (into [(str/join " " [tsql fs])] fv) tsql)]
+         _ (log/debug "Result: " rs)
          _ (log/debug "Result: " rs)]
      rs)))
