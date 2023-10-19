@@ -18,79 +18,79 @@
 
 (def routes
   ["/"
-   
-   ["" {:name ::login
-        :view auth/login
-        :link-text "Login"
-        :controllers [{:start (fn [& params] 
-                                (js/console.log (str "Entering login, params: " params)))
-                       :stop (fn [& params] 
-                               (js/console.log (str "Leaving login, params: " params)))}]}]
 
-   ["dashboard" {:name ::views/dashboard
-                 :view dashboard/index
-                 :link-text "Dashboard"
-                 :controllers [{:start (fn [& params] 
-                                         (js/console.log (str "Entering Dashboard, params: " params)))
-                                :stop (fn [& params] 
-                                        (js/console.log (str "Leaving Dashboard, params: " params)))}]}]
+   ["login" {:name ::login
+             :view auth/login
+             :link-text "Login"
+             :controllers [{:start (fn [& params]
+                                     (js/console.log (str "Entering login, params: " params)))
+                            :stop (fn [& params]
+                                    (js/console.log (str "Leaving login, params: " params)))}]}]
 
-   ["categorie" {:name ::views/category
-                  :view category/index
-                  :link-text "Category"
-                  :controllers [{:start (fn [& params]
-                                          (re-frame/dispatch [:init-category])
-                                          (js/console.log (str "Entering Category, params: " params)))
-                                 :stop (fn [& params] 
-                                         
-                                         (js/console.log (str "Leaving Category, params: " params)))}]}]
+   ["" {:name ::views/dashboard
+        :view dashboard/index
+        :link-text "Dashboard"
+        :controllers [{:start (fn [& params]
+                                (js/console.log (str "Entering Dashboard, params: " params)))
+                       :stop (fn [& params]
+                               (js/console.log (str "Leaving Dashboard, params: " params)))}]}]
+
+   ["category" {:name ::views/category
+                :view category/index
+                :link-text "Category"
+                :controllers [{:start (fn [& params]
+                                        (re-frame/dispatch [:init-category])
+                                        (js/console.log (str "Entering Category, params: " params)))
+                               :stop (fn [& params]
+
+                                       (js/console.log (str "Leaving Category, params: " params)))}]}]
 
    ["tag" {:name ::views/tag
-            :view tag/index
-            :link-text "Tag"
-            :controllers [{:start (fn [& params] 
-                                    (re-frame/dispatch [:init-tag])
-                                    (js/console.log (str "Entering Tag, params: " params)))
-                           :stop (fn [& params] 
-                                   (js/console.log (str "Leaving Tag, params: " params)))}]}] 
-   
+           :view tag/index
+           :link-text "Tag"
+           :controllers [{:start (fn [& params]
+                                   (re-frame/dispatch [:init-tag])
+                                   (js/console.log (str "Entering Tag, params: " params)))
+                          :stop (fn [& params]
+                                  (js/console.log (str "Leaving Tag, params: " params)))}]}]
+
    ["article" {:name ::views/article
-                :view article/index
-                :link-text "Article"
-                :controllers [{:start (fn [& params] 
-                                        (re-frame/dispatch [:init-article])
-                                        (js/console.log (str "Entering Article, params: " params)))
-                               :stop (fn [& params] (js/console.log (str "Leaving Article, params: " params)))}]}]
-   
+               :view article/index
+               :link-text "Article"
+               :controllers [{:start (fn [& params]
+                                       (re-frame/dispatch [:init-article])
+                                       (js/console.log (str "Entering Article, params: " params)))
+                              :stop (fn [& params] (js/console.log (str "Leaving Article, params: " params)))}]}]
+
    ["article-comment" {:name ::views/article-comment
-                         :view article-comment/index
-                         :link-text "Articles Comments"
-                         :controllers [{:start (fn [& params]
-                                                 (re-frame/dispatch [:init-article-comment])
-                                                 (js/console.log (str "Entering Articles Comments, params: " params)))
-                                        :stop (fn [& params] (js/console.log (str "Leaving Articles Comments, params: " params)))}]}]
-   
+                       :view article-comment/index
+                       :link-text "Articles Comments"
+                       :controllers [{:start (fn [& params]
+                                               (re-frame/dispatch [:init-article-comment])
+                                               (js/console.log (str "Entering Articles Comments, params: " params)))
+                                      :stop (fn [& params] (js/console.log (str "Leaving Articles Comments, params: " params)))}]}]
+
    ["user" {:name ::views/user
             :view user/index
             :link-text "User"
             :controllers [{:start (fn [& params]
                                     (js/console.log (str "Entering User, params: " params)))
                            :stop (fn [& params] (js/console.log (str "Leaving User, params: " params)))}]}]
-   
+
    ["user/profile" {:name ::views/user-profile
                     :view user/profile-page
                     :link-text "User Profile"
                     :controllers [{:start (fn [& params]
                                             (js/console.log (str "Entering User Profile, params: " params)))
                                    :stop (fn [& params] (js/console.log (str "Leaving User Profile, params: " params)))}]}]
-   
+
    ["user/password" {:name ::views/user-change-password
-                            :view user/password-page
-                            :link-text "Change Password"
-                            :controllers [{:start (fn [& params]
-                                                    (js/console.log (str "Entering Change Password, params: " params)))
-                                           :stop (fn [& params] 
-                                                   (js/console.log (str "Leaving Change Password, params: " params)))}]}]])
+                     :view user/password-page
+                     :link-text "Change Password"
+                     :controllers [{:start (fn [& params]
+                                             (js/console.log (str "Entering Change Password, params: " params)))
+                                    :stop (fn [& params]
+                                            (js/console.log (str "Leaving Change Password, params: " params)))}]}]])
 
 (def router
   (rf/router

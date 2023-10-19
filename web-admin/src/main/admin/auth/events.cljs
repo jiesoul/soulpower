@@ -24,8 +24,8 @@
  (fn [{db :db} [res-body]]
    (let [_ (util/clog "res body: " res-body)]
      {:db (-> db
-              (merge (:user res-body))
-              (update-in [:loading] dissoc :login))})))
+              (merge res-body)
+              (assoc-in [:loading :login] nil))})))
 
 (reg-event-fx
  :logout!

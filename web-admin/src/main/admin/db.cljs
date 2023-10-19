@@ -28,16 +28,16 @@
 (reg-cofx
  :local-store-user
  (fn [cofx _]
-   (assoc cofx :local-store-user  
+   (assoc cofx :local-store-user
           (-> (.getItem js/localStorage login-user-key)
               (cljs.reader/read-string)))))
 
-(reg-cofx 
- :now 
+(reg-cofx
+ :now
  (fn [cofx _]
    (assoc cofx :now (js/Date.))))
 
 (reg-cofx
- :uuid 
+ :uuid
  (fn [cofx _]
    (assoc cofx :uuid (keyword (str (random-uuid))))))

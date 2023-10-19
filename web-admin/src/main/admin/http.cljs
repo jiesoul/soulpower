@@ -16,8 +16,7 @@
 (defn gen-headers [db]
   (let [token (get-in db [:login-user :token])
         header (cond-> {:Accept "application/json" :Content-Type "application/json"}
-                 token (assoc :authorization (str "Token " token)))
-        _ (util/clog "header" header)]
+                 token (assoc :authorization (str "Token " token)))]
     header))
 
 (defn add-epoch
