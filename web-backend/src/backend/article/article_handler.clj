@@ -56,7 +56,7 @@
               _ (article-db/push! db id (assoc article
                                                :push-time push-time
                                                :push-flag 1))]
-          (resp/created (str "/articles/" id)))))))
+          (resp-util/created (str "/articles/" id)))))))
 
 (defn get-pushed-articles [db]
   (fn [req]
@@ -80,6 +80,6 @@
     (let [id (req-util/parse-path req :id)
           c (req-util/parse-body req :like)
           _ (article-db/update-article-like-count! db id c)]
-      (resp/created (str "/articles/" id)))))
+      (resp-util/created (str "/articles/" id)))))
 
 

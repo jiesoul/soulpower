@@ -4,7 +4,8 @@
             [buddy.hashers :as buddy-hashers]
             [clojure.instant :as instant]
             [clojure.tools.logging :as log]
-            [backend.util.req-uitl :as req-util]))
+            [backend.util.req-uitl :as req-util]
+            [backend.util.resp-util :as resp-util]))
 
 (defn query-users [db]
   (fn [req]
@@ -31,7 +32,7 @@
           _ (log/debug "update user profile result: " rs)]
       (if (zero? rs)
         (resp/bad-request {:error {:message "User not exist."}})
-        (resp/created (str "/users/" id))))))
+        (resp-util/created (str "/users/" id))))))
 
 (defn update-user-password! [db]
   (fn [req]

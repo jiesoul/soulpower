@@ -1,7 +1,6 @@
 (ns backend.article.comment-handler
   (:require [backend.article.comment-db :as comment-db]
             [ring.util.response :as resp]
-            [clojure.tools.logging :as log]
             [backend.util.req-uitl :as req-util]))
 
 (defn query-articles-comments [db]

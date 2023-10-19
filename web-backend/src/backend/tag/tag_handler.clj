@@ -18,7 +18,7 @@
         (resp/bad-request {:error {:message (str "Tag: <" name "> has been created")}})
         (let [id (tag-db/create! db tag)
               _ (log/debug "create tag: " id)]
-          (resp/created (str "/tags/" id)))))))
+          (resp-util/created (str "/tags/" id)))))))
 
 (defn get-tag [db]
   (fn [req]
@@ -30,7 +30,7 @@
   (fn [req]
     (let [tag (req-util/parse-body req)
           _ (tag-db/update! db tag)]
-      (resp/created (str "/tags/" (:id tag))))))
+      (resp-util/created (str "/tags/" (:id tag))))))
 
 (defn delete-tag! [db]
   (fn [req]

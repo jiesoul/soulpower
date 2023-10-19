@@ -17,7 +17,7 @@
     (let [app-category (req-util/parse-body req)
           id (app-db/save-app-category! db app-category)
           uri (str "/app-categories/" id)]
-      (resp/created uri))))
+      (resp-util/created uri))))
 
 (defn get-app-category-by-id [db]
   (fn [req]
@@ -50,7 +50,7 @@
       (if app-category
         (let [_ (app-db/save-app! db (assoc app :id app-id))
               uri (str "/app/" app-id)]
-          (resp/created uri))
+          (resp-util/created uri))
         (resp/not-found {:error {:message "app category not found"}})))))
 
 (defn get-app-by-id [db]

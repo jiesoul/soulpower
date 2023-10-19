@@ -21,7 +21,7 @@
       (if cs
         (resp/bad-request {:error {:message (str "category name " name " is exits!!")}})
         (let [category (category-db/create! db category)]
-          (resp/created (str "/categories/" (:id category))))))))
+          (resp-util/created (str "/categories/" (:id category))))))))
 
 (defn get-category
   "Get a Category by id"
@@ -40,7 +40,7 @@
           rs (category-db/update! db category)]
       (if (zero? rs)
         (resp/bad-request {:error {:message "资源未找到"}})
-        (resp/created (str "/categories/" (:id category)))))))
+        (resp-util/created (str "/categories/" (:id category)))))))
 
 (defn delete-category!
   "Delete Category by id"

@@ -27,9 +27,16 @@
                      :details (ex-data exception)
                      :uri (:uri request)}}}))
 
+(defn created
+  ([uri] (created uri {}))
+  ([uri body]
+   {:status 201
+    :uri uri
+    :body body}))
+
 (defn no-content
   "Returns a Ring response for a HTTP 201 created response."
-  ([] (no-content nil))
+  ([] (no-content {}))
   ([body]
    {:status  204
     :body    body}))
