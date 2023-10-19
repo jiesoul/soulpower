@@ -70,7 +70,7 @@
  (fn [{:keys [db]} [_ category]]
    (f-http/http-patch db
                       (f-http/api-uri-admin "categories" (:id category))
-                      {:category category}
+                      category
                       [:update-category-ok])))
 
 (re-frame/reg-event-fx
