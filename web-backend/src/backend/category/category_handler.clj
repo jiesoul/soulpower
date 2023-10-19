@@ -36,8 +36,9 @@
   "Update Category "
   [db]
   (fn [req]
-    (let [category (req-util/parse-body req)
-          rs (category-db/update! db category)]
+    (let [id (req-util/parse-path req :id)
+          category (req-util/parse-body req)
+          rs (category-db/update! db category id)]
       (if (zero? rs)
         (resp/bad-request {:error {:message "资源未找到"}})
         (resp-util/created (str "/categories/" (:id category)))))))
@@ -48,9 +49,7 @@
   (fn [req]
     (let [id (req-util/parse-path req :id)
           rs (category-db/delete! db id)]
-      (if (zero? rs)
-        (resp/bad-request {:error {:message "资源未找到"}})
-        (resp-util/no-content)))))
+      (resp-util/no-content))))
 
 (defn get-all-categories
   "Get All Categories"

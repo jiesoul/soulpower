@@ -104,6 +104,5 @@
          _ (log/debug "Where: " fs fv)
          rs [(into [(str/join " " [qsql fs ss ps])] (into fv pv))
              (if tsql (into [(str/join " " [tsql fs])] fv) tsql)]
-         _ (log/debug "Result: " rs)
          _ (log/debug "Result: " rs)]
      rs)))

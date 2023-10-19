@@ -22,8 +22,8 @@
     (catch java.sql.SQLException se
       (throw (ex-info "create category error" se)))))
 
-(defn update! [db category]
-  (sql/update! db :category category {:id (:id category)}))
+(defn update! [db category id]
+  (sql/update! db :category category {:id id}))
 
 (defn delete! [db id]
   (sql/delete! db :category {:id id}))
