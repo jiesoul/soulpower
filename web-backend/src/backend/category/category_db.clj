@@ -17,7 +17,8 @@
 
 (defn create! [db category]
   (try
-    (sql/insert! db :category category {:return-keys true})
+    (sql/insert! db :category category {:return-keys true
+                                        :builder-fn rs/as-unqualified-kebab-maps})
     (catch java.sql.SQLException se
       (throw (ex-info "create category error" se)))))
 

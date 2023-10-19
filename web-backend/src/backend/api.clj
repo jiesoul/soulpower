@@ -3,7 +3,6 @@
             [backend.category.category-handler :as category-handler]
             [backend.tag.tag-handler :as tag-handler]
             [backend.middleware :refer [wrap-app-auth]]
-            [backend.util.req-uitl :as req-util]
             [clojure.spec.alpha :as s]))
 
 (s/def ::appid string?)
@@ -24,25 +23,19 @@
     ["" {:get {:summary "get categories"
                :parameters {:top pos-int?
                             :query ::query}
-               :handler (fn [req]
-                          (let [top (req-util/parse-path req :top)]
-                            (category-handler/get-all-categories db)))}}]]
+               :handler (category-handler/get-all-categories db)}}]]
 
    ["/tags" {:swagger {:tags ["Tag"]}}
 
     ["" {:get {:summary "get tags"
                :parameters {:top pos-int?}
-               :handler (fn [req]
-                          (let [top (req-util/parse-path req :top)]
-                            (tag-handler/get-all-tags db)))}}]]
+               :handler (tag-handler/get-all-tags db)}}]]
 
    ["/articles" {:swagger {:tags ["Article"]}}
 
     ["" {:get {:summary "get rently pushed articles"
                :parameters {:query ::query}
-               :handler (fn [req]
-                          (let [query (req-util/parse-default-page req)]
-                            (article-handler/get-pushed-articles db query)))}}]
+               :handler (article-handler/get-pushed-articles db)}}]
 
     ["/archives" {:conflicting true}
      ["" {:get {:summary "Archives"
@@ -51,38 +44,28 @@
      ["/:year"
       ["" {:get {:summary "Archives by year"
                  :parameters {:path {:year integer?}}
-                 :handler (fn [req]
-                            (let [year (req-util/parse-path req :year)]
-                              (article-handler/get-pushed-articles-by-year db year)))}}]
+                 :handler (article-handler/get-pushed-articles-by-year db)}}]
 
       ["/:month"
        ["" {:get {:summary "Archives by year"
                   :parameters {:path {:year integer?
                                       :month integer?}}
-                  :handler (fn [req]
-                             (let [month (req-util/parse-path req :month)]
-                               (article-handler/get-pushed-articles-by-year db month)))}}]]]]
+                  :handler (article-handler/get-pushed-articles-by-year db)}}]]]]
 
     ["/:id" {:conflicting true}
      ["/view" {:get {:summary "get article"
                      :parameters {:path {:id string?}}
-                     :handler (fn [req]
-                                (let [id (req-util/parse-path req :id)]
-                                  (article-handler/get-article db id)))}}]
+                     :handler (article-handler/get-article db)}}]
 
      ["/like"
       ["" {:post {:summary "like a article"
                   :parameters {:path {:id string?}}
-                  :handler (fn [req]
-                             (let [id (req-util/parse-path req :id)]
-                               (article-handler/update-like-count! db id 1)))}}]]
+                  :handler (article-handler/update-like-count! db)}}]]
 
      ["/c"
       ["" {:post {:summary "like a article"
                   :parameters {:path {:id string?}}
-                  :handler (fn [req]
-                             (let [id (req-util/parse-path req :id)]
-                               (article-handler/update-like-count! db id 1)))}}]]
+                  :handler (article-handler/update-like-count! db)}}]]
      ["/comments"
       ["" {:get {:summary "get the comments of article"
                  :handler (fn [req])}}]]]]
