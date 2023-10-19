@@ -71,10 +71,10 @@
 ;; server error handler
 (reg-event-fx
  :req-failed-message
- (fn [{:keys [db]} [_ response]]
+ (fn [{:keys [db]} [_ {:keys [response]}]]
    (util/clog "resp failed " response)
    {:db (dissoc db :loading)
-    :fx [[:dispatch [:push-toast {:content (:message response)
+    :fx [[:dispatch [:push-toast {:content (:message (:error response))
                                   :type :error}]]]}))
 
 (reg-event-db

@@ -35,7 +35,7 @@
  (fn [{:keys [db]} [_ category]]
    (f-http/http-post db
                      (f-http/api-uri "admin" "categories")
-                     {:category category}
+                     category
                      [:add-category-ok])))
 
 (re-frame/reg-event-db
@@ -47,7 +47,7 @@
  :get-category-ok
  (fn [{:keys [db]} [_ fx resp]]
    {:db db
-    :fx (concat [[:dispatch [:set-category-edit (:data resp)]]] fx)}))
+    :fx (concat [[:dispatch [:set-category-edit resp]]] fx)}))
 
 (re-frame/reg-event-fx
  :get-category

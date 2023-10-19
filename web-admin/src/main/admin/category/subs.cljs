@@ -1,8 +1,8 @@
 (ns admin.category.subs
   (:require [re-frame.core :refer [reg-sub subscribe]]))
 
-(reg-sub 
- :category 
+(reg-sub
+ :category
  (fn [db _]
    (get-in db [:category])))
 
@@ -12,21 +12,27 @@
    (get-in db [:category :query])))
 
 (reg-sub
- :category/data
+ :category/list
  (fn [db _]
-   (get-in db [:category :data])))
+   (get-in db [:category :list])))
 
-(reg-sub 
+(reg-sub
+ :category/total
+ (fn [db _]
+   (get-in db [:category :total])))
+
+(reg-sub
  :category/datasources
  (fn [_]
-   [(subscribe [:category/data])
+   [(subscribe [:category/list])
+    (subscribe [:category/total])
     (subscribe [:category/query])])
- (fn [[data query]]
-   {:data (:list data)
+ (fn [[list total query]]
+   {:data list
     :pagination {:query query
-                 :total (:total data)}}))
+                 :total total}}))
 
-(reg-sub 
- :category/edit 
+(reg-sub
+ :category/edit
  (fn [db _]
    (get-in db [:category :edit])))
