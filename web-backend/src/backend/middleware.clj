@@ -2,7 +2,7 @@
   (:require [backend.app.app-db :as app-db]
             [backend.util.req-uitl :refer [default-jwt-opts
                                            default-jwt-pkey]]
-            [backend.util.resp-util :refer [bad-request coercion-error-handler
+            [backend.util.resp-util :refer [coercion-error-handler
                                             forbidden handler-error
                                             unauthorized]]
             [buddy.auth :refer [authenticated?]]
@@ -12,7 +12,7 @@
             [reitit.ring.middleware.exception :as exception]
             [ring.middleware.cors :refer [wrap-cors]]))
 
-(defn wrap-cors-middleware 
+(defn wrap-cors-middleware
   [handler]
   (wrap-cors handler
              :access-control-allow-origin [#".*"]
@@ -73,12 +73,12 @@
 (defn wrap-app-auth [handler db]
   (fn [request]
     (let [app-id (get-in request [:parameters :query :appid])
-          app (app-db/get-app-by-id db app-id)] 
+          app (app-db/get-app-by-id db app-id)]
       (if-not app
-        (bad-request {:message "app not auth"})
+        (unauthorized {:message "app not auth"})
         (let [now (java.time.Instant/now)
-              app-access-log {:app-id app-id 
-                              :access-time now 
+              app-access-log {:app-id app-id
+                              :access-time now
                               :access-url (:uri request)}
               _ (app-db/save-app-access-log! db app-access-log)]
           (handler request))))))

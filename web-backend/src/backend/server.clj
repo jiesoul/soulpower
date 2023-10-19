@@ -9,7 +9,7 @@
             [backend.middleware :refer [admin-middleware auth-middleware
                                         create-token-auth-middleware]]
             [backend.util.req-uitl :as req-util]
-            [backend.spec :as bs]
+            [backend.spec]
             [clojure.java.io :as io]
             [reitit.ring.middleware.multipart :as reitit-multipart]))
 

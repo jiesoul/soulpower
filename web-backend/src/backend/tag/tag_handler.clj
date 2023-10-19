@@ -1,27 +1,28 @@
 (ns backend.tag.tag-handler
   (:require [backend.tag.tag-db :as tag-db]
             [clojure.tools.logging :as log]
+            [ring.util.response :as resp]
             [backend.util.resp-util :as resp-util]))
 
 (defn query-tags [db opts]
   (let [data (tag-db/query db opts)]
-    (resp-util/response data)))
+    (resp/response data)))
 
 (defn create-tag! [db {:keys [name] :as tag}]
-  (if-let [rs (tag-db/get-by-name db name)]
-    (resp-util/bad-request {:message (str "Tag: <" name "> has been created")})
-    (let [rs (tag-db/create! db tag)
-          _ (log/debug "result: " rs)]
-      (resp-util/created))))
+  (if-let [_ (tag-db/get-by-name db name)]
+    (resp/bad-request {:error {:message (str "Tag: <" name "> has been created")}})
+    (let [id (tag-db/create! db tag)
+          _ (log/debug "create tag: " id)]
+      (resp/created (str "/tags/" id)))))
 
 (defn get-tag [db id]
   (log/debug "Get tag " id)
   (let [tag (tag-db/get-by-id db id)]
-    (resp-util/response tag)))
+    (resp/response tag)))
 
 (defn update-tag! [db tag]
   (let [_ (tag-db/update! db tag)]
-    (resp-util/created)))
+    (resp/created (str "/tags/" (:id tag)))))
 
 (defn delete-tag! [db id]
   (log/debug "Delete tag " id)

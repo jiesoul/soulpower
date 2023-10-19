@@ -1,25 +1,26 @@
-(ns backend.article.comment-handler 
+(ns backend.article.comment-handler
   (:require [backend.article.comment-db :as comment-db]
-            [backend.util.resp-util :as resp-util]
+            [ring.util.response :as resp]
             [clojure.tools.logging :as log]))
 
 (defn query-articles-comments [db opt]
   (log/debug "Query articles comments " opt)
   (let [articles-comments (comment-db/query db opt)]
-    (resp-util/response articles-comments)))
+    (resp/response articles-comments)))
 
 (defn get-articles-comments-by-id [db id]
   (log/debug "Get article comment " id)
   (let [article-comment (comment-db/get-by-id db id)]
-    (resp-util/response article-comment)))
+    (resp/response article-comment)))
 
 (defn get-comments-by-article-id [db article-id]
-  (let [_ comment-db/get-comments-by-article-id]))
+  (let [comments (comment-db/get-comments-by-article-id db article-id)]
+    (resp/response comments)))
 
 (defn delete-comment-by-article-id! [db id]
   (let [_ (comment-db/delete! db id)]
-    (resp-util/response {})))
+    (resp/response {})))
 
 (defn delete-article-comment! [db id]
   (let [_ (comment-db/delete! db id)]
-    (resp-util/response {})))
+    (resp/response {})))

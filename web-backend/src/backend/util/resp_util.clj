@@ -1,7 +1,6 @@
 (ns backend.util.resp-util
   (:require [clojure.tools.logging :as log]
-            [reitit.coercion :as coercion]
-            [ring.util.response :as resp]))
+            [reitit.coercion :as coercion]))
 
 (defn create-coercion-handler
   "Creates a coercion exception handler."
@@ -28,36 +27,12 @@
                      :details (ex-data exception)
                      :uri (:uri request)}}}))
 
-(defn response
-  ([] (response nil))
-  ([body] {:status 200
-           :body body}))
-
-(defn created
-  "Returns a Ring response for a HTTP 201 created response."
-  ([] (created nil))
-  ([body]
-   {:status  201
-    :body    body}))
-
 (defn no-content
   "Returns a Ring response for a HTTP 201 created response."
   ([] (no-content nil))
   ([body]
    {:status  204
     :body    body}))
-
-(defn redirect [url & data]
-  (resp/redirect {:status  302
-                  :headers {"Location" url}
-                  :data data}))
-
-(defn bad-request [error]
-  (let [error (merge {:exception "bad-request"}
-                     error)
-        _ (log/error "ERROR: " error)]
-    {:status  400
-     :body {:error  error}}))
 
 (defn forbidden
   [uri]
@@ -76,18 +51,6 @@
         _ (log/error "ERROR: " error)]
     {:status 401
      :body {:error error}}))
-
-(defn not-found
-  ([] (not-found nil))
-  ([error]
-   (let [error (merge {:message "资源不存在."
-                       :exception "not found"}
-                      error)
-
-         _ (log/error "ERROR: " error)]
-     {:status  404
-      :body    {:error error}})))
-
 
 
 

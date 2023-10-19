@@ -2,8 +2,8 @@
   (:require [backend.util.db-util :as du]
             [next.jdbc :refer [unqualified-snake-kebab-opts]]
             [next.jdbc.result-set :as rs]
-            [next.jdbc.sql :as sql]
-            [backend.util.resp-util :as resp-util]))
+            [next.jdbc.sql :as sql]))
+
 (defn query-app-categories [db opts]
   (let [q-sql "select * from app_category"
         t-sql "select count(1) as c from app_category "
