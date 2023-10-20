@@ -18,7 +18,7 @@
 (re-frame/reg-event-db
  :query-tags-ok
  (fn [db [_ resp]]
-   (assoc-in db [:tag :data] (:data resp))))
+   (assoc-in db [:tag] resp)))
 
 (re-frame/reg-event-fx
  :query-tags
@@ -42,7 +42,7 @@
  (fn [{:keys [db]} [_ tag]]
    (f-http/http-post db
                      (f-http/api-uri "admin" "tags")
-                     {:tag tag}
+                     tag
                      [:add-tag-ok])))
 
 (re-frame/reg-event-db
@@ -54,7 +54,7 @@
  :get-tag-ok
  (fn [{:keys [db]} [_ fx resp]]
    {:db db
-    :fx (concat [[:dispatch [:set-tag-edit (:data resp)]]] fx)}))
+    :fx (concat [[:dispatch [:set-tag-edit resp]]] fx)}))
 
 (re-frame/reg-event-fx
  :get-tag
@@ -69,16 +69,15 @@
  (fn [{:keys [db]} _]
    {:db db
     :fx [[:dispatch [:push-toast {:content "tag update success"
-                                  :type :success}]]
-         [:dispatch [:query-tags]]]}))
+                                  :type :success}]]]}))
 
 (re-frame/reg-event-fx
  :update-tag
  (fn [{:keys [db]} [_ tag]]
    (f-http/http-put db
-                      (f-http/api-uri-admin "tags" (:id tag))
-                      {:tag tag}
-                      [:update-tag-ok])))
+                    (f-http/api-uri-admin "tags" (:id tag))
+                    tag
+                    [:update-tag-ok])))
 
 (re-frame/reg-event-fx
  :delete-tag-ok
@@ -86,7 +85,7 @@
    {:db db
     :fx [[:dispatch [:push-toast {:type :success :content (str "Delete tag success")}]]
          [:dispatch [:set-modal nil]]
-         [:dispathc [:set-tag-edit nil]]
+         [:dispatch [:set-tag-edit nil]]
          [:dispatch [:query-tags]]]}))
 
 (re-frame/reg-event-fx

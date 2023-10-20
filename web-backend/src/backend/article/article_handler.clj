@@ -21,7 +21,7 @@
     (let [id (gen-id)
           article (req-util/parse-body req)
           _ (article-db/create! db (assoc article :id id))]
-      (resp/created (str "/articles/" id)))))
+      (resp-util/created (str "/articles/" id)))))
 
 (defn get-article [db]
   (fn [req]
@@ -36,7 +36,7 @@
           _ (article-db/update! db id (-> article
                                           (assoc :push-flag 0)
                                           (assoc :push-time nil)))]
-      (resp/created (str "/articles/" id)))))
+      (resp-util/created (str "/articles/" id)))))
 
 (defn delete-article! [db]
   (fn [req]

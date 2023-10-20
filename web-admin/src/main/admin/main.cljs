@@ -58,7 +58,7 @@
                :view article/index
                :link-text "Article"
                :controllers [{:start (fn [& params]
-                                       (re-frame/dispatch [:init-article])
+                                       (re-frame/dispatch [:query-categories {}])
                                        (js/console.log (str "Entering Article, params: " params)))
                               :stop (fn [& params] (js/console.log (str "Leaving Article, params: " params)))}]}]
 

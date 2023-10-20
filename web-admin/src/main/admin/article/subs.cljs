@@ -1,4 +1,4 @@
-(ns admin.article.subs 
+(ns admin.article.subs
   (:require [re-frame.core :refer [reg-sub subscribe]]))
 
 (reg-sub
@@ -14,19 +14,31 @@
 (reg-sub
  :article/data
  (fn [db _]
-   (get-in db [:article :data])))
+   (get-in db [:article :list])))
+
+(reg-sub
+ :article/total
+ (fn [db _]
+   (get-in db [:article :total])))
 
 (reg-sub
  :article/datasources
  (fn [_]
    [(subscribe [:article/data])
+    (subscribe [:article/total])
     (subscribe [:article/query])])
- (fn [[data query]]
-   {:data (:list data)
+ (fn [[data total query]]
+   {:data data
     :pagination {:query query
-                 :total (:total data)}}))
+                 :total total}}))
 
 (reg-sub
  :article/edit
  (fn [db _]
    (get-in db [:article :edit])))
+
+(reg-sub
+ :article/categories
+ (fn [_] [(subscribe [:category/list])])
+ (fn [[categories]]
+   categories))

@@ -12,19 +12,25 @@
    (get-in db [:tag :query])))
 
 (reg-sub
- :tag/data
+ :tag/list
  (fn [db _]
-   (get-in db [:tag :data])))
+   (get-in db [:tag :list])))
+
+(reg-sub
+ :tag/total
+ (fn [db _]
+   (get-in db [:tag :total])))
 
 (reg-sub
  :tag/datasources
  (fn [_]
-   [(subscribe [:tag/data])
+   [(subscribe [:tag/list])
+    (subscribe [:tag/total])
     (subscribe [:tag/query])])
- (fn [[data query]]
-   {:data (:list data)
+ (fn [[list total query]]
+   {:data list
     :pagination {:query query
-                 :total (:total data)}}))
+                 :total total}}))
 
 (reg-sub
  :tag/edit

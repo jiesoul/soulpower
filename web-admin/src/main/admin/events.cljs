@@ -71,8 +71,8 @@
 ;; server error handler
 (reg-event-fx
  :req-failed-message
- (fn [{:keys [db]} [_ {:keys [response]}]]
-   (util/clog "resp failed " response)
+ (fn [{:keys [db]} [_ {:keys [response] :as resp}]]
+   (util/clog "resp failed " resp)
    {:db (dissoc db :loading)
     :fx [[:dispatch [:push-toast {:content (:message (:error response))
                                   :type :error}]]]}))
@@ -81,17 +81,4 @@
  :set-modal
  (fn [db [_ data]]
    (assoc-in db [:modal] data)))
-;; current edit
-
-(reg-event-db
- :init-current-route-result
- (fn [db [_ data]]
-   (assoc-in db [:current-route :result] data)))
-
-(reg-event-db
- :clean-current-route-edit
- (fn [db [_ _]]
-   (assoc-in db [:current-route :edit] nil)))
-
-
 
