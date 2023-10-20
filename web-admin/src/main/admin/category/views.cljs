@@ -43,16 +43,19 @@
 (defn edit-form []
   (let [category (re-frame/subscribe [:category/edit])]
     (fn []
-      (when-let [edit (r/atom @category)]
+      (let [{:keys [id name description]} @category
+            edit (r/atom {:id id
+                          :name name
+                          :description description})]
         [:form
          [:div {:class "grid gap-4 mb-4 sm:grid-cols-2"}
           (text-input-backend {:label "Name"
                                :name "name"
-                               :default-value (:name @category)
+                               :default-value name
                                :on-change #(swap! edit assoc-in [:name] (f-util/get-value %))})
           (text-input-backend {:label "Description"
                                :name "descrtiption"
-                               :default-value (:description @category)
+                               :default-value description
                                :on-change #(swap! edit assoc-in [:description] (f-util/get-value %))})]
          [:div {:class "flex justify-center items-center space-x-4"}
           [btn-new {:on-click #(re-frame/dispatch [:update-category @edit])}
