@@ -2,7 +2,8 @@
   (:require [backend.category.category-db :as category-db]
             [ring.util.response :as resp]
             [backend.util.resp-util :as resp-util]
-            [backend.util.req-uitl :as req-util]))
+            [backend.util.req-uitl :as req-util]
+            [clojure.tools.logging :as log]))
 
 (defn query-categories
   "Query categories by condition"
