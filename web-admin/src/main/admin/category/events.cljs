@@ -1,8 +1,7 @@
 (ns admin.category.events
   (:require [re-frame.core :as re-frame]
             [admin.util :as f-util]
-            [admin.http :as f-http]
-            [clojure.string :as str]))
+            [admin.http :as f-http]))
 
 (re-frame/reg-event-db
  :init-category
@@ -62,8 +61,7 @@
  (fn [{:keys [db]} _]
    {:db db
     :fx [[:dispatch [:push-toast {:content "Category update success"
-                                  :type :success}]]
-         [:dispatch [:query-categories]]]}))
+                                  :type :success}]]]}))
 
 (re-frame/reg-event-fx
  :update-category
